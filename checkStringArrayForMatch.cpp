@@ -27,7 +27,7 @@ int main() {
     delims[7] = "/";  // division, dType 'd'
     
     // Get user input of string to check
-    std::string chkStr;f
+    std::string chkStr;
     std::cout << "Enter a string: ";
     std::getline(std::cin,  chkStr);
     chkStr = lCase(chkStr);
