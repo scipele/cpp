@@ -2,6 +2,7 @@
 #include <string>
 #include <iomanip> // Include the header for setw()
 #include <cmath>
+#include <map>
 
 // Define error codes
 enum ErrorCode {
@@ -10,38 +11,37 @@ enum ErrorCode {
     ERROR_INVALID_SCHEDULE = -2
 };
 
+struct pipeData {
+    std::string nom_size;
+    std::string sched;
+    double pipeOD;
+    double pipeThk;
+    double pipeID;
+    double emptyWtPerFt;
+    double waterWtPerFt;
+    double pipeWtFullPerFt;
+    int sizeIndex;
+    int schIndex;
+};
+
 // Function prototypes
-std::string toUpperCase(const std::string& str);
-int getPipeData(std::string& nom_size, std::string& sched);
+    void getUserPipeInputData(pipeData& pd);
+    std::string toUpperCase(const std::string& str);
+    int getKeyPipeData(pipeData& pd);
+    void printAnyErrors(int result);
+    void getAddnPipeData(pipeData& pd);
+    void printPipeData(pipeData& pd);
 
 int main() {
-    // Get Size from User    
-    std::string nom_size;
-    std::cout << "Enter nominal size in Decimal Format (0.5, 1.25, 10, 12): ";
-    std::getline(std::cin, nom_size);
-    
-    // Get pipe schedule from User    
-    std::string sched;
-    std::cout << "Enter schedule in format (std, xs, xxs, 5, 10, 20, 30, 40, 60, 80, 120, 140, 160): ";
-    std::getline(std::cin, sched); 
-    sched = toUpperCase(sched);
+    // Define an instance of pd to store all related pipe data inputs and calculations
+    pipeData pd;
 
-    //call get pipe data function
-    int result = getPipeData(nom_size, sched);
-
-    if (result != SUCCESS) {
-        // Handle errors
-        switch (result) {
-            case ERROR_INVALID_SIZE:
-                std::cerr << "Error: No matching size was found.\n";
-                break;
-            case ERROR_INVALID_SCHEDULE:
-                std::cerr << "Error: No matching schedule was found.\n";
-                break;
-            default:
-                std::cerr << "Error: Unknown error occurred.\n";
-        }
-    }
+    //call functions that get user data, key data, additional data, and print results
+    getUserPipeInputData(pd);
+    int result = getKeyPipeData(pd);
+    printAnyErrors(result);
+    getAddnPipeData(pd);
+    printPipeData(pd);
 
     //pause for user input to prevent window from closing
     system("pause");
@@ -49,13 +49,38 @@ int main() {
     return 0;
 }
 
-int getPipeData(std::string& nom_size, std::string& sched) {
+void getUserPipeInputData(pipeData& pd) {
+    // Get Size from User    
+    std::cout << "Pipe Size:\n"
+              << "    Enter nominal size in Decimal Format \n"
+              << "    (0.5, 1.25, 2, 3, 4, 6, 8, 10, 12)   \n"
+              << "    User Size Entry Here ---------------> ";
+    std::getline(std::cin, pd.nom_size);
+    
+    // Get pipe schedule from User    
+    std::cout << "\nEnter Pipe Schedule:\n"
+              << "    (std, xs, xxs, 5, 10, 20, 30,\n"
+              << "    40, 60, 80, 120, 140, 160)\n"
+              << "    User Schedule Entry Here -----------> ";
+    std::getline(std::cin, pd.sched); 
+    pd.sched = toUpperCase(pd.sched);
+}
+
+ std::string toUpperCase(const std::string& str) {  //function to convert string to uppercase
+    std::string result = str;
+    for (char& c : result) {
+        c = std::toupper(c);
+    }
+    return result;
+}
+
+int getKeyPipeData(pipeData& pd) {
     // Define Pipe Thickness Table from Federal_Steel_Supply_Pipe_Chart.pdf
     //              index j  ---->
     //  index   i   
     //          |
     //          v
-    const std::string pipeData[][16] = {
+    const std::string pipAry[][16] = {
        //0       ,1       ,2       ,3       ,4       ,5       ,6       ,7       ,8       ,9       ,10      ,11      ,12      ,13      ,14      ,15      },
         {"NPS"   ,"OD"    ,"5"     ,"10"    ,"20"    ,"30"    ,"40"    ,"STD"   ,"60"    ,"80"    ,"XS"    ,"100"   ,"120"   ,"140"   ,"160"   ,"XXS"   },		// 0       
         {"0.125" ,"0.405" ,".035"  ,".049"  ,"0"     ,"0"     ,".068"  ,".068"  ,"0"     ,".095"  ,".095"  ,"0"     ,"0"     ,"0"     ,"0"     ,"0"     },		// 1       
@@ -96,78 +121,77 @@ int getPipeData(std::string& nom_size, std::string& sched) {
         {"48"    ,"48"    ,"0"     ,"0"     ,"0"     ,"0"     ,"0"     ,".375"  ,"0"     ,"0"     ,".500"  ,".750"  ,"1.000" ,"1.250" ,"1.500" ,"2.000" },		// 36      
     };	
 
-    // Using individual loops rather than nested so that unmatched data can be tracked down loop thru the pipe data array to find the matching size
-    int sz_index = 0;
-    int rows = sizeof(pipeData) / sizeof(pipeData[0]); // <- Rows calculate the size of the array dynamically
-    for (int i=0; i<rows; i++) {    //  loop starts at 1 because "NPS is not a schedule but is a reference title"
-        if (nom_size == pipeData[i][0]) {
-            sz_index = i;
-            break;
-        }
-    }
+    // Generte a map of sizes and check which one the user input
+    int rows = sizeof(pipAry) / sizeof(pipAry[0]); // <- Rows calculate the size of the array dynamically
+    std::map<std::string, int> sizeMap;  // define a map that will be used to return the size index
 
-    // loop thru the pipe data array to find the matching schedule;
-    int sch_index = 0;
-    int colms = sizeof(pipeData[0]) / sizeof(pipeData[0][0]); // Calculate the size of the row dynamically
-    for (int j=1; j<colms; j++) {   //  loop starts at 1 because "NPS is not a schedule but is a reference title"
-        if (sched == pipeData[0][j]) {
-            sch_index = j;
-            break;
-        }
+    for (int i=0; i<rows; i++) {    //  loop starts at 1 because first row is used for headings"
+        sizeMap[pipAry[i][0]] = i;  // map is defined for the sizes
     }
-  
-    if(sz_index == 0 ) {
+    pd.sizeIndex = sizeMap[pd.nom_size];  // gets the index of the nominal size that the user input
+
+    if(pd.sizeIndex == 0 ) {
         return ERROR_INVALID_SIZE;  // defined as -1
     }
 
-    if(sch_index == 0) {
+    //generate a map of schedules that can be looked up verses user input
+    std::map<std::string, int> schMap;
+    // loop thru the pipe data array to find the matching schedule;
+    int colms = sizeof(pipAry[0]) / sizeof(pipAry[0][0]); // Calculate the size of the row dynamically
+    for (int j=1; j<colms; j++) {   //  loop starts at 1 because "NPS is not a schedule but is a reference title"
+        schMap[pipAry[0][j]] = j;
+    }
+    pd.schIndex = schMap[pd.sched];  // gets the index of the schedule that the user inputs
+
+    if(pd.schIndex == 0) {
         return ERROR_INVALID_SIZE;  // defined as -2
     }
 
-    //pipe OD
-    double pipeOD;
-    pipeOD = std::stod(pipeData[sz_index][1]);
-
-    //Pipe Thickness
-    double pipeThk;
-    pipeThk = std::stod(pipeData[sz_index][sch_index]);
-
-    //Pipe Inside Diameter
-    double pipeID;
-    pipeID = pipeOD - 2 * pipeThk;
-
-    //Calculate Empty Weight of Steel Pipe per Foot
-    double emptyWtPerFt;
-    const double PI  = 3.14159265358979323846;
-    emptyWtPerFt = PI / 4 * (pow(pipeOD, 2) - pow(pipeID, 2)) * 12 * 0.2836;
-
-    //Calculate Empty Weight of Steel Pipe per Foot
-    double waterWtPerFt;
-    waterWtPerFt = PI / 4 * pow(pipeID /12, 2) * 1 * 62.4;
-    
-    //Calculate Full Weight Per Foot
-    double pipeWtFullPerFt;
-    pipeWtFullPerFt = emptyWtPerFt + waterWtPerFt;
-
-    //Print data to screen
-    std::cout << "Entered NPS =        " << std::setw(10) << std::left << pipeData[sz_index][0] << "(match_sz  index = " << sz_index << ")\n";
-    std::cout << "Entered Schedule =   " << std::setw(10) << std::left << pipeData[0][sch_index] << "(match_sch index = " << sch_index << ")\n";
-    std::cout << "Pipe OD =            " << pipeOD << "\n";
-    std::cout << "Pipe ID =            " << pipeID << "\n";
-    std::cout << "Pipe Thickness =     " << pipeThk << "\n";
-    std::cout << "Pipe Empty Wt/Ft =   " << emptyWtPerFt << "\n";
-    std::cout << "Water #/Ft =         " << waterWtPerFt << "\n";
-    std::cout << "Pipe Full H2O #/Ft = " << pipeWtFullPerFt << "\n";    
+    pd.pipeOD = std::stod(pipAry[pd.sizeIndex][1]);
+    pd.pipeThk = std::stod(pipAry[pd.sizeIndex][pd.schIndex]);
 
     // Return a Success value defined as zero if no errors were encountered
     return SUCCESS;
  }
 
-//function to convert string to uppercase
- std::string toUpperCase(const std::string& str) {
-    std::string result = str;
-    for (char& c : result) {
-        c = std::toupper(c);
+void printAnyErrors(int result) {
+    if (result != SUCCESS) {
+        // Handle errors
+        switch (result) {
+            case ERROR_INVALID_SIZE:
+                std::cerr << "Error: No matching size was found.\n";
+                break;
+            case ERROR_INVALID_SCHEDULE:
+                std::cerr << "Error: No matching schedule was found.\n";
+                break;
+            default:
+                std::cerr << "Error: Unknown error occurred.\n";
+        }
     }
-    return result;
+}
+
+void getAddnPipeData(pipeData& pd) {
+    pd.pipeID = pd.pipeOD - 2 * pd.pipeThk;
+
+    //Calculate Empty Weight of Steel Pipe per Foot
+    const double PI  = 3.14159265358979323846;
+    pd.emptyWtPerFt = PI / 4 * (pow(pd.pipeOD, 2) - pow(pd.pipeID, 2)) * 12 * 0.2836;
+
+    //Calculate Empty Weight of Steel Pipe per Foot
+    pd.waterWtPerFt = PI / 4 * pow(pd.pipeID /12, 2) * 1 * 62.4;
+    
+    //Calculate Full Weight Per Foot
+    pd.pipeWtFullPerFt = pd.emptyWtPerFt + pd.waterWtPerFt;
+}
+
+void printPipeData(pipeData& pd) {
+    //Print data to screen
+    std::cout << "\nEntered NPS =          " << std::setw(10) << std::left << pd.nom_size << "(match_sz  index = " << pd.sizeIndex << ")\n";
+    std::cout << "Entered Schedule =     " << std::setw(10) << std::left << pd.sched << "(match_sch index = " << pd.schIndex << ")\n";
+    std::cout << "Pipe OD =              " << pd.pipeOD << "\n";
+    std::cout << "Pipe ID =              " << pd.pipeID << "\n";
+    std::cout << "Pipe Thickness =       " << pd.pipeThk << "\n";
+    std::cout << "Pipe Empty Wt/Ft =     " << pd.emptyWtPerFt << "\n";
+    std::cout << "Water #/Ft =           " << pd.waterWtPerFt << "\n";
+    std::cout << "Pipe Full H2O #/Ft =   " << pd.pipeWtFullPerFt << "\n\n";    
 }
