@@ -1,3 +1,4 @@
+// Function to return the pipe outside diameter from a user input size.  Map is defined for the sizes where the OD is different than the nominal pipe size
 #include <iostream>
 #include <map>
 
