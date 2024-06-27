@@ -90,7 +90,8 @@ int main() {
 
 
 void readString(std::ifstream &file, std::string &str) {
-    int length;
+      // Read length as a single byte, since written as a byte 0-255 numeric in vba
+    unsigned char length;
     file.read(reinterpret_cast<char*>(&length), sizeof(length));
     str.resize(length);
     file.read(&str[0], length);
