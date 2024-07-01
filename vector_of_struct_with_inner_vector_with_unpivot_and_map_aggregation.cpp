@@ -1,10 +1,13 @@
-// Example Usage of a Map
+// Example Usage of Vector of Struct with and Embedded Vector
+// Also a method using a map to perform aggregation using a map within a map since there are essentially two different Group By fields (one is area and the other is Categ)
+// The inner map pait contains the categ string and then a double that used the += operator to aggregate in the loop within the aggregateData Function
 
 #include<iostream>
 #include<map>
 #include<string>
 #include<iomanip> // For setw
 #include<vector>
+#include<cmath>
 
 struct cost_data {
     int row;
@@ -27,6 +30,7 @@ void print_vector_of_structure(std::vector<cost_data>& cd);
 void calculateUnpivotAreaData(std::vector<cost_data>& cd, std::vector<unpivot_area_data>& unp);
 void print_unpivot_data(std::vector<unpivot_area_data>& data);
 void aggregateData(const std::vector<unpivot_area_data>& unp);
+bool isZero(double chk_value);
 
 int main() {
 
@@ -69,7 +73,7 @@ void calculateUnpivotAreaData(std::vector<cost_data>& cd, std::vector<unpivot_ar
         int areaItt=0;
         for (const auto& a : d.area) {
             double area_frac_cost = 0;
-            if(d.areaSum != 0.0) {
+            if(!isZero(d.areaSum)) {
                 area_frac_cost = d.cost * a / d.areaSum;
             } else {
                 if(areaItt == 0) {
@@ -129,4 +133,9 @@ void aggregateData(const std::vector<unpivot_area_data>& unp) {
             std::cout << std::setw(5) << std::left << area_pair.first << "|" << std::setw(10) << categ_pair.first << "|" << std::setw(10) << categ_pair.second << "\n";
         }
     }
+}
+
+bool isZero(double chk_value) {
+    double epsilon = 1e-10;
+    return std::fabs(chk_value) < epsilon;
 }
