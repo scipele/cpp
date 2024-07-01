@@ -3,12 +3,16 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <iomanip>
+#include <locale>
+#include <cmath>  // For std::round
+#include <map>
 
 struct estim_data {
     long rowNo;
     std::string filterX;
     std::string desc;
-    std::string client_brkd_ref;
+    std::string brkd_ref;
     double other_mh;
     std::string param1;
     std::string param2;
@@ -27,83 +31,114 @@ struct estim_data {
     std::string div;
     std::string discp;
     std::string labtype;
-    std::vector<double> area;
+    std::vector<double> area_qty;
+    double areaSum;
+};
+struct unpivot_area_data {
+    int areaNo;
+    long rowNo;
+    std::string brkd_ref;
+    double other_mh;
+    double area_qty;
+    double mh_tot;
+    double labor;
+    double matl;
+    double sub;
+    double eq;
+    double total;
 };
 
-
-//Function Declarations
-void readString(std::ifstream &file, std::string &str);
+//Function Prototypes
+int openBinaryFile(std::vector<estim_data>& orig_data);
 void readStructure(std::ifstream &file, estim_data &s);
-void printRowToFile(int rowNum, const std::vector<std::string>& row, std::ofstream& outFile);
-void printRow(int rowNum, const std::vector<std::string>& row);
-
+void readString(std::ifstream &file, std::string &str);
+void printToScreen(std::vector<estim_data>& orig_data);
+int filterOutDataRemoveZerosAndTotals(std::vector<estim_data>& orig_data, std::vector<estim_data>& cleaned_data, std::vector<estim_data>& totals_check);
+std::string formatCurrency(double value);
+std::string formatFixed(double value);
+void checkTotals(std::vector<estim_data>& cleaned_data, std::vector<unpivot_area_data>& unpiv, std::vector<estim_data>& totals_check);
+double roundToTwoDecimalPlaces(double value);
+void deleteUnusedAreaData(std::vector<estim_data>& data);
+void calculateUnpivotAreaData(std::vector<estim_data>& cleaned_data, std::vector<unpivot_area_data>& unpiv);
+void print_unpivot_data(std::vector<unpivot_area_data>& unpiv);
+bool isZero(double chk_value);
+void aggregateData(const std::vector<unpivot_area_data>& unpiv, std::map<int, std::map<std::string, double>>& aggregationMap);
 
 int main() {
+
+    // 1. Read in original data from the binary and print to screen for reference    
+    std::vector<estim_data> orig_data;
+    int result;
+    result = openBinaryFile(orig_data);
+    
+    // 2. Now cleanup the data by removing zero lines, and also brkd_ref item = "-"
+    std::vector<estim_data> totals_check;  //Store the original totals from binary read, calculated totals from ckeaned_lines, and deltas
+    std::vector<estim_data> cleaned_data;
+    result = filterOutDataRemoveZerosAndTotals(orig_data, cleaned_data, totals_check);
+    deleteUnusedAreaData(cleaned_data);
+    printToScreen(cleaned_data);
+    
+    // 3. Unpivot the Cost Data for each area placing any blank data in area 0
+    std::vector<unpivot_area_data> unpiv;
+    calculateUnpivotAreaData(cleaned_data, unpiv);
+    print_unpivot_data(unpiv);
+
+    // 4. Check the totals match the totals within the estimte sheet calculation
+    checkTotals(cleaned_data, unpiv, totals_check);
+
+    // 5. Create a map to aggregate the unpivoted hours and cost data with Group by area and category
+    std::map<int, std::map<std::string, double>> aggregationMap;
+    aggregateData(unpiv, aggregationMap);
+
+    return 0;
+}
+void aggregateData(const std::vector<unpivot_area_data>& unpiv, std::map<int, std::map<std::string, double>>& aggregationMap) {
+
+    for (const auto& unp : unpiv) {
+        aggregationMap[unp.areaNo][unp.brkd_ref] += unp.other_mh;
+        aggregationMap[unp.areaNo][unp.brkd_ref] += unp.mh_tot;
+        aggregationMap[unp.areaNo][unp.brkd_ref] += unp.area_qty;
+        aggregationMap[unp.areaNo][unp.brkd_ref] += unp.labor;
+        aggregationMap[unp.areaNo][unp.brkd_ref] += unp.matl;
+        aggregationMap[unp.areaNo][unp.brkd_ref] += unp.sub;
+        aggregationMap[unp.areaNo][unp.brkd_ref] += unp.eq;
+    }
+
+    // Print the aggregated data
+    std::cout << "\nAggregated Data:\n";
+    std::cout   << std::setw(5) << std::left << "area" << "|" 
+                << std::setw(40) << "categ" << "|" 
+                << std::setw(15) << "sum_cost" << "\n";
+
+    for (const auto& area_pair : aggregationMap) {
+        for (const auto& categ_pair : area_pair.second) {
+            std::cout   << std::setw(5) << std::left << area_pair.first << "|" 
+                        << std::setw(40) << categ_pair.first << "|" 
+                        << std::setw(15) << categ_pair.second << "\n";
+        }
+    }
+}
+
+int openBinaryFile(std::vector<estim_data>& orig_data) {
     std::ifstream file("C:/Users/mscip/cpp/excel/data.bin", std::ios::binary);
     if (!file) {
         std::cerr << "Unable to open file";
         return 1;
     }
-
-   std::vector<estim_data> data;
-
     while (file.peek() != EOF) {
         estim_data ed;
         readStructure(file, ed);
-        data.push_back(ed);
+        orig_data.push_back(ed);
     }
-
     file.close();
-
-    // Output to screen verify the read of the data
-    for (const auto& s : data) {
-        std::cout   << s.rowNo << "|" 
-                    << s.filterX << "|" 
-                    << s.desc << "|" 
-                    << s.client_brkd_ref << "|" 
-                    << s.other_mh << "|" 
-                    << s.param1 << "|" 
-                    << s.param2 << "|" 
-                    << s.param3 << "|" 
-                    << s.type << "|" 
-                    << s.qty << "|" 
-                    << s.uom << "|" 
-                    << s.umh << "|" 
-                    << s.mh_tot << "|" 
-                    << s.rate << "|" 
-                    << s.labor << "|" 
-                    << s.matl << "|" 
-                    << s.sub << "|" 
-                    << s.eq << "|" 
-                    << s.total << "|" 
-                    << s.div << "|" 
-                    << s.discp << "|" 
-                    << s.labtype << "|" ;
-                    for (const auto &val : s.area) {
-                        std::cout << val << "|" ;
-                    }
-                    std::cout << "\n";
-    }
-
     return 0;
 }
-
-
-void readString(std::ifstream &file, std::string &str) {
-      // Read length as a single byte, since written as a byte 0-255 numeric in vba
-    unsigned char length;
-    file.read(reinterpret_cast<char*>(&length), sizeof(length));
-    str.resize(length);
-    file.read(&str[0], length);
-}
-
-
 void readStructure(std::ifstream &file, estim_data &s) {
     int areaSize;
     file.read(reinterpret_cast<char*>(&s.rowNo), sizeof(s.rowNo));
     readString(file, s.filterX);
     readString(file, s.desc);
-    readString(file, s.client_brkd_ref);
+    readString(file, s.brkd_ref);
     file.read(reinterpret_cast<char*>(&s.other_mh), sizeof(s.other_mh));
     readString(file, s.param1);
     readString(file, s.param2);
@@ -124,216 +159,286 @@ void readStructure(std::ifstream &file, estim_data &s) {
     readString(file, s.labtype);
 
     file.read(reinterpret_cast<char*>(&areaSize), sizeof(areaSize));
-    s.area.resize(areaSize);
-    file.read(reinterpret_cast<char*>(s.area.data()), areaSize * sizeof(double));
+    s.area_qty.resize(areaSize);
+    file.read(reinterpret_cast<char*>(s.area_qty.data()), areaSize * sizeof(double));
 }
-
-
-// Function to print a row with row number and "|" delimited columns to a file
-void printRowToFile(int rowNum, const std::vector<std::string>& row, std::ofstream& outFile) {
-    std::ostringstream oss;
-    oss << "Row " << rowNum << ": ";
-    for (size_t i = 0; i < row.size(); ++i) {
-        if (i != 0) oss << "|" ;
-        oss << row[i];
-    }
-    oss << "\n"; // New line after each row
-    outFile << oss.str(); // Write formatted string to file
+void readString(std::ifstream &file, std::string &str) {
+      // Read length as a single byte, since written as a byte 0-255 numeric in vba
+    unsigned char length;
+    file.read(reinterpret_cast<char*>(&length), sizeof(length));
+    str.resize(length);
+    file.read(&str[0], length);
 }
-
-/*  include this stuff later
-#include <xlnt/xlnt.hpp>
-#include <vector>
-#include <iostream>
-#include <filesystem>
-#include <fstream>
-
-// Function to read data from an Excel file into a 2D vector
-bool isNumeric(const std::string& str);
-std::map<std::string, int> createFieldMap(const std::vector<std::vector<std::string>>& data);
-std::vector<int> generateAreaIndices(const std::map<std::string, int>& fieldMap);
-std::vector<std::vector<std::string>> read_excel_data(const std::string& file_path, const std::string& sheet_name);
-double stringToDouble(const std::string& str);
-void printVector(const std::vector<std::string>& vec);
-std::map<std::string, double> sumColumnByClientBrkdRef(const std::vector<std::vector<std::string>>& data, int colIndex);
-std::map<std::string, double> proportionAndSumByArea(const std::vector<std::vector<std::string>>& data, const std::vector<int>& areaIndices, int valueIndex);
-
-
-int main()
-{
-    std::string file_path = "C:/Users/mscip/source/repos/read_excel/read_excel/breakdown.xlsx";
-    std::string sheet_name = "Estimate";
-
-    // Make the file read-only
-    std::filesystem::permissions(file_path, std::filesystem::perms::owner_read | std::filesystem::perms::group_read | std::filesystem::perms::others_read, std::filesystem::perm_options::replace);
-
-    //Call Function to read the excel data into a vector of string vectors
-    std::vector<std::vector<std::string>> excel_data = read_excel_data(file_path, sheet_name);
-
-
-    // Print headers
-    printVector(excel_data[0]);
-
-    // Create the field map
-    std::map<std::string, int> fieldMap = createFieldMap(excel_data);
-
-    std::cout << "The first area index is: " << fieldMap["Type"] + 1 << "\n";
-    std::cout << "The last area index is: " << fieldMap["Qty"] - 1;
-
-    // Generate the area indices vector
-    std::vector<int> areaIndices = generateAreaIndices(fieldMap);
-
-        int valueIndex = 24; // Assuming 24 is the index for Mh-Tot
-
-        std::map<std::string, double> proportioned = proportionAndSumByArea(excel_data, areaIndices, valueIndex);
-        std::cout << "Proportioned sum of Mh-Tot by Area grouped by Client_Brkd_Ref:" << std::endl;
-        for (const auto& pair : proportioned) {
-            std::cout << pair.first << ": " << pair.second << std::endl;
+void printToScreen(std::vector<estim_data>& data) {
+    // Print Titles    
+    std::cout << std::setw(5) <<  std::left << "rowNo" << "|"
+    << std::setw(3) << "X" << "|" 
+    << std::setw(42) << "desc" << "|" 
+    << std::setw(32) << "brkd_ref" << "|" 
+    << std::setw(9) << "other_mh" << "|" 
+    << std::setw(7) << "param1" << "|" 
+    << std::setw(7) << "param2" << "|" 
+    << std::setw(10) << "param3" << "|" 
+    << std::setw(5) << "type" << "|" 
+    << std::setw(8) << "qty" << "|" 
+    << std::setw(10) << "uom" << "|" 
+    << std::setw(10) << "umh" << "|" 
+    << std::setw(10) << "mh_tot" << "|" 
+    << std::setw(10) << "rate" << "|" 
+    << std::setw(12) << "labor" << "|" 
+    << std::setw(12) << "matl" << "|" 
+    << std::setw(12) << "sub" << "|" 
+    << std::setw(12) << "eq" << "|" 
+    << std::setw(12) << "total" << "|" 
+    << std::setw(8) << "div" << "|" 
+    << std::setw(8) << "discp" << "|" 
+    << std::setw(9) << "labtype" << "|";
+    int i=0;
+    for (const auto& s : data) {
+        for (const auto &val : s.area_qty) {
+            i++;
+            std::cout << std::setw(10) << "Area " + std::to_string(i) << "|" ;
         }
-
-
-        // Print the data
-        for (const auto& row : excel_data)
-        {
-            for (const auto& cell : row)
-            {
-                std::cout << cell << "|";
-            }
-            std::cout << std::endl;
+        std::cout << "\n";
+        break;
+    }
+    
+    // Output to screen verify the read of the data
+    for (const auto& s : data) {
+        std::cout << std::setw(5) << std::left << s.rowNo << "|" 
+            << std::setw(3) << s.filterX << "|" 
+            << std::setw(42) << s.desc << "|" 
+            << std::setw(32) << s.brkd_ref << "|" 
+            << std::setw(9) << s.other_mh << "|" 
+            << std::setw(7) << s.param1 << "|" 
+            << std::setw(7) << s.param2 << "|" 
+            << std::setw(10) << s.param3 << "|" 
+            << std::setw(5) << s.type << "|" 
+            << std::setw(8) << s.qty << "|" 
+            << std::setw(10) << s.uom << "|" 
+            << std::setw(10) << formatFixed(s.umh) << "|" 
+            << std::setw(10) << formatFixed(s.mh_tot) << "|" 
+            << std::setw(10) << formatFixed(s.rate) << "|" 
+            << std::setw(12) << formatFixed(s.labor) << "|" 
+            << std::setw(12) << formatFixed(s.matl) << "|" 
+            << std::setw(12) << formatFixed(s.sub) << "|" 
+            << std::setw(12) << formatFixed(s.eq) << "|" 
+            << std::setw(12) << formatFixed(s.total) << "|" 
+            << std::setw(8) << s.div << "|" 
+            << std::setw(8) << s.discp << "|" 
+            << std::setw(9) << s.labtype << "|" ;
+        for (const auto &val : s.area_qty) {
+            std::cout << std::setw(10) << val << "|" ;
         }
-        
-
-        // Remove the read-only setting
-        std::filesystem::permissions(file_path, std::filesystem::perms::owner_all | std::filesystem::perms::group_all | std::filesystem::perms::others_all, std::filesystem::perm_options::replace);
-
-        return 0;
- }
-
-
-/* Incorporate this stuff later
-
- // Function to create a map of field names to their indices
- std::map<std::string, int> createFieldMap(const std::vector<std::vector<std::string>>&data) {
-        std::map<std::string, int> fieldMap;
-        const auto& header = data[0]; // First row contains the field names
-
-        for (size_t i = 0; i < header.size(); ++i) {
-            fieldMap[header[i]] = i;
-        }
-
-        return fieldMap;
-}
-
-// Function to generate area indices vector
-std::vector<int> generateAreaIndices(const std::map<std::string, int>& fieldMap) {
-    int firstAreaIndex = fieldMap.at("Type") + 1;
-    int lastAreaIndex = fieldMap.at("Qty") - 1;
-
-    std::vector<int> areaIndices;
-    for (int i = firstAreaIndex; i <= lastAreaIndex; ++i) {
-        areaIndices.push_back(i);
-    }
-
-    return areaIndices;
-}
-
-std::vector<std::vector<std::string>> read_excel_data(const std::string& file_path, const std::string& sheet_name)
-{
-    xlnt::workbook wb;
-    try {
-        wb.load(file_path);
-    }
-    catch (const std::exception& e) {
-        std::cerr << "Failed to load workbook: " << e.what() << std::endl;
-        return {};
-    }
-
-    xlnt::worksheet ws;
-    try {
-        ws = wb.sheet_by_title(sheet_name);
-    }
-    catch (const std::exception& e) {
-        std::cerr << "Failed to access sheet: " << e.what() << std::endl;
-        return {};
-    }
-
-    std::vector<std::vector<std::string>> data;
-    try {
-        for (const auto& row : ws.rows())
-        {
-            std::vector<std::string> row_data;
-            for (const auto& cell : row)
-            {
-                try {
-                    // Check if the cell is null or empty
-                    if (cell.has_value()) {
-                        row_data.push_back(cell.to_string());
-                    }
-                    else {
-                        row_data.push_back(""); // Push an empty string for null or empty cells
-                    }
-                }
-                catch (const std::exception& e) {
-                    std::cerr << "Failed to read cell data: " << e.what() << std::endl;
-                    row_data.push_back("Error");
-                }
-            }
-            data.push_back(row_data);
-        }
-    }
-    catch (const std::exception& e) {
-        std::cerr << "Failed to read data from sheet: " << e.what() << std::endl;
-    }
-    return data;
-}
-
-// Function to check if a string is numeric
-bool isNumeric(const std::string& str) {
-    if (str.empty()) return false;
-    char* endptr = nullptr;
-    std::strtod(str.c_str(), &endptr);
-    return (*endptr == '\0');
-}
-
-// Function to convert string to double, returning 0 for non-numeric values
-double stringToDouble(const std::string& str) {
-    return isNumeric(str) ? std::stod(str) : 0.0;
-}
-
-// Function to print vector of strings
-void printVector(const std::vector<std::string>& vec) {
-    for (const auto& val : vec) {
-        std::cout << val << " ";
+        std::cout << "\n";
     }
     std::cout << std::endl;
 }
-
-// Function to perform sum aggregation on a specific column grouped by Client_Brkd_Ref
-std::map<std::string, double> sumColumnByClientBrkdRef(const std::vector<std::vector<std::string>>& data, int colIndex) {
-    std::map<std::string, double> result;
-    for (size_t i = 1; i < data.size(); ++i) {
-        std::string clientBrkdRef = data[i][3]; // Assuming 2 is the index for Client_Brkd_Ref
-        double value = stringToDouble(data[i][colIndex]);
-        result[clientBrkdRef] += value;
-    }
-    return result;
-}
-
-// Function to proportion values by Area and sum by Client_Brkd_Ref
-std::map<std::string, double> proportionAndSumByArea(const std::vector<std::vector<std::string>>& data, const std::vector<int>& areaIndices, int valueIndex) {
-    std::map<std::string, double> result;
-    for (size_t i = 1; i < data.size(); ++i) {
-        std::string clientBrkdRef = data[i][3]; // Assuming 3 is the index for Client_Brkd_Ref
-        double totalArea = 0.0;
-        for (int areaIndex : areaIndices) {
-            totalArea += stringToDouble(data[i][areaIndex]);
-        }
-        for (int areaIndex : areaIndices) {
-            double areaValue = stringToDouble(data[i][areaIndex]);
-            double proportionedValue = (areaValue / totalArea) * stringToDouble(data[i][valueIndex]);
-            result[clientBrkdRef] += proportionedValue;
+int filterOutDataRemoveZerosAndTotals(std::vector<estim_data>& orig_data, std::vector<estim_data>& cleaned_data, std::vector<estim_data>& totals_check) {
+    
+    // Copy elements with the sum of labor, matl, sub, and eq not equal to zero
+    for (const auto& ed : orig_data) {
+        if ((ed.labor + ed.matl + ed.sub + ed.eq) != 0  && ed.brkd_ref != "-" ) {
+            cleaned_data.push_back(ed);
         }
     }
-    return result;
+    // Save the last element totals using the .back() element from the original data 
+    totals_check.push_back(orig_data.back());
+
+    // delete original data
+    orig_data.clear();
+
+    return 0;
 }
-*/
+std::string formatCurrency(double value) {
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(2) << "$" << value;
+    return oss.str();
+}
+std::string formatFixed(double value) {
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(2) << value;
+    return oss.str();
+}
+double roundToTwoDecimalPlaces(double value) {
+    return std::round(value * 100.0) / 100.0;
+}
+void deleteUnusedAreaData(std::vector<estim_data>& data) {
+    std::size_t num_areas = data[0].area_qty.size();
+    
+    // Iterate from the end to the beginning of the 
+    for (std::size_t i = num_areas; i > 0; --i) {
+        double sum = 0.0;
+        
+        // Calculate the sum for the current area_qty dimension
+        for (const auto& item : data) {
+            sum += item.area_qty[i - 1];
+        }
+        
+        // If the sum is 0, remove the current area dimension from all estim_data items
+        if (sum == 0.0) {
+            for (auto& item : data) {
+                item.area_qty.erase(item.area_qty.begin() + i - 1);
+            }
+        }
+    }
+}
+bool isZero(double chk_value) {
+    double epsilon = 1e-10;
+    return std::fabs(chk_value) < epsilon;
+}
+void calculateUnpivotAreaData(std::vector<estim_data>& cleaned_data, std::vector<unpivot_area_data>& unpiv) {
+    //initialize some temp variables to keep running total of by area for checking purposes    
+    double sum_other_mh = 0;
+    double sum_mh_tot = 0;
+    double sum_labor = 0;
+    double sum_matl = 0;
+    double sum_sub = 0;
+    double sum_eq = 0;
+    double sum_total = 0;
+
+    //Iterate through the cost data and generate the unpivotated data which will be pushed back to the 'unp' vector of struct <unpivot_area_data>
+    for (auto& d : cleaned_data) {
+        int areaItt=0;
+
+        for (const auto& a : d.area_qty) {
+            //set all temp fractional calcs equal to zero before each iteration
+            double area_frac = 0;  double area_qty = 0; double frac_other_mh = 0; double frac_mh_tot = 0; double frac_labor = 0; double frac_matl = 0; double frac_sub = 0; double frac_eq = 0; double frac_total=0;
+
+            if(!isZero(d.areaSum)) {    //Use a function to see if double is close to zero
+                area_frac = a / d.areaSum;
+                frac_other_mh = d.other_mh * area_frac;
+                frac_mh_tot = d.mh_tot * area_frac;
+                frac_labor = d.labor * area_frac;
+                frac_matl = d.matl * area_frac;
+                frac_sub = d.sub * area_frac;
+                frac_eq = d.eq * area_frac;
+            } else {
+                if(areaItt == 0) {
+                    frac_other_mh = d.other_mh;  // If the area sum is equal to zero then assign all that cost to areaItt = 0
+                    frac_mh_tot = d.mh_tot;
+                    frac_labor = d.labor;
+                    frac_matl = d.matl;
+                    frac_sub = d.sub;
+                    frac_eq = d.eq;
+                }
+            }
+            frac_total = frac_labor + frac_matl + frac_sub + frac_eq;
+
+            unpiv.push_back( { areaItt, d.rowNo, d.brkd_ref, frac_other_mh, a, frac_mh_tot, frac_labor, frac_matl, frac_sub, frac_eq, frac_total } );
+            // Compute Sum Total Checks
+            sum_other_mh += frac_other_mh;
+            sum_mh_tot += frac_mh_tot;
+            sum_labor += frac_labor;
+            sum_matl += frac_matl;
+            sum_sub += frac_sub;
+            sum_eq += frac_eq;
+            sum_total += frac_total;
+            areaItt++;
+        }
+    }
+    // push Totals for Checking Purposes
+    unpiv.push_back( { 0, 0, "Totals", sum_other_mh, 0, sum_mh_tot, sum_labor, sum_matl, sum_sub, sum_eq, sum_total } );
+}
+void print_unpivot_data(std::vector<unpivot_area_data>& unpiv) {
+    std::cout << "\nUnpivoted Data By Area:\n";
+    std::cout   << std::setw( 6) << std::left << "areaNo" << "|" 
+                << std::setw( 6) << "rowNo" << "|"
+                << std::setw(42) << "brkd_ref" << "|"
+                << std::setw(10) << "other_mh" << "|"
+                << std::setw(10) << "area_qty" << "|"
+                << std::setw(10) << "mh_tot" << "|"
+                << std::setw(10) << "labor" << "|"
+                << std::setw(10) << "matl" << "|"
+                << std::setw(10) << "sub" << "|"
+                << std::setw(10) << "eq" << "|"
+                << std::setw(10) << "total" << "\n";
+
+    for (const auto& unp : unpiv) {
+        std::cout   << std::setw( 6) << std::left << unp.areaNo << "|"
+                    << std::setw( 6) << unp.rowNo << "|"
+                    << std::setw(42) << unp.brkd_ref << "|"
+                    << std::setw(10) << unp.other_mh << "|"
+                    << std::setw(10) << unp.area_qty << "|"
+                    << std::setw(10) << unp.mh_tot << "|"
+                    << std::setw(10) << unp.labor << "|"
+                    << std::setw(10) << unp.matl << "|"
+                    << std::setw(10) << unp.sub << "|"
+                    << std::setw(10) << unp.eq << "|"
+                    << std::setw(10) << unp.total << "\n";
+    }
+}
+void checkTotals(std::vector<estim_data>& cleaned_data, std::vector<unpivot_area_data>& unpiv, std::vector<estim_data>& totals_check) {
+    // create a placeholder for the totals that will be reset to zero and recalculated
+    totals_check.push_back(totals_check.back());
+
+    totals_check[1].other_mh = 0.0;
+    totals_check[1].mh_tot = 0.0;
+    totals_check[1].labor = 0.0;
+    totals_check[1].matl = 0.0;
+    totals_check[1].sub = 0.0;
+    totals_check[1].eq = 0.0;
+
+    // create a placeholder for the later total from unpivot data and deltas
+    totals_check.push_back(totals_check.back());
+    totals_check.push_back(totals_check.back());
+    totals_check.push_back(totals_check.back());
+
+    // Add up totals for checking of data
+    for (const auto& ed : cleaned_data) {
+        totals_check[1].other_mh += ed.other_mh;
+        totals_check[1].mh_tot += ed.mh_tot;
+        totals_check[1].labor += ed.labor;
+        totals_check[1].matl += ed.matl;
+        totals_check[1].sub += ed.sub;
+        totals_check[1].eq += ed.eq;
+    }
+    totals_check[1].total = totals_check[1].labor + totals_check[1].matl + totals_check[1].sub + totals_check[1].eq;
+
+    //Get totals from Unpivot Data
+    totals_check[2].other_mh = unpiv.back().other_mh;
+    totals_check[2].mh_tot = unpiv.back().mh_tot;
+    totals_check[2].labor = unpiv.back().labor;
+    totals_check[2].matl = unpiv.back().matl;
+    totals_check[2].sub = unpiv.back().sub;
+    totals_check[2].eq = unpiv.back().eq;
+
+    // calculate the deltas in totals
+    for(int i=1; i<3; i++) {
+    totals_check[i+2].other_mh = roundToTwoDecimalPlaces(totals_check[0].other_mh) - roundToTwoDecimalPlaces(totals_check[i].other_mh);
+    totals_check[i+2].mh_tot = roundToTwoDecimalPlaces(totals_check[0].mh_tot) - roundToTwoDecimalPlaces(totals_check[i].mh_tot);
+    totals_check[i+2].labor = roundToTwoDecimalPlaces(totals_check[0].labor) - roundToTwoDecimalPlaces(totals_check[i].labor);
+    totals_check[i+2].matl = roundToTwoDecimalPlaces(totals_check[0].matl) - roundToTwoDecimalPlaces(totals_check[i].matl);
+    totals_check[i+2].sub = roundToTwoDecimalPlaces(totals_check[0].sub) - roundToTwoDecimalPlaces(totals_check[i].sub);
+    totals_check[i+2].eq = roundToTwoDecimalPlaces(totals_check[0].eq) - roundToTwoDecimalPlaces(totals_check[i].eq);
+    totals_check[i+2].total = roundToTwoDecimalPlaces(totals_check[0].total) - roundToTwoDecimalPlaces(totals_check[i].total);
+    }
+
+  // Print titles
+    std::cout << "\nThe following lines are a comparison of all the key Totals from the Estimate Sheet, and Checked Addition of the Total Hrs and Costs:\n";
+    std::cout << std::setw(40) << std::left << "Item" 
+              << std::setw(20) << std::left << "other_mh" 
+              << std::setw(20) << std::left << "mh_tot" 
+              << std::setw(20) << std::left << "Labor" 
+              << std::setw(20) << std::left << "Matl" 
+              << std::setw(20) << std::left << "Sub" 
+              << std::setw(20) << std::left << "Equip" 
+              << std::setw(20) << std::left << "Total" << "\n";    
+
+    // Print values formatted as currency
+    for(int i=0; i<5; i++) {
+        
+        std::string itemDesc[] = {"Estim Totals(0)", "Cleaned Data Totals(1)", "Unpivot Totals(2)", "Delta Totals(0-1)", "Delta Totals(0-2)"};
+        
+        std::cout << std::fixed << std::setprecision(2) << std::left;
+        std::cout << std::setw(40) << itemDesc[i]
+                << std::setw(20) << formatFixed(totals_check[i].other_mh)
+                << std::setw(20) << formatFixed(totals_check[i].mh_tot)
+                << std::setw(20) << formatCurrency(totals_check[i].labor)
+                << std::setw(20) << formatCurrency(totals_check[i].matl)
+                << std::setw(20) << formatCurrency(totals_check[i].sub)
+                << std::setw(20) << formatCurrency(totals_check[i].eq)
+                << std::setw(20) << formatCurrency(totals_check[i].total)
+                << "\n";
+    }
+}
