@@ -34,6 +34,7 @@ struct estim_data {
     std::vector<double> area_qty;
     double areaSum;
 };
+
 struct unpivot_area_data {
     int areaNo;
     long rowNo;
@@ -46,6 +47,17 @@ struct unpivot_area_data {
     double sub;
     double eq;
     double total;
+};
+
+struct AggregatedData {
+    double other_mh = 0;
+    double mh_tot = 0;
+    double area_qty = 0;
+    double labor = 0;
+    double matl = 0;
+    double sub = 0;
+    double eq = 0;
+    double total = 0;
 };
 
 //Function Prototypes
@@ -62,7 +74,7 @@ void deleteUnusedAreaData(std::vector<estim_data>& data);
 void calculateUnpivotAreaData(std::vector<estim_data>& cleaned_data, std::vector<unpivot_area_data>& unpiv);
 void print_unpivot_data(std::vector<unpivot_area_data>& unpiv);
 bool isZero(double chk_value);
-void aggregateData(const std::vector<unpivot_area_data>& unpiv, std::map<int, std::map<std::string, double>>& aggregationMap);
+void aggregateData(const std::vector<unpivot_area_data>& unpiv, std::map<int, std::map<std::string, AggregatedData>>& aggregationMap);
 
 int main() {
 
@@ -87,40 +99,14 @@ int main() {
     checkTotals(cleaned_data, unpiv, totals_check);
 
     // 5. Create a map to aggregate the unpivoted hours and cost data with Group by area and category
-    std::map<int, std::map<std::string, double>> aggregationMap;
+     std::map<int, std::map<std::string, AggregatedData>> aggregationMap;
     aggregateData(unpiv, aggregationMap);
 
     return 0;
 }
-void aggregateData(const std::vector<unpivot_area_data>& unpiv, std::map<int, std::map<std::string, double>>& aggregationMap) {
-
-    for (const auto& unp : unpiv) {
-        aggregationMap[unp.areaNo][unp.brkd_ref] += unp.other_mh;
-        aggregationMap[unp.areaNo][unp.brkd_ref] += unp.mh_tot;
-        aggregationMap[unp.areaNo][unp.brkd_ref] += unp.area_qty;
-        aggregationMap[unp.areaNo][unp.brkd_ref] += unp.labor;
-        aggregationMap[unp.areaNo][unp.brkd_ref] += unp.matl;
-        aggregationMap[unp.areaNo][unp.brkd_ref] += unp.sub;
-        aggregationMap[unp.areaNo][unp.brkd_ref] += unp.eq;
-    }
-
-    // Print the aggregated data
-    std::cout << "\nAggregated Data:\n";
-    std::cout   << std::setw(5) << std::left << "area" << "|" 
-                << std::setw(40) << "categ" << "|" 
-                << std::setw(15) << "sum_cost" << "\n";
-
-    for (const auto& area_pair : aggregationMap) {
-        for (const auto& categ_pair : area_pair.second) {
-            std::cout   << std::setw(5) << std::left << area_pair.first << "|" 
-                        << std::setw(40) << categ_pair.first << "|" 
-                        << std::setw(15) << categ_pair.second << "\n";
-        }
-    }
-}
 
 int openBinaryFile(std::vector<estim_data>& orig_data) {
-    std::ifstream file("C:/Users/mscip/cpp/excel/data.bin", std::ios::binary);
+    std::ifstream file("C:/t/data.bin", std::ios::binary);
     if (!file) {
         std::cerr << "Unable to open file";
         return 1;
@@ -235,7 +221,6 @@ void printToScreen(std::vector<estim_data>& data) {
     std::cout << std::endl;
 }
 int filterOutDataRemoveZerosAndTotals(std::vector<estim_data>& orig_data, std::vector<estim_data>& cleaned_data, std::vector<estim_data>& totals_check) {
-    
     // Copy elements with the sum of labor, matl, sub, and eq not equal to zero
     for (const auto& ed : orig_data) {
         if ((ed.labor + ed.matl + ed.sub + ed.eq) != 0  && ed.brkd_ref != "-" ) {
@@ -287,7 +272,9 @@ bool isZero(double chk_value) {
     double epsilon = 1e-10;
     return std::fabs(chk_value) < epsilon;
 }
+
 void calculateUnpivotAreaData(std::vector<estim_data>& cleaned_data, std::vector<unpivot_area_data>& unpiv) {
+    
     //initialize some temp variables to keep running total of by area for checking purposes    
     double sum_other_mh = 0;
     double sum_mh_tot = 0;
@@ -296,6 +283,13 @@ void calculateUnpivotAreaData(std::vector<estim_data>& cleaned_data, std::vector
     double sum_sub = 0;
     double sum_eq = 0;
     double sum_total = 0;
+
+    //Iterate through the cost data and generate the unpivotated data which will be pushed back to the 'unp' vector of struct <unpivot_area_data>
+    for (auto& d1 : cleaned_data) {
+        for (const auto& atmp : d1.area_qty) {
+            d1.areaSum += atmp;
+        }
+    }
 
     //Iterate through the cost data and generate the unpivotated data which will be pushed back to the 'unp' vector of struct <unpivot_area_data>
     for (auto& d : cleaned_data) {
@@ -340,6 +334,8 @@ void calculateUnpivotAreaData(std::vector<estim_data>& cleaned_data, std::vector
     // push Totals for Checking Purposes
     unpiv.push_back( { 0, 0, "Totals", sum_other_mh, 0, sum_mh_tot, sum_labor, sum_matl, sum_sub, sum_eq, sum_total } );
 }
+
+
 void print_unpivot_data(std::vector<unpivot_area_data>& unpiv) {
     std::cout << "\nUnpivoted Data By Area:\n";
     std::cout   << std::setw( 6) << std::left << "areaNo" << "|" 
@@ -368,6 +364,7 @@ void print_unpivot_data(std::vector<unpivot_area_data>& unpiv) {
                     << std::setw(10) << unp.total << "\n";
     }
 }
+
 void checkTotals(std::vector<estim_data>& cleaned_data, std::vector<unpivot_area_data>& unpiv, std::vector<estim_data>& totals_check) {
     // create a placeholder for the totals that will be reset to zero and recalculated
     totals_check.push_back(totals_check.back());
@@ -417,13 +414,13 @@ void checkTotals(std::vector<estim_data>& cleaned_data, std::vector<unpivot_area
   // Print titles
     std::cout << "\nThe following lines are a comparison of all the key Totals from the Estimate Sheet, and Checked Addition of the Total Hrs and Costs:\n";
     std::cout << std::setw(40) << std::left << "Item" 
-              << std::setw(20) << std::left << "other_mh" 
-              << std::setw(20) << std::left << "mh_tot" 
-              << std::setw(20) << std::left << "Labor" 
-              << std::setw(20) << std::left << "Matl" 
-              << std::setw(20) << std::left << "Sub" 
-              << std::setw(20) << std::left << "Equip" 
-              << std::setw(20) << std::left << "Total" << "\n";    
+              << std::setw(15) << std::left << "other_mh" 
+              << std::setw(15) << std::left << "mh_tot" 
+              << std::setw(15) << std::left << "Labor" 
+              << std::setw(15) << std::left << "Matl" 
+              << std::setw(15) << std::left << "Sub" 
+              << std::setw(15) << std::left << "Equip" 
+              << std::setw(15) << std::left << "Total" << "\n";    
 
     // Print values formatted as currency
     for(int i=0; i<5; i++) {
@@ -432,13 +429,58 @@ void checkTotals(std::vector<estim_data>& cleaned_data, std::vector<unpivot_area
         
         std::cout << std::fixed << std::setprecision(2) << std::left;
         std::cout << std::setw(40) << itemDesc[i]
-                << std::setw(20) << formatFixed(totals_check[i].other_mh)
-                << std::setw(20) << formatFixed(totals_check[i].mh_tot)
-                << std::setw(20) << formatCurrency(totals_check[i].labor)
-                << std::setw(20) << formatCurrency(totals_check[i].matl)
-                << std::setw(20) << formatCurrency(totals_check[i].sub)
-                << std::setw(20) << formatCurrency(totals_check[i].eq)
-                << std::setw(20) << formatCurrency(totals_check[i].total)
+                << std::setw(15) << formatFixed(totals_check[i].other_mh)
+                << std::setw(15) << formatFixed(totals_check[i].mh_tot)
+                << std::setw(15) << formatCurrency(totals_check[i].labor)
+                << std::setw(15) << formatCurrency(totals_check[i].matl)
+                << std::setw(15) << formatCurrency(totals_check[i].sub)
+                << std::setw(15) << formatCurrency(totals_check[i].eq)
+                << std::setw(15) << formatCurrency(totals_check[i].total)
                 << "\n";
+    }
+}
+
+void aggregateData(const std::vector<unpivot_area_data>& unpiv, std::map<int, std::map<std::string, AggregatedData>>& aggregationMap) {
+
+    for (const auto& unp : unpiv) {
+        aggregationMap[unp.areaNo][unp.brkd_ref].other_mh += unp.other_mh;
+        aggregationMap[unp.areaNo][unp.brkd_ref].mh_tot += unp.mh_tot;
+        aggregationMap[unp.areaNo][unp.brkd_ref].area_qty += unp.area_qty;
+        aggregationMap[unp.areaNo][unp.brkd_ref].labor += unp.labor;
+        aggregationMap[unp.areaNo][unp.brkd_ref].matl += unp.matl;
+        aggregationMap[unp.areaNo][unp.brkd_ref].sub += unp.sub;
+        aggregationMap[unp.areaNo][unp.brkd_ref].eq += unp.eq;
+    }
+
+    // Print the aggregated data
+    std::cout << "\nAggregated Data:\n";
+    std::cout   << std::setw(5) << std::left << "area" << "|" 
+                << std::setw(40) << "categ" << "|" 
+              << std::setw(15) << std::left << "other_mh" << "|"
+              << std::setw(15) << std::left << "mh_tot" << "|"
+              << std::setw(15) << std::left << "area_qty" << "|"
+              << std::setw(15) << std::left << "Labor" << "|"
+              << std::setw(15) << std::left << "Matl" << "|"
+              << std::setw(15) << std::left << "Sub" << "|"
+              << std::setw(15) << std::left << "Equip" << "|"
+              << std::setw(15) << std::left << "Total" << "\n";    
+
+    for (auto& area_pair : aggregationMap) {
+        for (auto& categ_pair : area_pair.second) {
+            auto& data = categ_pair.second;
+            
+            data.total = data.labor + data.matl + data.sub + data.eq;
+
+            std::cout   << std::setw(5) << std::left << area_pair.first << "|"
+                        << std::setw(40) << categ_pair.first << "|"
+                        << std::setw(15) << data.other_mh << "|"
+                        << std::setw(15) << data.mh_tot << "|"
+                        << std::setw(15) << data.area_qty << "|"
+                        << std::setw(15) << data.labor << "|"
+                        << std::setw(15) << data.matl << "|"
+                        << std::setw(15) << data.sub << "|"
+                        << std::setw(15) << data.eq << "|"
+                        << std::setw(15) << data.total << "\n";
+        }
     }
 }
