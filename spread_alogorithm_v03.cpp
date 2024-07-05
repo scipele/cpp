@@ -9,7 +9,7 @@ struct spread_basis {
     std::string div;
     std::string discipline;
     std::string lab_type;
-    std::string atl_btl;    // Above the Line (atl) or Below the Line
+    std::string atl_btl;    // Above the Line (atl) or Below the Line (btl)
 };
 
 struct estim_data {
