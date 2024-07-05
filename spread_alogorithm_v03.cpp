@@ -9,6 +9,7 @@ struct spread_basis {
     std::string div;
     std::string discipline;
     std::string lab_type;
+    std::string atl_btl;    // Above the Line (atl) or Below the Line
 };
 
 struct estim_data {
@@ -56,16 +57,17 @@ int main(int argc, char const *argv[])
 
 void get_sample_data (std::vector<estim_data>& ed, std::vector<spread_costs_items>& sprds) {
     // Add example elements to the estimate data vector
-    ed.push_back( {1, "pipe weld 3in s-80", 1563.63, { "L", "MechFld", "Pipe", "Dir" } });
-    ed.push_back( {2, "pipe weld 4in s-80", 7658.78, { "L", "MechFld", "Pipe", "Dir" } });
-    ed.push_back( {3, "Steel Erection"    , 8597.24, { "L", "MechFld", "Steel", "Dir"} });
-    ed.push_back( {4, "15T Crane"         , 7000.63, { "L", "MechFld", "ConstrEq", ""} });
-    ed.push_back( {5, "weld machine"      , 6454.75, { "L", "MechFld", "ConstrEq", ""} });
+    ed.push_back( {1, "pipe weld 3in s-80", 1563.63, { "L", "MechFld", "Pipe"   , "Dir", "a" } });
+    ed.push_back( {2, "pipe weld 4in s-80", 7658.78, { "L", "MechFld", "Pipe"   , "Dir", "a" } });
+    ed.push_back( {3, "Steel Erection"    , 8597.24, { "L", "MechFld", "Steel"  , "Dir", "a" } });
+    ed.push_back( {4, "15T Crane"         , 7000.63, { "L", "MechFld", "ConstrEq", ""  , "a" } });
+    ed.push_back( {5, "weld machine"      , 6454.75, { "L", "MechFld", "ConstrEq", ""  , "a" } });
+    ed.push_back( {6, "insul labor"       , 8543.25, { "L", "Spi"    , "Insul"   , ""  , "b" } });
 
     // Add example elements to the spread cost items vector
-    sprds.push_back( {1, "spread pipe lab productivity", 1500.35, 0.0, { "L", "MechFld", "Pipe", "Dir" } });
-    sprds.push_back( {2, "tax on equip", 1347.53, 0.0, { "L", "MechFld", "ConstrEq", "" } });
-    sprds.push_back( {3, "spread cop", 3565.0, 0.0, { "*", "*", "*", "*" } });
+    sprds.push_back( {1, "spread pipe lab productivity", 1500.35, 0.0, { "L", "MechFld", "Pipe"    , "Dir", "a"} });
+    sprds.push_back( {2, "tax on equip"                , 1347.53, 0.0, { "L", "MechFld", "ConstrEq", ""   , "a" } });
+    sprds.push_back( {3, "spread cop"                  , 3565.0, 0.0 , { "*", "*"      , "*"       , "*"  , "a" } });
 }
 
 void populate_spread_true_false_for_records(std::vector<estim_data>& ed, std::vector<spread_costs_items>& sprds) {
@@ -86,7 +88,8 @@ void populate_spread_true_false_for_records(std::vector<estim_data>& ed, std::ve
             if (is_str_match_w_wildcard(e.sb.cost_type, it_spr->sb.cost_type) &&
                 is_str_match_w_wildcard(e.sb.div, it_spr->sb.div) &&
                 is_str_match_w_wildcard(e.sb.discipline, it_spr->sb.discipline) &&
-                is_str_match_w_wildcard(e.sb.lab_type, it_spr->sb.lab_type)) {
+                is_str_match_w_wildcard(e.sb.lab_type, it_spr->sb.lab_type) &&
+                is_str_match_w_wildcard(e.sb.atl_btl, it_spr->sb.atl_btl)) {
                 *it_tf = true;
             }
             it_spr++;
