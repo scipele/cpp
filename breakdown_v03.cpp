@@ -30,10 +30,16 @@ struct spread_items {
     std::string atl_btl;
     std::string sprd_basis_field;
     std::string incl_cumul_sprd_values_list;
-    double amt_to_spr_l;
-    double amt_to_spr_m;
+    double amt_to_spr_oth_mh;       // Amount to Spread oth_mh
+    double amt_to_spr_mh_tot;       // Amount to Spread oth_mh
+    double amt_to_spr_qty;       // Amount to Spread oth_mh
+    double amt_to_spr_l;            // Amount to Spread Labor
+    double amt_to_spr_m;    
     double amt_to_spr_s;
     double amt_to_spr_e;
+    double spr_oth_mh_agr;      // spread basis aggregate
+    double spr_mh_tot_agr;
+    double spr_qty_agr;
     double spr_l_agr;
     double spr_m_agr;
     double spr_s_agr;
@@ -45,7 +51,7 @@ struct estim_data {
     std::string filterX;
     std::string desc;
     std::string brkd_ref;
-    double other_mh;
+    double oth_mh;
     std::string param1;
     std::string param2;
     std::string param3;
@@ -54,10 +60,10 @@ struct estim_data {
     double umh;
     double mh_tot;
     double rate;
-    double labor;
-    double matl;
+    double lab;
+    double mat;
     double sub;
-    double eq;
+    double eqp;
     double total;
     std::string type;
     std::string div;
@@ -69,16 +75,17 @@ struct estim_data {
     };
 
 struct unpivot_area_data {
-    int areaNo;
-    long rowNo;
+    int areaNo;     // cooresponds to a long in vba
+    int rowNo;     // cooresponds to a long in vba
     std::string brkd_ref;
-    double other_mh;
+    double oth_mh;
     double area_qty;
+    std::string uom;
     double mh_tot;
-    double labor;
-    double matl;
+    double lab;
+    double mat;
     double sub;
-    double eq;
+    double eqp;
     double total;
     std::string type;
     std::string div;
@@ -86,26 +93,26 @@ struct unpivot_area_data {
     std::string lab_type;
     std::string atl_btl = "a";    // Plaeholder for above the Line (atl) or Below the Line (btl)
     std::vector<bool> apply_TF;
+    std::vector<double> sprd_omh;
+    std::vector<double> sprd_mht;
     std::vector<double> sprd_lab;
     std::vector<double> sprd_mat;
     std::vector<double> sprd_sub;
     std::vector<double> sprd_eqp;
 };
 
-
-struct aggregated_data {
+struct final_results {
     int areaNo;
     std::string brkd_ref;
-    double other_mh = 0;
+    double oth_mh = 0;
     double mh_tot = 0;
     double area_qty = 0;
-    double labor = 0;
-    double matl = 0;
+    double lab = 0;
+    double mat = 0;
     double sub = 0;
-    double eq = 0;
+    double eqp = 0;
     double total = 0;
 };
-
 
 //Function Prototypes
 /*1.*/ int readDataFromBinaryFile(std::vector<estim_data>& orig_data, std::vector<spread_items>& sd, gen_info& gi);
@@ -130,21 +137,26 @@ struct aggregated_data {
     /*5.3*/ void compute_amt_to_spread_aggregates(const std::vector<unpivot_area_data>& upv, std::vector<spread_items>& sd );
     /*5.4*/ void remove_spread_lines_from_unpivot_data(std::vector<unpivot_area_data>& upv);
     /*5.5*/ void compute_spread_basis_aggregates(std::vector<unpivot_area_data>& upv, std::vector<spread_items>& sd);
-
     /*5.6*/ void compute_spread_amounts(std::vector<unpivot_area_data>& upv, std::vector<spread_items>& sd);
     /*5.7*/ void check_spread_amounts_totals(std::vector<unpivot_area_data>& upv, std::vector<spread_items>& sd);
-    /*5.8*/ void compute_sum_base_and_spread_amounts(std::vector<unpivot_area_data>& upv, std::vector<spread_items>& sd, std::vector<aggregated_data>& fd);
+    /*5.8*/ void compute_sum_base_and_spread_amounts(std::vector<unpivot_area_data>& upv, std::vector<spread_items>& sd, std::vector<final_results>& fd);
+    /*5.9*/ void create_aggregate_all_areas(std::vector<final_results>& fd);
 
 //6. Print Results to Screen
     /*6.1*/ void print_unpivot_data(std::vector<unpivot_area_data>& upv, std::vector<spread_items>& sd);
     /*6.2*/ void print_sd(std::vector<spread_items>& sd);
-    /*6.3*/ void print_final_data(std::vector<aggregated_data>& fd);
+    /*6.3*/ void print_final_data(std::vector<final_results>& fd);
 
 //7. Write Binary Output File for Excel Import
     /*7.1*/ void open_file_to_write_results_binary(std::ofstream& outFile);
-    /*7.2*/ void write_unpivot_data(std::ofstream& outFile, std::vector<unpivot_area_data>& upv, std::vector<spread_items>& sd);
-    /*7.3*/ void write_sd(std::ofstream& outFile, std::vector<spread_items>& sd);
-    /*7.4*/ void write_final_data(std::ofstream& outFile, std::vector<aggregated_data>& fd);
+    /*7.2*/ void writeStr(std::ofstream &file, std::string &str);
+    /*7.3*/ void writeDbl(std::ofstream& file, double & num);
+    /*7.4*/ void writeShr(std::ofstream& file, unsigned short& num);
+    /*7.5*/ void writeInt(std::ofstream& file, int& num);
+    /*7.6*/ void writeLong(std::ofstream& file, long& num);
+    /*7.7*/ void write_unpivot_data(std::ofstream& outFile, std::vector<unpivot_area_data>& upv, std::vector<spread_items>& sd);
+    /*7.8*/ void write_sd(std::ofstream& outFile, std::vector<spread_items>& sd);
+    /*7.9*/ void write_final_data(std::ofstream& outFile, std::vector<final_results>& fd);
 
 //20. Misc Functions
     /*20.1*/ std::string formatCurrency(double value);
@@ -152,6 +164,8 @@ struct aggregated_data {
     /*20.3*/ double roundToTwoDecimalPlaces(double value);
     /*20.4*/ bool isZero(double chk_value);
     /*20.5*/ void printAnyErrors(int result, int estim_row);
+    /*20.6*/ std::string boolToString(bool value);
+    /*20.7*/ bool starts_with_key(const std::string& str);
 
 // **************************************************
 // ******************  MAIN  ************************
@@ -206,10 +220,11 @@ int main(int argc, char const *argv[]) {
     compute_spread_amounts(upv, sd);
     // 5.7
     check_spread_amounts_totals(upv, sd);
-    // 5.8
-    // Create a vector to store the final data
-    std::vector<aggregated_data> fd;
+    // 5.8 Create a vector to store the final data
+    std::vector<final_results> fd;
     compute_sum_base_and_spread_amounts(upv, sd, fd);
+    // 5.9
+    create_aggregate_all_areas(fd);
 
     // 6.1
     print_unpivot_data(upv, sd);
@@ -218,7 +233,6 @@ int main(int argc, char const *argv[]) {
     // 6.3
     print_final_data(fd);
 
-    //
     std::ofstream outFile;
     //7.1 
     open_file_to_write_results_binary(outFile);
@@ -276,7 +290,7 @@ void readStructure1(std::ifstream& file, estim_data& s, gen_info& gi) {
     readString(file, s.filterX);
     readString(file, s.desc);
     readString(file, s.brkd_ref);
-    file.read(reinterpret_cast<char*>(&s.other_mh), sizeof(s.other_mh));
+    file.read(reinterpret_cast<char*>(&s.oth_mh), sizeof(s.oth_mh));
     readString(file, s.param1);
     readString(file, s.param2);
     readString(file, s.param3);
@@ -286,10 +300,10 @@ void readStructure1(std::ifstream& file, estim_data& s, gen_info& gi) {
     file.read(reinterpret_cast<char*>(&s.umh), sizeof(s.umh));
     file.read(reinterpret_cast<char*>(&s.mh_tot), sizeof(s.mh_tot));
     file.read(reinterpret_cast<char*>(&s.rate), sizeof(s.rate));
-    file.read(reinterpret_cast<char*>(&s.labor), sizeof(s.labor));
-    file.read(reinterpret_cast<char*>(&s.matl), sizeof(s.matl));
+    file.read(reinterpret_cast<char*>(&s.lab), sizeof(s.lab));
+    file.read(reinterpret_cast<char*>(&s.mat), sizeof(s.mat));
     file.read(reinterpret_cast<char*>(&s.sub), sizeof(s.sub));
-    file.read(reinterpret_cast<char*>(&s.eq), sizeof(s.eq));
+    file.read(reinterpret_cast<char*>(&s.eqp), sizeof(s.eqp));
     file.read(reinterpret_cast<char*>(&s.total), sizeof(s.total));
     readString(file, s.div);
     readString(file, s.discp);
@@ -324,9 +338,9 @@ void readString(std::ifstream &file, std::string &str) {
 
 //2.1
 int filterOutDataRemoveZerosAndTotals(std::vector<estim_data>& orig_data, std::vector<estim_data>& cleaned_data, std::vector<estim_data>& totals_check) {
-    // Copy elements with the sum of labor, matl, sub, and eq not equal to zero
+    // Copy elements with the sum of lab, mat, sub, and eqp not equal to zero
     for (const auto& ed : orig_data) {
-        if ((ed.labor + ed.matl + ed.sub + ed.eq) != 0  && ed.brkd_ref != "-" ) {
+        if ((ed.lab + ed.mat + ed.sub + ed.eqp) != 0  && ed.brkd_ref != "-" ) {
             cleaned_data.push_back(ed);
         }
     }
@@ -341,7 +355,7 @@ int filterOutDataRemoveZerosAndTotals(std::vector<estim_data>& orig_data, std::v
 
 //2.2
 int locateAndTagBelowLineItems(std::vector<estim_data>& cleaned_data) {
-    // Copy elements with the sum of labor, matl, sub, and eq not equal to zero
+    // Copy elements with the sum of lab, mat, sub, and eqp not equal to zero
 
     int btl_start_indx;
     int indx = 0;
@@ -391,7 +405,7 @@ void print_ed(std::vector<estim_data>& data) {
     << std::setw(3) << "X" << "|" 
     << std::setw(42) << "desc" << "|" 
     << std::setw(32) << "brkd_ref" << "|" 
-    << std::setw(9) << "other_mh" << "|" 
+    << std::setw(9) << "oth_mh" << "|" 
     << std::setw(7) << "param1" << "|" 
     << std::setw(7) << "param2" << "|" 
     << std::setw(10) << "param3" << "|" 
@@ -401,10 +415,10 @@ void print_ed(std::vector<estim_data>& data) {
     << std::setw(10) << "umh" << "|" 
     << std::setw(10) << "mh_tot" << "|" 
     << std::setw(10) << "rate" << "|" 
-    << std::setw(12) << "labor" << "|" 
-    << std::setw(12) << "matl" << "|" 
+    << std::setw(12) << "lab" << "|" 
+    << std::setw(12) << "mat" << "|" 
     << std::setw(12) << "sub" << "|" 
-    << std::setw(12) << "eq" << "|" 
+    << std::setw(12) << "eqp" << "|" 
     << std::setw(12) << "total" << "|" 
     << std::setw(8) << "div" << "|" 
     << std::setw(8) << "discp" << "|" 
@@ -426,7 +440,7 @@ void print_ed(std::vector<estim_data>& data) {
             << std::setw(3) << s.filterX << "|" 
             << std::setw(42) << s.desc << "|" 
             << std::setw(32) << s.brkd_ref << "|" 
-            << std::setw(9) << s.other_mh << "|" 
+            << std::setw(9) << s.oth_mh << "|" 
             << std::setw(7) << s.param1 << "|" 
             << std::setw(7) << s.param2 << "|" 
             << std::setw(10) << s.param3 << "|" 
@@ -436,10 +450,10 @@ void print_ed(std::vector<estim_data>& data) {
             << std::setw(10) << formatFixed(s.umh) << "|" 
             << std::setw(10) << formatFixed(s.mh_tot) << "|" 
             << std::setw(10) << formatFixed(s.rate) << "|" 
-            << std::setw(12) << formatFixed(s.labor) << "|" 
-            << std::setw(12) << formatFixed(s.matl) << "|" 
+            << std::setw(12) << formatFixed(s.lab) << "|" 
+            << std::setw(12) << formatFixed(s.mat) << "|" 
             << std::setw(12) << formatFixed(s.sub) << "|" 
-            << std::setw(12) << formatFixed(s.eq) << "|" 
+            << std::setw(12) << formatFixed(s.eqp) << "|" 
             << std::setw(12) << formatFixed(s.total) << "|" 
             << std::setw(8) << s.div << "|" 
             << std::setw(8) << s.discp << "|" 
@@ -458,12 +472,12 @@ void print_ed(std::vector<estim_data>& data) {
 void calculateUnpivotAreaData(std::vector<estim_data>& cleaned_data, std::vector<unpivot_area_data>& upv) {
     
     //initialize some temp variables to keep running total of by area for checking purposes    
-    double sum_other_mh = 0;
+    double sum_oth_mh = 0;
     double sum_mh_tot = 0;
-    double sum_labor = 0;
-    double sum_matl = 0;
+    double sum_lab = 0;
+    double sum_mat = 0;
     double sum_sub = 0;
-    double sum_eq = 0;
+    double sum_eqp = 0;
     double sum_total = 0;
 
     //Iterate through the cost data and generate the unpivotated data which will be pushed back to the 'unp' vector of struct <unpivot_area_data>
@@ -475,45 +489,45 @@ void calculateUnpivotAreaData(std::vector<estim_data>& cleaned_data, std::vector
 
     //Iterate through the cost data and generate the unpivotated data which will be pushed back to the 'unp' vector of struct <unpivot_area_data>
     for (auto& d : cleaned_data) {
-        int areaItt=0;
+        int areaIndx=0;
 
         for (auto& a : d.area_qty) {
             //set all temp fractional calcs equal to zero before each iteration
-            double area_frac = 0;  double area_qty = 0; double frac_other_mh = 0; double frac_mh_tot = 0; double frac_labor = 0; double frac_matl = 0; double frac_sub = 0; double frac_eq = 0; double frac_total=0;
+            double area_frac = 0;  double area_qty = 0; double frac_oth_mh = 0; double frac_mh_tot = 0; double frac_lab = 0; double frac_mat = 0; double frac_sub = 0; double frac_eqp = 0; double frac_total=0;
 
             if(!isZero(d.areaSum)) {    //Use a function to see if double is close to zero
                 area_frac = a / d.areaSum;
-                frac_other_mh = d.other_mh * area_frac;
+                frac_oth_mh = d.oth_mh * area_frac;
                 frac_mh_tot = d.mh_tot * area_frac;
-                frac_labor = d.labor * area_frac;
-                frac_matl = d.matl * area_frac;
+                frac_lab = d.lab * area_frac;
+                frac_mat = d.mat * area_frac;
                 frac_sub = d.sub * area_frac;
-                frac_eq = d.eq * area_frac;
+                frac_eqp = d.eqp * area_frac;
             } else {
-                if(areaItt == 0) {
-                    frac_other_mh = d.other_mh;  // If the area sum is equal to zero then assign all that cost to areaItt = 0
+                if(areaIndx == 0) {
+                    frac_oth_mh = d.oth_mh;  // If the area sum is equal to zero then assign all that cost to areaIndx = 0
                     frac_mh_tot = d.mh_tot;
-                    frac_labor = d.labor;
-                    frac_matl = d.matl;
+                    frac_lab = d.lab;
+                    frac_mat = d.mat;
                     frac_sub = d.sub;
-                    frac_eq = d.eq;
+                    frac_eqp = d.eqp;
                     a = 1; // If the area sum is equal to zero then set the qty in area_0 = 1
                 }
             }
-            frac_total = frac_labor + frac_matl + frac_sub + frac_eq;
+            frac_total = frac_lab + frac_mat + frac_sub + frac_eqp;
 
-            upv.push_back( { areaItt, d.rowNo, d.brkd_ref, frac_other_mh, a, frac_mh_tot, frac_labor, frac_matl, frac_sub, frac_eq, 
+            upv.push_back( { areaIndx, d.rowNo, d.brkd_ref, frac_oth_mh, a, d.uom, frac_mh_tot, frac_lab, frac_mat, frac_sub, frac_eqp, 
                             frac_total, d.type, d.div, d.discp, d.lab_type, d.atl_btl } );
             
             // Compute Sum Total Checks
-            sum_other_mh += frac_other_mh;
+            sum_oth_mh += frac_oth_mh;
             sum_mh_tot += frac_mh_tot;
-            sum_labor += frac_labor;
-            sum_matl += frac_matl;
+            sum_lab += frac_lab;
+            sum_mat += frac_mat;
             sum_sub += frac_sub;
-            sum_eq += frac_eq;
+            sum_eqp += frac_eqp;
             sum_total += frac_total;
-            areaItt++;
+            areaIndx++;
         }
     }
 }
@@ -523,12 +537,12 @@ void checkTotals(std::vector<estim_data>& cleaned_data, std::vector<unpivot_area
     // create a placeholder for the totals that will be reset to zero and recalculated
     totals_check.push_back(totals_check.back());
 
-    totals_check[1].other_mh = 0.0;
+    totals_check[1].oth_mh = 0.0;
     totals_check[1].mh_tot = 0.0;
-    totals_check[1].labor = 0.0;
-    totals_check[1].matl = 0.0;
+    totals_check[1].lab = 0.0;
+    totals_check[1].mat = 0.0;
     totals_check[1].sub = 0.0;
-    totals_check[1].eq = 0.0;
+    totals_check[1].eqp = 0.0;
 
     // create a placeholder for the later total from unpivot data and deltas
     totals_check.push_back(totals_check.back());
@@ -537,38 +551,38 @@ void checkTotals(std::vector<estim_data>& cleaned_data, std::vector<unpivot_area
 
     // Add up totals for checking of data
     for (const auto& ed : cleaned_data) {
-        totals_check[1].other_mh += ed.other_mh;
+        totals_check[1].oth_mh += ed.oth_mh;
         totals_check[1].mh_tot += ed.mh_tot;
-        totals_check[1].labor += ed.labor;
-        totals_check[1].matl += ed.matl;
+        totals_check[1].lab += ed.lab;
+        totals_check[1].mat += ed.mat;
         totals_check[1].sub += ed.sub;
-        totals_check[1].eq += ed.eq;
+        totals_check[1].eqp += ed.eqp;
     }
-    totals_check[1].total = totals_check[1].labor + totals_check[1].matl + totals_check[1].sub + totals_check[1].eq;
+    totals_check[1].total = totals_check[1].lab + totals_check[1].mat + totals_check[1].sub + totals_check[1].eqp;
 
     //Get totals from Unpivot Data
-    totals_check[2].other_mh = upv.back().other_mh;
+    totals_check[2].oth_mh = upv.back().oth_mh;
     totals_check[2].mh_tot = upv.back().mh_tot;
-    totals_check[2].labor = upv.back().labor;
-    totals_check[2].matl = upv.back().matl;
+    totals_check[2].lab = upv.back().lab;
+    totals_check[2].mat = upv.back().mat;
     totals_check[2].sub = upv.back().sub;
-    totals_check[2].eq = upv.back().eq;
+    totals_check[2].eqp = upv.back().eqp;
 
     // calculate the deltas in totals
     for(int i=1; i<3; i++) {
-    totals_check[i+2].other_mh = roundToTwoDecimalPlaces(totals_check[0].other_mh) - roundToTwoDecimalPlaces(totals_check[i].other_mh);
+    totals_check[i+2].oth_mh = roundToTwoDecimalPlaces(totals_check[0].oth_mh) - roundToTwoDecimalPlaces(totals_check[i].oth_mh);
     totals_check[i+2].mh_tot = roundToTwoDecimalPlaces(totals_check[0].mh_tot) - roundToTwoDecimalPlaces(totals_check[i].mh_tot);
-    totals_check[i+2].labor = roundToTwoDecimalPlaces(totals_check[0].labor) - roundToTwoDecimalPlaces(totals_check[i].labor);
-    totals_check[i+2].matl = roundToTwoDecimalPlaces(totals_check[0].matl) - roundToTwoDecimalPlaces(totals_check[i].matl);
+    totals_check[i+2].lab = roundToTwoDecimalPlaces(totals_check[0].lab) - roundToTwoDecimalPlaces(totals_check[i].lab);
+    totals_check[i+2].mat = roundToTwoDecimalPlaces(totals_check[0].mat) - roundToTwoDecimalPlaces(totals_check[i].mat);
     totals_check[i+2].sub = roundToTwoDecimalPlaces(totals_check[0].sub) - roundToTwoDecimalPlaces(totals_check[i].sub);
-    totals_check[i+2].eq = roundToTwoDecimalPlaces(totals_check[0].eq) - roundToTwoDecimalPlaces(totals_check[i].eq);
+    totals_check[i+2].eqp = roundToTwoDecimalPlaces(totals_check[0].eqp) - roundToTwoDecimalPlaces(totals_check[i].eqp);
     totals_check[i+2].total = roundToTwoDecimalPlaces(totals_check[0].total) - roundToTwoDecimalPlaces(totals_check[i].total);
     }
 
     // Print titles
     std::cout << "\nThe following lines are a comparison of all the key Totals from the Estimate Sheet, and Checked Addition of the Total Hrs and Costs:\n";
     std::cout << std::setw(40) << std::left << "Item" 
-              << std::setw(15) << std::left << "other_mh" 
+              << std::setw(15) << std::left << "oth_mh" 
               << std::setw(15) << std::left << "mh_tot" 
               << std::setw(15) << std::left << "Labor" 
               << std::setw(15) << std::left << "Matl" 
@@ -583,12 +597,12 @@ void checkTotals(std::vector<estim_data>& cleaned_data, std::vector<unpivot_area
         
         std::cout << std::fixed << std::setprecision(2) << std::left;
         std::cout << std::setw(40) << itemDesc[i]
-                << std::setw(15) << formatFixed(totals_check[i].other_mh)
+                << std::setw(15) << formatFixed(totals_check[i].oth_mh)
                 << std::setw(15) << formatFixed(totals_check[i].mh_tot)
-                << std::setw(15) << formatCurrency(totals_check[i].labor)
-                << std::setw(15) << formatCurrency(totals_check[i].matl)
+                << std::setw(15) << formatCurrency(totals_check[i].lab)
+                << std::setw(15) << formatCurrency(totals_check[i].mat)
                 << std::setw(15) << formatCurrency(totals_check[i].sub)
-                << std::setw(15) << formatCurrency(totals_check[i].eq)
+                << std::setw(15) << formatCurrency(totals_check[i].eqp)
                 << std::setw(15) << formatCurrency(totals_check[i].total)
                 << "\n";
     }
@@ -602,6 +616,8 @@ void populate_spread_true_false_for_records(std::vector<unpivot_area_data>& upv,
         
         // resize the ectors to match the number of spreads in the sd vector
         up.apply_TF.resize(sd.size(), false);  //Initialized to false and reset as needed
+        up.sprd_omh.resize(sd.size() , 0.0);  //Initialized to zero and reset as needed
+        up.sprd_mht.resize(sd.size() , 0.0);  //Initialized to zero and reset as needed
         up.sprd_lab.resize(sd.size() , 0.0);  //Initialized to zero and reset as needed
         up.sprd_mat.resize(sd.size() , 0.0);  //Initialized to zero and reset as needed
         up.sprd_sub.resize(sd.size() , 0.0);  //Initialized to zero and reset as needed
@@ -642,31 +658,35 @@ bool is_str_match_w_wildcard(std::string& str1, std::string& str2) {
 void compute_amt_to_spread_aggregates(const std::vector<unpivot_area_data>& upv, std::vector<spread_items>& sd ) {
 
     // create a map to aggregate the unpivot data
-    std::map<std::string, aggregated_data> aggr_sd;
+    std::map<std::string, final_results> aggr_sd;
 
     for (auto up : upv) {
         if (up.brkd_ref.rfind("Spread", 0) == 0) {
-            aggr_sd[up.brkd_ref].other_mh += up.other_mh;
+            aggr_sd[up.brkd_ref].oth_mh += up.oth_mh;
             aggr_sd[up.brkd_ref].mh_tot += up.mh_tot;
             aggr_sd[up.brkd_ref].area_qty += up.area_qty;
-            aggr_sd[up.brkd_ref].labor += up.labor;
-            aggr_sd[up.brkd_ref].matl += up.matl;
+            aggr_sd[up.brkd_ref].lab += up.lab;
+            aggr_sd[up.brkd_ref].mat += up.mat;
             aggr_sd[up.brkd_ref].sub += up.sub;
-            aggr_sd[up.brkd_ref].eq += up.eq;
+            aggr_sd[up.brkd_ref].eqp += up.eqp;
         }
     }
 
     // transfer the aggregate calculted amounts from the map created above to the vector passed into the function by reference
     for (auto& s : sd) {
-        s.amt_to_spr_l = aggr_sd[s.sprd_desc].labor;
-        s.amt_to_spr_m = aggr_sd[s.sprd_desc].matl;
+        s.amt_to_spr_oth_mh = aggr_sd[s.sprd_desc].oth_mh;
+        s.amt_to_spr_mh_tot = aggr_sd[s.sprd_desc].mh_tot;
+        s.amt_to_spr_l = aggr_sd[s.sprd_desc].lab;
+        s.amt_to_spr_m = aggr_sd[s.sprd_desc].mat;
         s.amt_to_spr_s = aggr_sd[s.sprd_desc].sub;
-        s.amt_to_spr_e = aggr_sd[s.sprd_desc].eq;
+        s.amt_to_spr_e = aggr_sd[s.sprd_desc].eqp;
     }
 
     std::cout << "\nCheck transfer values of amt to spread aggregates\n";
     std::cout << std::setw(8) << "i" 
                 << std::setw(30) << "sprd_desc" 
+                << std::setw(10) << "oth_mh" 
+                << std::setw(10) << "mh_tot" 
                 << std::setw(10) << "lab" 
                 << std::setw(10) << "mat" 
                 << std::setw(10) << "sub"
@@ -676,13 +696,14 @@ void compute_amt_to_spread_aggregates(const std::vector<unpivot_area_data>& upv,
     for (auto& s : sd) {
         std::cout   << std::setw( 8) << i
                     << std::setw(30) << s.sprd_desc
+                    << std::setw(10) << s.amt_to_spr_oth_mh
+                    << std::setw(10) << s.amt_to_spr_mh_tot
                     << std::setw(10) << s.amt_to_spr_l
                     << std::setw(10) << s.amt_to_spr_m
                     << std::setw(10) << s.amt_to_spr_s
                     << std::setw(10) << s.amt_to_spr_e << "\n";
         i++;
     }
-
 }
 
 /*5.4*/
@@ -705,7 +726,7 @@ std::vector<unpivot_area_data> tmp_upv;
 void compute_spread_basis_aggregates(std::vector<unpivot_area_data>& upv, std::vector<spread_items>& sd) {
     // create a map to aggregate the unpivot data
     int spread_id = 0;
-    std::map<int, aggregated_data> aggr_sd_basis;
+    std::map<int, final_results> aggr_sd_basis;
     
     //start iteration throught the unpivoted data rows
     for (auto& up : upv) {
@@ -715,32 +736,29 @@ void compute_spread_basis_aggregates(std::vector<unpivot_area_data>& upv, std::v
         spread_id = 0;
         for (it_tf; it_tf < up.apply_TF.end(); ++it_tf) {
             if ( *it_tf ) {
-                aggr_sd_basis[spread_id].other_mh += up.other_mh;
+                aggr_sd_basis[spread_id].oth_mh += up.oth_mh;
                 aggr_sd_basis[spread_id].mh_tot += up.mh_tot;
                 aggr_sd_basis[spread_id].area_qty += up.area_qty;
-                aggr_sd_basis[spread_id].labor += up.labor;
-                aggr_sd_basis[spread_id].matl += up.matl;
+                aggr_sd_basis[spread_id].lab += up.lab;
+                aggr_sd_basis[spread_id].mat += up.mat;
                 aggr_sd_basis[spread_id].sub += up.sub;
-                aggr_sd_basis[spread_id].eq += up.eq;
+                aggr_sd_basis[spread_id].eqp += up.eqp;
             }
             spread_id++;
         }
     }
 
     // transfer the aggregate calculted amounts from the map created above to the 'sd' vector passed into the function by reference
-// **********************************************************************************
-// fix mhrs later
-// **********************************************************************************
-// **********************************************************************************
     spread_id = 0;
     for (auto& s : sd) {
-        s.spr_l_agr = aggr_sd_basis[spread_id].labor;
-        s.spr_m_agr = aggr_sd_basis[spread_id].matl;
+        s.spr_oth_mh_agr = aggr_sd_basis[spread_id].oth_mh;
+        s.spr_mh_tot_agr = aggr_sd_basis[spread_id].mh_tot;
+        s.spr_l_agr = aggr_sd_basis[spread_id].lab;
+        s.spr_m_agr = aggr_sd_basis[spread_id].mat;
         s.spr_s_agr = aggr_sd_basis[spread_id].sub;
-        s.spr_e_agr = aggr_sd_basis[spread_id].eq;
+        s.spr_e_agr = aggr_sd_basis[spread_id].eqp;
         spread_id++;
     }
-
 }
 
 
@@ -754,14 +772,17 @@ void compute_spread_amounts(std::vector<unpivot_area_data>& upv, std::vector<spr
         //setup iterators to travere the respective categories within the 'up' vector item
         auto it_sd = sd.begin();
         auto it_tf = up.apply_TF.begin();
+        auto it_sd_omh = up.sprd_omh.begin();
+        auto it_sd_mht = up.sprd_mht.begin();
         auto it_sd_l = up.sprd_lab.begin();
         auto it_sd_m = up.sprd_mat.begin();
         auto it_sd_s = up.sprd_sub.begin();
         auto it_sd_e = up.sprd_eqp.begin();
         
-        
         while ( it_sd != sd.end() &&
                 it_tf != up.apply_TF.end() &&
+                it_sd_omh != up.sprd_omh.end() &&
+                it_sd_mht != up.sprd_mht.end() &&
                 it_sd_l != up.sprd_lab.end() &&
                 it_sd_m != up.sprd_mat.end() &&
                 it_sd_s != up.sprd_sub.end() &&
@@ -769,73 +790,99 @@ void compute_spread_amounts(std::vector<unpivot_area_data>& upv, std::vector<spr
                 
             if ( *it_tf ) {
                 // determine which currect spread basis case
-                if( it_sd->sprd_basis_field == "Lab") case_sel = 1;
-                if( it_sd->sprd_basis_field == "Mat") case_sel = 2;
-                if( it_sd->sprd_basis_field == "Sub") case_sel = 3;
-                if( it_sd->sprd_basis_field == "Eqp") case_sel = 4;
-                if( it_sd->sprd_basis_field == "All") case_sel = 5;
+                if( it_sd->sprd_basis_field == "Omh") case_sel = 1;
+                if( it_sd->sprd_basis_field == "Mht") case_sel = 2;
+                if( it_sd->sprd_basis_field == "Lab") case_sel = 3;
+                if( it_sd->sprd_basis_field == "Mat") case_sel = 4;
+                if( it_sd->sprd_basis_field == "Sub") case_sel = 5;
+                if( it_sd->sprd_basis_field == "Eqp") case_sel = 6;
+                if( it_sd->sprd_basis_field == "All") case_sel = 7;
 
                 double sprd_fraction[4];
                 switch (case_sel)
                 {
                     case 1: {
-                        if (it_sd->spr_l_agr > 0.000001) {
-                            sprd_fraction[0] = up.labor / it_sd->spr_l_agr;
+                        if (!isZero(it_sd->spr_oth_mh_agr)) {
+                            sprd_fraction[0] = up.oth_mh / it_sd->spr_oth_mh_agr;
                         } else {
                             sprd_fraction[0] = 0;
                         }
                         break;
                     }
                     case 2: {
-                        if (it_sd->spr_m_agr > 0.000001) { 
-                            sprd_fraction[0] = up.matl / it_sd->spr_m_agr;
+                        if (!isZero(it_sd->spr_mh_tot_agr)) {
+                            sprd_fraction[0] = up.mh_tot / it_sd->spr_mh_tot_agr;
                         } else {
                             sprd_fraction[0] = 0;
                         }
                         break;
                     }
                     case 3: {
-                        if (it_sd->spr_s_agr > 0.000001) {
-                            sprd_fraction[0] = up.sub / it_sd->spr_s_agr;
+                        if (!isZero(it_sd->spr_l_agr)) {
+                            sprd_fraction[0] = up.lab / it_sd->spr_l_agr;
                         } else {
                             sprd_fraction[0] = 0;
                         }
                         break;
                     }
                     case 4: {
-                        if (it_sd->spr_e_agr > 0.000001) {
-                            sprd_fraction[0] = up.eq / it_sd->spr_e_agr;
+                        if (!isZero(it_sd->spr_m_agr)) { 
+                            sprd_fraction[0] = up.mat / it_sd->spr_m_agr;
                         } else {
                             sprd_fraction[0] = 0;
                         }
                         break;
                     }
                     case 5: {
-                        if (it_sd->spr_l_agr > 0.000001) sprd_fraction[0] = up.labor / it_sd->spr_l_agr;
-                        if (it_sd->spr_m_agr > 0.000001) sprd_fraction[1] = up.matl / it_sd->spr_m_agr;
-                        if (it_sd->spr_s_agr > 0.000001) sprd_fraction[2] = up.sub / it_sd->spr_s_agr;
-                        if (it_sd->spr_e_agr > 0.000001) sprd_fraction[3] = up.eq / it_sd->spr_e_agr;
+                        if (!isZero(it_sd->spr_s_agr)) {
+                            sprd_fraction[0] = up.sub / it_sd->spr_s_agr;
+                        } else {
+                            sprd_fraction[0] = 0;
+                        }
+                        break;
+                    }
+                    case 6: {
+                        if (!isZero(it_sd->spr_e_agr)) {
+                            sprd_fraction[0] = up.eqp / it_sd->spr_e_agr;
+                        } else {
+                            sprd_fraction[0] = 0;
+                        }
+                        break;
+                    }
+                    case 7: {
+                        if (!isZero(it_sd->spr_oth_mh_agr)) sprd_fraction[0] = up.lab / it_sd->spr_oth_mh_agr;
+                        if (!isZero(it_sd->spr_mh_tot_agr)) sprd_fraction[1] = up.lab / it_sd->spr_mh_tot_agr;
+                        if (!isZero(it_sd->spr_l_agr)) sprd_fraction[2] = up.lab / it_sd->spr_l_agr;
+                        if (!isZero(it_sd->spr_m_agr)) sprd_fraction[3] = up.mat / it_sd->spr_m_agr;
+                        if (!isZero(it_sd->spr_s_agr)) sprd_fraction[4] = up.sub / it_sd->spr_s_agr;
+                        if (!isZero(it_sd->spr_e_agr)) sprd_fraction[5] = up.eqp / it_sd->spr_e_agr;
                         break;
                     }
                     default:
                         break;
                 }
-                if (case_sel == 5 ) {
-                    // use varying fraction for respective lab/mat/sub/eqp amounts for case 5 only
-                    if (it_sd->spr_l_agr > 0.000001) *it_sd_l = it_sd->amt_to_spr_l * sprd_fraction[0];
-                    if (it_sd->spr_m_agr > 0.000001) *it_sd_m = it_sd->amt_to_spr_m * sprd_fraction[1];
-                    if (it_sd->spr_s_agr > 0.000001) *it_sd_s = it_sd->amt_to_spr_s * sprd_fraction[2];
-                    if (it_sd->spr_e_agr > 0.000001) *it_sd_e = it_sd->amt_to_spr_e * sprd_fraction[3];
+                if (case_sel == 7 ) {
+                    // use varying fraction for respective lab/mat/sub/eqp amounts for case 7 only
+                    if (!isZero(it_sd->spr_oth_mh_agr)) *it_sd_omh = it_sd->amt_to_spr_oth_mh * sprd_fraction[0];
+                    if (!isZero(it_sd->spr_mh_tot_agr)) *it_sd_mht = it_sd->amt_to_spr_mh_tot * sprd_fraction[1];
+                    if (!isZero(it_sd->spr_l_agr)) *it_sd_l = it_sd->amt_to_spr_l * sprd_fraction[2];
+                    if (!isZero(it_sd->spr_m_agr)) *it_sd_m = it_sd->amt_to_spr_m * sprd_fraction[3];
+                    if (!isZero(it_sd->spr_s_agr)) *it_sd_s = it_sd->amt_to_spr_s * sprd_fraction[4];
+                    if (!isZero(it_sd->spr_e_agr)) *it_sd_e = it_sd->amt_to_spr_e * sprd_fraction[5];
                 } else {
                     // use fraction calculated and placed at the [0] element
-                    if (sprd_fraction[0] > 0.000001) *it_sd_l = it_sd->amt_to_spr_l * sprd_fraction[0];
-                    if (sprd_fraction[0] > 0.000001) *it_sd_m = it_sd->amt_to_spr_m * sprd_fraction[0];
-                    if (sprd_fraction[0] > 0.000001) *it_sd_s = it_sd->amt_to_spr_s * sprd_fraction[0];
-                    if (sprd_fraction[0] > 0.000001) *it_sd_e = it_sd->amt_to_spr_e * sprd_fraction[0];
+                    if (!isZero(sprd_fraction[0])) *it_sd_omh = it_sd->amt_to_spr_oth_mh * sprd_fraction[0];
+                    if (!isZero(sprd_fraction[0])) *it_sd_mht = it_sd->amt_to_spr_mh_tot * sprd_fraction[0];
+                    if (!isZero(sprd_fraction[0])) *it_sd_l = it_sd->amt_to_spr_l * sprd_fraction[0];
+                    if (!isZero(sprd_fraction[0])) *it_sd_m = it_sd->amt_to_spr_m * sprd_fraction[0];
+                    if (!isZero(sprd_fraction[0])) *it_sd_s = it_sd->amt_to_spr_s * sprd_fraction[0];
+                    if (!isZero(sprd_fraction[0])) *it_sd_e = it_sd->amt_to_spr_e * sprd_fraction[0];
                 }
             }
             it_sd++;
             it_tf++;
+            it_sd_omh++;
+            it_sd_mht++;
             it_sd_l++;
             it_sd_m++;
             it_sd_s++;
@@ -850,13 +897,14 @@ void print_unpivot_data(std::vector<unpivot_area_data>& upv, std::vector<spread_
     std::cout   << std::setw( 6) << std::left << "areaNo" << "|" 
                 << std::setw( 6) << "rowNo" << "|"
                 << std::setw(42) << "brkd_ref" << "|"
-                << std::setw(10) << "other_mh" << "|"
+                << std::setw(10) << "oth_mh" << "|"
                 << std::setw(10) << "area_qty" << "|"
+                << std::setw(10) << "uom" << "|"
                 << std::setw(10) << "mh_tot" << "|"
-                << std::setw(10) << "labor" << "|"
-                << std::setw(10) << "matl" << "|"
+                << std::setw(10) << "lab" << "|"
+                << std::setw(10) << "mat" << "|"
                 << std::setw(10) << "sub" << "|"
-                << std::setw(10) << "eq" << "|"
+                << std::setw(10) << "eqp" << "|"
                 << std::setw(10) << "total" << "|"
                 << std::setw(10) << "type" << "|"
                 << std::setw(10) << "div" << "|"
@@ -882,13 +930,14 @@ void print_unpivot_data(std::vector<unpivot_area_data>& upv, std::vector<spread_
         std::cout   << std::setw( 6) << std::left << up.areaNo << "|"
                     << std::setw( 6) << up.rowNo << "|"
                     << std::setw(42) << up.brkd_ref  << "|"
-                    << std::setw(10) << up.other_mh << "|"
+                    << std::setw(10) << up.oth_mh << "|"
                     << std::setw(10) << up.area_qty << "|"
+                    << std::setw(10) << up.uom << "|"
                     << std::setw(10) << up.mh_tot << "|"
-                    << std::setw(10) << up.labor << "|"
-                    << std::setw(10) << up.matl << "|"
+                    << std::setw(10) << up.lab << "|"
+                    << std::setw(10) << up.mat << "|"
                     << std::setw(10) << up.sub << "|"
-                    << std::setw(10) << up.eq << "|"
+                    << std::setw(10) << up.eqp << "|"
                     << std::setw(10) << up.total << "|"
                     << std::setw(10) << up.type << "|"
                     << std::setw(10) << up.div << "|"
@@ -901,18 +950,28 @@ void print_unpivot_data(std::vector<unpivot_area_data>& upv, std::vector<spread_
         }
         
         // Next iterate thru the spread values and print
+        auto it_somh = up.sprd_omh.begin();
+        auto it_smht = up.sprd_mht.begin();
         auto it_sl = up.sprd_lab.begin();
         auto it_sm = up.sprd_mat.begin();
         auto it_ss = up.sprd_sub.begin();
         auto it_se = up.sprd_eqp.begin();
-        while ( it_sl != up.sprd_lab.end() && 
+        while ( 
+                it_somh != up.sprd_omh.end() && 
+                it_smht != up.sprd_mht.end() && 
+                it_sl != up.sprd_lab.end() && 
                 it_sm != up.sprd_mat.end() && 
                 it_ss != up.sprd_sub.end() && 
                 it_se != up.sprd_eqp.end() ) {
+
+            std::cout << std::fixed << std::setprecision(2) << std::setw(10) << *it_somh << "|";
+            std::cout << std::fixed << std::setprecision(2) << std::setw(10) << *it_smht << "|";
             std::cout << std::fixed << std::setprecision(2) << std::setw(10) << *it_sl << "|";
             std::cout << std::fixed << std::setprecision(2) << std::setw(10) << *it_sm << "|";
             std::cout << std::fixed << std::setprecision(2) << std::setw(10) << *it_ss << "|";
             std::cout << std::fixed << std::setprecision(2) << std::setw(10) << *it_se << "|";
+            it_somh++;
+            it_smht++;
             it_sl++;
             it_sm++;
             it_ss++;
@@ -925,7 +984,7 @@ void print_unpivot_data(std::vector<unpivot_area_data>& upv, std::vector<spread_
 //5.6
 void check_spread_amounts_totals(std::vector<unpivot_area_data>& upv, std::vector<spread_items>& sd) {
 
-    std::vector<aggregated_data> chk_agr;
+    std::vector<final_results> chk_agr;
     for (auto& s : sd) {
         chk_agr.resize(sd.size(), { 0, "", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } );
     }
@@ -933,23 +992,33 @@ void check_spread_amounts_totals(std::vector<unpivot_area_data>& upv, std::vecto
     for (auto& up : upv) {
         //setup iterators to travere the respective categories within the 'up' vector item
         auto it_chk_agr = chk_agr.begin();
+
+        auto it_sd_omh = up.sprd_omh.begin();
+        auto it_sd_mht = up.sprd_mht.begin();
         auto it_sd_l = up.sprd_lab.begin();
         auto it_sd_m = up.sprd_mat.begin();
         auto it_sd_s = up.sprd_sub.begin();
         auto it_sd_e = up.sprd_eqp.begin();
 
         while ( it_chk_agr != chk_agr.end() &&
+                it_sd_omh != up.sprd_omh.end() &&
+                it_sd_mht != up.sprd_mht.end() &&
                 it_sd_l != up.sprd_lab.end() &&
                 it_sd_m != up.sprd_mat.end() &&
                 it_sd_s != up.sprd_sub.end() &&
                 it_sd_e != up.sprd_eqp.end() ) {
 
-            it_chk_agr->labor += *it_sd_l;
-            it_chk_agr->matl += *it_sd_m;
+            it_chk_agr->oth_mh += *it_sd_l;
+            it_chk_agr->mh_tot += *it_sd_l;
+            it_chk_agr->area_qty  += up.area_qty;   // dont need iterator for qty since its unpivoted (i.e. only one per line)
+            it_chk_agr->lab += *it_sd_l;
+            it_chk_agr->mat += *it_sd_m;
             it_chk_agr->sub += *it_sd_s;
-            it_chk_agr->eq += *it_sd_e;
+            it_chk_agr->eqp += *it_sd_e;
 
             it_chk_agr++;
+            it_sd_omh++;
+            it_sd_mht++;
             it_sd_l++;
             it_sd_m++;
             it_sd_s++;
@@ -960,45 +1029,68 @@ void check_spread_amounts_totals(std::vector<unpivot_area_data>& upv, std::vecto
     std::cout << "\ncheck data\n";
 
     for (auto& agr : chk_agr) {
-    std::cout   << agr.labor << "|"
-                << agr.matl << "|" 
+    std::cout   
+                << agr.oth_mh << "|"
+                << agr.mh_tot << "|"
+                << agr.lab << "|"
+                << agr.mat << "|" 
                 << agr.sub << "|" 
-                << agr.eq << "\n";
+                << agr.eqp << "\n";
     }
 }
 
 
 //5.7
-void compute_sum_base_and_spread_amounts(std::vector<unpivot_area_data>& upv, std::vector<spread_items>& sd, std::vector<aggregated_data>& fd) {
+void compute_sum_base_and_spread_amounts(std::vector<unpivot_area_data>& upv, std::vector<spread_items>& sd, std::vector<final_results>& fd) {
 
     // Create a map to aggregate the unpivoted hours and cost data with Group by area and category
-    std::map<int, std::map<std::string, aggregated_data>> aggr_map_by_area_categ;
+    std::map<int, std::map<std::string, final_results>> aggr_map_by_area_categ;
 
     for (auto& up : upv) {
         
         // Use the Map to gather the aggregates first for the base amounts
-        aggr_map_by_area_categ[up.areaNo][up.brkd_ref].labor += up.labor;
-        aggr_map_by_area_categ[up.areaNo][up.brkd_ref].matl += up.matl;
+        aggr_map_by_area_categ[up.areaNo][up.brkd_ref].oth_mh += up.oth_mh;
+        aggr_map_by_area_categ[up.areaNo][up.brkd_ref].mh_tot += up.mh_tot;
+        if (starts_with_key(up.uom)){
+            aggr_map_by_area_categ[up.areaNo][up.brkd_ref].area_qty += up.area_qty;
+        }
+        aggr_map_by_area_categ[up.areaNo][up.brkd_ref].lab += up.lab;
+        aggr_map_by_area_categ[up.areaNo][up.brkd_ref].mat += up.mat;
         aggr_map_by_area_categ[up.areaNo][up.brkd_ref].sub += up.sub;
-        aggr_map_by_area_categ[up.areaNo][up.brkd_ref].eq += up.eq;
+        aggr_map_by_area_categ[up.areaNo][up.brkd_ref].eqp += up.eqp;
 
         // Sum up all the spreads and add to the lab,mat,sub,eqp amounts above for each 'row'        
+        auto it_somh = up.sprd_omh.begin();
+        auto it_smht = up.sprd_mht.begin();
+        // ******************************************************************************************************************************************************************
+        // ******************************************************************************************************************************************************************
+        // Do i need a spread for quantities ?????????????????????????????
+        // ******************************************************************************************************************************************************************
+        // ******************************************************************************************************************************************************************
         auto it_sl = up.sprd_lab.begin();
         auto it_sm = up.sprd_mat.begin();
         auto it_ss = up.sprd_sub.begin();
         auto it_se = up.sprd_eqp.begin();
 
-        while ( it_sl != up.sprd_lab.end() && 
-                it_sm != up.sprd_mat.end() && 
-                it_ss != up.sprd_sub.end() && 
-                it_se != up.sprd_eqp.end() ) {
+        while ( it_somh != up.sprd_omh.end() && 
+            it_smht != up.sprd_mht.end() && 
+            it_sl != up.sprd_lab.end() && 
+            it_sm != up.sprd_mat.end() && 
+            it_ss != up.sprd_sub.end() && 
+            it_se != up.sprd_eqp.end() ) {
 
-                // Use the Map to gather the aggregates first for the base amounts
-                aggr_map_by_area_categ[up.areaNo][up.brkd_ref].labor += *it_sl;
-                aggr_map_by_area_categ[up.areaNo][up.brkd_ref].matl += *it_sm;
-                aggr_map_by_area_categ[up.areaNo][up.brkd_ref].sub += *it_ss;
-                aggr_map_by_area_categ[up.areaNo][up.brkd_ref].eq += *it_se;
+            // Use the Map to gather the aggregates for thespread amounts using the iterator values
+            aggr_map_by_area_categ[up.areaNo][up.brkd_ref].oth_mh += *it_somh;
+            aggr_map_by_area_categ[up.areaNo][up.brkd_ref].mh_tot += *it_smht;
 
+            // Do i need a spread for quantities ?????????????????????????????
+
+            aggr_map_by_area_categ[up.areaNo][up.brkd_ref].lab += *it_sl;
+            aggr_map_by_area_categ[up.areaNo][up.brkd_ref].mat += *it_sm;
+            aggr_map_by_area_categ[up.areaNo][up.brkd_ref].sub += *it_ss;
+            aggr_map_by_area_categ[up.areaNo][up.brkd_ref].eqp += *it_se;
+            it_somh++;
+            it_smht++;
             it_sl++;
             it_sm++;            
             it_ss++;
@@ -1009,12 +1101,75 @@ void compute_sum_base_and_spread_amounts(std::vector<unpivot_area_data>& upv, st
     double tmp_total = 0;    
     for (auto& area_pair : aggr_map_by_area_categ) {
         for (auto& brkd_pair : area_pair.second) {
-            tmp_total = brkd_pair.second.labor + brkd_pair.second.matl + brkd_pair.second.sub + brkd_pair.second.eq;
-            fd.push_back( { area_pair.first, brkd_pair.first, brkd_pair.second.other_mh, brkd_pair.second.mh_tot, 
-                            brkd_pair.second.area_qty, brkd_pair.second.labor, brkd_pair.second.matl, brkd_pair.second.sub, brkd_pair.second.eq, tmp_total} );
+            tmp_total = brkd_pair.second.lab + brkd_pair.second.mat + brkd_pair.second.sub + brkd_pair.second.eqp;
+            fd.push_back( { area_pair.first, brkd_pair.first, brkd_pair.second.oth_mh, brkd_pair.second.mh_tot, 
+                            brkd_pair.second.area_qty, brkd_pair.second.lab, brkd_pair.second.mat, brkd_pair.second.sub, brkd_pair.second.eqp, tmp_total} );
         }
     }
 } 
+
+
+void create_aggregate_all_areas(std::vector<final_results>& fd) {
+
+    // Create a map to aggregate the final results of all areas with Group by category only
+    std::map<std::string, final_results> aggr_map_by_categ;
+
+    for (auto& f : fd) {
+        // Use the Map to gather the aggregates first for the base amounts
+        aggr_map_by_categ[f.brkd_ref].oth_mh += f.oth_mh;
+        aggr_map_by_categ[f.brkd_ref].mh_tot+= f.mh_tot;
+        aggr_map_by_categ[f.brkd_ref].lab += f.lab;
+        aggr_map_by_categ[f.brkd_ref].mat += f.mat;
+        aggr_map_by_categ[f.brkd_ref].sub += f.sub;
+        aggr_map_by_categ[f.brkd_ref].eqp += f.eqp;
+    }
+
+    // Print Headings
+    std::cout   << "\nAggregte all areas\n"
+                << "Category" << "|"
+                << "Oth_MH" << "|"
+                << "Mh_Tot" << "|"
+                << "Qty" << "|"
+                << "Lab" << "|"
+                << "Mat" << "|"
+                << "Sub" << "|"
+                << "Eqp" << "\n";
+
+    // Iterate through the map and print out the results
+
+    auto it_agr = aggr_map_by_categ.begin();
+    double tmp_total;
+
+    while (it_agr !=  aggr_map_by_categ.end() ) {
+        tmp_total = 0;
+
+        std::cout   << it_agr->first << "|"
+                    << it_agr->second.oth_mh << "|"
+                    << it_agr->second.mh_tot << "|"
+                    << it_agr->second.area_qty << "|"
+                    << it_agr->second.lab << "|"
+                    << it_agr->second.mat << "|"
+                    << it_agr->second.sub << "|"
+                    << it_agr->second.eqp << "|"
+                    << "\n";
+            tmp_total = it_agr->second.lab + it_agr->second.mat + it_agr->second.sub + it_agr->second.eqp;
+
+            fd.push_back( { -1, 
+                            it_agr->first, 
+                            it_agr->second.oth_mh,
+                            it_agr->second.mh_tot,
+                            it_agr->second.area_qty,
+                            it_agr->second.lab,
+                            it_agr->second.mat,
+                            it_agr->second.sub,
+                            it_agr->second.eqp,
+                            tmp_total
+                        } );
+
+        it_agr++;
+    }
+
+}
 
 
 // 6.1
@@ -1064,29 +1219,19 @@ void print_sd(std::vector<spread_items>& sd) {
 }
 
 // 6.3
-void print_final_data(std::vector<aggregated_data>& fd) {
-        int areaNo;
-    std::string brkd_ref;
-    double other_mh = 0;
-    double mh_tot = 0;
-    double area_qty = 0;
-    double labor = 0;
-    double matl = 0;
-    double sub = 0;
-    double eq = 0;
-    double total = 0;
+void print_final_data(std::vector<final_results>& fd) {
 
     // Print Titles    
     std::cout << "\n";
     std::cout << std::setw(10) <<  std::left << "areaNo" << "|"
     << std::setw(30) << "brkd_ref" << "|" 
-    << std::setw(10) << "other_mh" << "|" 
+    << std::setw(10) << "oth_mh" << "|" 
     << std::setw(10) << "mh_tot" << "|" 
     << std::setw(10) << "area_qty" << "|" 
-    << std::setw(10) << "labor" << "|"
-    << std::setw(10) << "matl" << "|" 
+    << std::setw(10) << "lab" << "|"
+    << std::setw(10) << "mat" << "|" 
     << std::setw(10) << "sub" << "|" 
-    << std::setw(10) << "eq" << "|" 
+    << std::setw(10) << "eqp" << "|" 
     << std::setw(10) << "total" << "\n"; 
 
     
@@ -1099,13 +1244,13 @@ void print_final_data(std::vector<aggregated_data>& fd) {
         }
         std::cout << std::setw(10) << std::left << f.areaNo << "|" 
             << std::setw(30) << f.brkd_ref << "|" 
-            << std::setw(10) << f.other_mh << "|"
+            << std::setw(10) << f.oth_mh << "|"
             << std::setw(10) << f.mh_tot << "|"
             << std::setw(10) << f.area_qty << "|"
-            << std::setw(10) << f.labor << "|"
-            << std::setw(10) << f.matl << "|"
+            << std::setw(10) << f.lab << "|"
+            << std::setw(10) << f.mat << "|"
             << std::setw(10) << f.sub << "|"
-            << std::setw(10) << f.eq << "|"
+            << std::setw(10) << f.eqp << "|"
             << std::setw(10) << f.total << "\n";
             prevAreaNo = f.areaNo;
     }
@@ -1121,31 +1266,186 @@ void print_final_data(std::vector<aggregated_data>& fd) {
             std::cout << "Previous file deleted." << std::endl;
         }
 
-
         outFile.open(filename, std::ios::binary);
         if (!outFile) {
             std::cerr << "Error opening file for writing!" << std::endl;
         }
+    }
+    // 7.2
+    void writeDbl(std::ofstream& file, double& num) {
+        file.write(reinterpret_cast<const char*>(&num), sizeof(num));
+    }
+    
+    // 7.3
+    void writeShr(std::ofstream& file, unsigned short& num) {
+        file.write(reinterpret_cast<const char*>(&num), sizeof(num));
+    }
+
+    // 7.4
+    void writeInt(std::ofstream& file, int& num) {
+        file.write(reinterpret_cast<const char*>(&num), sizeof(num));
+    }
+
+    // 7.5
+    void writeLong(std::ofstream& file, long& num) {
+        file.write(reinterpret_cast<const char*>(&num), sizeof(num));
+    }
+
+    // 7.6
+    void writeStr(std::ofstream& file, std::string& str) {
+        // write the string length as a single byte, 0-255 numeric
+        unsigned char strL = str.length();
+        file.write(reinterpret_cast<const char*>(&strL), sizeof(strL));
+        // Write the string data
+        file.write(str.data(), strL);
+    }
+
+    /*7.7*/ void write_unpivot_data(std::ofstream& outFile, std::vector<unpivot_area_data>& upv, std::vector<spread_items>& sd) {
+
+        // Write the number of rows which cooresponds to vba integer type
+        unsigned short row_cnt = upv.size();
+        outFile.write(reinterpret_cast<const char*>(&row_cnt), sizeof(row_cnt));
+
+        // Write the number of spreads which cooresponds to vba integer type
+        unsigned short sprd_cnt = sd.size();
+        outFile.write(reinterpret_cast<const char*>(&sprd_cnt), sizeof(sprd_cnt));
+
+        //Write the Headers
+        std::vector<std::string> titles = { "areaNo", "rowNo" ,"brkd_ref" ,"oth_mh" ,"area_qty" ,"mh_tot" ,"lab" ,"mat" ,"sub" ,"eqp" ,"total" ,"type" ,"div" ,"discp" ,"lab_type" ,"atl_btl" };
+        for (auto& s : titles) {
+            writeStr(outFile, s);
+        }        
+
+        int i=0;    
+        std::string tmpStr;
+
+        // write the Titles for Boolean values of condition whether to apply spreads as True of False
+        for (const auto s : sd) {
+            tmpStr = "Cond_" + std::to_string(i);
+            writeStr(outFile, tmpStr);
+            i++;
+        }
+
+        // Write Spread Computed Amounts Titles Spread Lab, Mat, Sub, Eqp
+        i=0;
+        for (auto s : sd) {
+            tmpStr = "Spr_l_" + std::to_string(i);
+            writeStr(outFile, tmpStr);
+            tmpStr = "Spr_m_" + std::to_string(i);
+            writeStr(outFile, tmpStr);
+            tmpStr = "Spr_s_" + std::to_string(i);
+            writeStr(outFile, tmpStr);
+            tmpStr = "Spr_e_" + std::to_string(i);
+            writeStr(outFile, tmpStr);
+            i++;
+        }
+
+        // Write the Mix of Int, Strings, Dbl Values for each Row
+        for (auto& up : upv) {
+            writeInt(outFile, up.areaNo);
+            writeInt(outFile, up.rowNo);
+            writeStr(outFile, up.brkd_ref );
+            writeDbl(outFile, up.oth_mh);
+            writeDbl(outFile, up.area_qty);
+            writeDbl(outFile, up.mh_tot);
+            writeDbl(outFile, up.lab);
+            writeDbl(outFile, up.mat);
+            writeDbl(outFile, up.sub);
+            writeDbl(outFile, up.eqp);
+            writeDbl(outFile, up.total);
+            writeStr(outFile, up.type);
+            writeStr(outFile, up.div);
+            writeStr(outFile, up.discp);
+            writeStr(outFile, up.lab_type);
+            writeStr(outFile, up.atl_btl);
+
+            for (auto it_tf = up.apply_TF.begin(); it_tf < up.apply_TF.end(); it_tf++) {
+                tmpStr = boolToString(*it_tf);
+                writeStr(outFile, tmpStr);
+            }
+            // Next iterate thru the spread values and print
+            auto it_sl = up.sprd_lab.begin();
+            auto it_sm = up.sprd_mat.begin();
+            auto it_ss = up.sprd_sub.begin();
+            auto it_se = up.sprd_eqp.begin();
+            while ( it_sl != up.sprd_lab.end() && 
+                    it_sm != up.sprd_mat.end() && 
+                    it_ss != up.sprd_sub.end() && 
+                    it_se != up.sprd_eqp.end() ) {
+                writeDbl(outFile, *it_sl);
+                writeDbl(outFile, *it_sm);
+                writeDbl(outFile, *it_ss);
+                writeDbl(outFile, *it_se);
+                it_sl++;
+                it_sm++;
+                it_ss++;
+                it_se++;
+            }
+        }
+    }
+    
+    /*7.8*/
+    void write_sd(std::ofstream& outFile, std::vector<spread_items>& sd) {
         
-        // ****************************************************************************************************
-        // ****************** move this to end after writing all data outfile after writing *******************
-        // ****************************************************************************************************
-        // ****************************************************************************************************
+        //Write the Headers
+        std::vector<std::string> titles = { "sprd_order", "sprd_desc", "type", "div", "discp", "lab_type", "atl_btl", "sprd_basis_field", "incl_cumul_sprd_values_list",
+                                            "amt_to_spr_l", "amt_to_spr_m", "amt_to_spr_s", "amt_to_spr_e", "spr_l_agr", "spr_m_agr", "spr_s_agr", "spr_e_agr" };
+        for (auto& s : titles) {
+            writeStr(outFile, s);
+        }        
+
+        // Output to screen verify the read of the data
+        for (auto& s : sd) {
+            writeShr(outFile, s.sprd_order);
+            writeStr(outFile, s.sprd_desc);
+            writeStr(outFile, s.type);
+            writeStr(outFile, s.div);
+            writeStr(outFile, s.discp);
+            writeStr(outFile, s.lab_type);
+            writeStr(outFile, s.atl_btl);
+            writeStr(outFile, s.sprd_basis_field);
+            writeStr(outFile, s.incl_cumul_sprd_values_list);
+            writeDbl(outFile, s.amt_to_spr_l);
+            writeDbl(outFile, s.amt_to_spr_m);
+            writeDbl(outFile, s.amt_to_spr_s);
+            writeDbl(outFile, s.amt_to_spr_e);
+            writeDbl(outFile, s.spr_l_agr);
+            writeDbl(outFile, s.spr_m_agr);
+            writeDbl(outFile, s.spr_s_agr);
+            writeDbl(outFile, s.spr_e_agr);
+        }
+    }
+
+    
+    /*7.9*/
+    void write_final_data(std::ofstream& outFile, std::vector<final_results>& fd) {
+
+        //Write the number of fibal data rows
+        unsigned short no_rows;
+        no_rows =  static_cast<unsigned short>(fd.size());
+        writeShr(outFile, no_rows);  // Write as a unsigned Short to be read as a integer in vba
+
+        //Write the Headers
+        std::vector<std::string> titles = { "areaNo", "brkd_ref", "oth_mh", "mh_tot", "area_qty", "lab", "mat", "sub", "eqp", "total" };
+        for (auto& s : titles) {
+            writeStr(outFile, s);
+        }        
+
+    // Output to screen verify the read of the data
+        for (auto& f : fd) {
+            writeInt(outFile, f.areaNo);
+            writeStr(outFile, f.brkd_ref);
+            writeDbl(outFile, f.oth_mh);
+            writeDbl(outFile, f.mh_tot);
+            writeDbl(outFile, f.area_qty);
+            writeDbl(outFile, f.lab);
+            writeDbl(outFile, f.mat);
+            writeDbl(outFile, f.sub);
+            writeDbl(outFile, f.eqp);
+            writeDbl(outFile, f.total);
+        }
         outFile.close();
         std::cout << "File closed after writing final data." << std::endl;
-
-    }
-    /*7.2*/ void write_unpivot_data(std::ofstream& outFile, std::vector<unpivot_area_data>& upv, std::vector<spread_items>& sd) {
-
-        unsigned short no_of_rows = upv.size();
-
-
-    }
-    /*7.3*/ void write_sd(std::ofstream& outFile, std::vector<spread_items>& sd) {
-
-    }
-    /*7.4*/ void write_final_data(std::ofstream& outFile, std::vector<aggregated_data>& fd){
-
     }
 
 //20.1
@@ -1188,4 +1488,16 @@ void printAnyErrors(int result, int estim_row) {
     } else {
         std::cout << "Run Completed without any known errors.\n";
     }
+}
+
+std::string boolToString(bool value) {
+    return value ? "true" : "false";
+}
+
+
+bool starts_with_key(const std::string& str) {
+    std::string prefix;
+    prefix = "key_";
+
+    return str.compare(0, prefix.size(), prefix) == 0;
 }
