@@ -1,4 +1,6 @@
-#This repo contains several small cpp functions as follows:
+#####  C++ Misc Functions ####
+
+This repository contains several small cpp functions as follows:
 
 __cout_string_placement_phone_mask.cpp__
 ->  Contains various examples of how to use 
