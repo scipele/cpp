@@ -25,6 +25,12 @@ This repository contains several small cpp functions as follows:
    - example of how to create pointers for different parts of a string
    - example of how to loop thru each string character and print the memory address in hexidecimal
 
+
+##  Math
+1. math_operators.cpp
+   - Example usage of various mthematicl operators (sqrt, pow, M_PI, std::sin,  using the math lib
+   -    
+
 ##  Misc
 1. get_input_wo_new_line.cpp
    - gets user input on command line catching the keystrokes and preventing enter key from going to a new line
