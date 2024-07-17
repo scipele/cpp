@@ -5,7 +5,7 @@ cout_string_placement_phone_mask.cpp
     cout, with std::setw(XX), std::left, std::right, method for cetnering text, method for phone masking
 
 
-sortListStrings.cpp
+strings_read_write_text_file_make_unique_sort.cpp
 ->  - get strings from a text file
     - sort a vector of strings using std::sort
     - remove dumplicates using std:unique and .erase methods
