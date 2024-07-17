@@ -1,4 +1,4 @@
-#####  C++ Misc Functions ####
+#  C++ Misc Functions
 
 This repository contains several small cpp functions as follows:
 
@@ -18,8 +18,3 @@ check_string_match.cpp
 
 
     
-<picture>
- <source media="(prefers-color-scheme: dark)" srcset="YOUR-DARKMODE-IMAGE">
- <source media="(prefers-color-scheme: light)" srcset="YOUR-LIGHTMODE-IMAGE">
- <img alt="YOUR-ALT-TEXT" src="YOUR-DEFAULT-IMAGE">
-</picture>
