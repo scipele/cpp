@@ -26,5 +26,5 @@ This repository contains several small cpp functions as follows:
    - example of how to loop thru each string character and print the memory address in hexidecimal
 
 ##  Misc
-6. get_input_wo_new_line.cpp
+1. get_input_wo_new_line.cpp
    - gets user input on command line catching the keystrokes and preventing enter key from going to a new line
