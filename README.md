@@ -32,12 +32,21 @@ This repository contains several small cpp functions as follows:
    -    
 
 ##  Misc
-1. get_input_wo_new_line.cpp
+1. clear_screen_by_inserting_blank_rows.cpp
+   - inserts several blanks for kinda clear the screen
+2. convert_binary_to_text.cpp
+   
+  
+4. get_input_wo_new_line.cpp
    - gets user input on command line catching the keystrokes and preventing enter key from going to a new line
 
-2. ternary_operator.cpp
+5. ternary_operator.cpp
    - Simple Example to clearly illustrate how the Ternary Operator Works
 
-3. timer.cpp
+6. timer.cpp
    - Timer example using chrono
+  
+7. switch_function.cpp
+   - Example of how to use Enums that are equivalent to integer representations of strings
+   - Note that c++ switch function only accepts integers as condition
   
