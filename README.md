@@ -15,4 +15,11 @@ strings_read_write_text_file_make_unique_sort.cpp
     - write strings to a text file
 
 check_string_match.cpp
+
+
     
+<picture>
+ <source media="(prefers-color-scheme: dark)" srcset="YOUR-DARKMODE-IMAGE">
+ <source media="(prefers-color-scheme: light)" srcset="YOUR-LIGHTMODE-IMAGE">
+ <img alt="YOUR-ALT-TEXT" src="YOUR-DEFAULT-IMAGE">
+</picture>
