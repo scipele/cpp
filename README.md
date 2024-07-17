@@ -28,3 +28,10 @@ This repository contains several small cpp functions as follows:
 ##  Misc
 1. get_input_wo_new_line.cpp
    - gets user input on command line catching the keystrokes and preventing enter key from going to a new line
+
+2. ternary_operator.cpp
+   - Simple Example to clearly illustrate how the Ternary Operator Works
+
+3. timer.cpp
+   - Timer example using chrono
+  
