@@ -13,7 +13,13 @@ This repository contains several small cpp functions as follows:
    - join a vector of strings all into one string
    - write strings to a text file
 
-###3. check_string_match.cpp
+3. check_string_match.cpp
+   - cmp_strg_w_case: Compares std::strings considering case
+   - cmp_strg_wo_case: Compares std::strings without considering case
+   
+4. convert_case.cpp
+   - convert case to lower, upper, and proper case for std::strings
+  
 
 
     
