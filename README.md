@@ -20,6 +20,8 @@ This repository contains several small cpp functions as follows:
 4. string_convert_case.cpp
    - convert case to lower, upper, and proper case for std::strings
   
-
+5. string_parts_pointers_memory_addresess.cpp
+   - example of how to create pointers for different parts of a string
+   - example of how to loop thru each string character and print the memory address in hexidecimal
 
     
