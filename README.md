@@ -17,7 +17,7 @@ This repository contains several small cpp functions as follows:
    - cmp_strg_w_case: Compares std::strings considering case
    - cmp_strg_wo_case: Compares std::strings without considering case
    
-4. convert_case.cpp
+4. string_convert_case.cpp
    - convert case to lower, upper, and proper case for std::strings
   
 
