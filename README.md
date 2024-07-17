@@ -2,7 +2,8 @@
 
 This repository contains several small cpp functions as follows:
 
-##Files:
+##   Files
+
 1. cout_string_placement_phone_mask.cpp
    - Contains various examples of how to use
    - cout, with std::setw(XX), std::left, std::right, method for cetnering text, method for phone masking
@@ -24,4 +25,6 @@ This repository contains several small cpp functions as follows:
    - example of how to create pointers for different parts of a string
    - example of how to loop thru each string character and print the memory address in hexidecimal
 
-    
+##  Misc
+6. get_input_wo_new_line.cpp
+   - gets user input on command line catching the keystrokes and preventing enter key from going to a new line
