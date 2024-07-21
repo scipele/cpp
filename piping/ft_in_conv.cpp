@@ -124,19 +124,17 @@ private:
     double calcDecMillimeter() {
         return calcDecInch() * 25.4;
     }
-
 };
 
 int main() {
  
     FracConvert conv;
-     std::string input;
+    std::string input;
 
     std::cout << "\nConvert Fractional Feet, Inches and Fractions to Decimal (ie 43'-7 7/16\") : ";
     std::getline(std::cin, input);
 
     std::cout << "Decimal Feet = " << conv.FracToDecFeet(input) << "\n";
     std::cout << "Decimal Inch = " << conv.FracToDecInch(input) << "\n";
-    std::cout << "Millimeters = " << conv.FracToDecMillimeter(input) << "\n";
-    
+    std::cout << "Millimeters = " << conv.FracToDecMillimeter(input) << "\n";  
 }
