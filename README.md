@@ -27,7 +27,6 @@ This repository contains several small cpp functions as follows:
 ##  Math
 1. math_operators.cpp
    - Example usage of various mthematicl operators (sqrt, pow, M_PI, std::sin,  using the math lib
-     
 
 ##  Misc
 1. clear_screen_by_inserting_blank_rows.cpp
@@ -44,7 +43,11 @@ This repository contains several small cpp functions as follows:
 10. timer.cpp
 11. variable_types_sizes_formating_screen_print.cpp
   
-  
+## Piping
+1. ft_in_conv.cpp - Class for converting frational Ft, Inches, and Fractions to Decimal Inches, Feed, or Millimeters
+2. getPipeData_v03.cpp - Get Pipe Properties (Pipe OD, ID, Thickness, Empty Wt/Ft, Water Wt/Ft, Full of Water) for a given size and schedule
+3. pipeOD_v02.cpp - Returns Pipe OD given nominal Pipe Size
+
 ## Strings
 1. check_string_array_for_match.cpp
 2. check_string_match.cpp
