@@ -117,8 +117,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             double xcen = (xmax - xmin) /2 ;
             double ycen = (ymax - ymin) /2 ;
 
-            double x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x1_prev, y1_prev, x2_prev, y2_prev, x3_prev, y3_prev, x4_prev, y4_prev, a, b, c, a1, a2, b2, k;
-            double ang = 0.02;      // radians
+            double x1, y1, x2, y2, x3, y3, x4, y4, x1_prev, y1_prev, x2_prev, y2_prev, x3_prev, y3_prev, x4_prev, y4_prev, xd_prev, yd_prev, len_lg_prev, len_lg, len_sh, a1, b2 ;
+            double ang = 0.15, ang_delta = 0.15;      // radians
 
             // second layer (starting near 0,0 - corner)
             //start x1,y1, x2,y2
@@ -133,21 +133,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 
             // Start Loop Here Later
-            for (int i = 1; i < 50; i++) {
+            for (int i = 1; i < 3; i++) {
 
-                a = x2_prev - x1_prev;
-                b = y2_prev - y1_prev;
-                c = sqrt(pow(a, 2) + pow(b, 2));
-                k = tan(ang);
+                // Compute Previous Line Length
+                xd_prev = x2_prev - x1_prev;
+                yd_prev = y2_prev - y1_prev;
+                len_lg_prev = sqrt(pow(xd, 2) + pow(yd, 2));
 
-                a1 = a / ( 1 + pow(k, 2) );     // long side new length
-                a2 = pow(k, 2) * a1;            // long side offset (gets shorter by this distance)
-                b2 = k * a1;                    // short side offset
+                len_lg = len_prev / ( 1 + pow(tan(ang), 2) );      // triangle long side new length
+                len_sh = tan(ang) * len_lg;                             // short side offset
 
                 x2 = x1_prev + a1;
                 y2 = y1_prev + b2;
                 line(hdc, x1_prev, y1_prev, x2, y2);
-
 
                 x3 = x2_prev - b2;
                 y3 = y2_prev + a1;
@@ -157,19 +155,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
                 y4 = y3_prev - b2;
                 line(hdc, x3_prev, y3_prev, x4, y4);
 
-                x5 = x4_prev + b2;
-                y5 = y4_prev - a1;
-                line(hdc, x4_prev, y4_prev, x5, y5);
+                x1 = x4_prev + b2;
+                y1 = y4_prev - a1;
+                line(hdc, x4_prev, y4_prev, x1, y1);
 
                 // draw filled in triangle for odd iterations
                 if (i % 2 == 1) drawFilledTriangle(hdc, { {x1_prev, y1_prev}, {x2_prev, y2_prev}, {x2, y2} }, RGB(0, 255, 0));
         
-
                 // Set previous values for next iteration                
-                ang = ang + 0.02;
-
-                x1_prev = x5;
-                y1_prev = y5;
+                ang += ang_delta;
+                x1_prev = x1;
+                y1_prev = y1;
                 x2_prev = x2;
                 y2_prev = y2;
                 x3_prev = x3;
@@ -181,9 +177,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
             //print values on screen
             show_variable_value(hdc, "c =", c, 10, 10);
-            show_variable_value(hdc, "a1 =", a1, 10, 30);
-            show_variable_value(hdc, "a2 =", a2, 10, 50);
-            show_variable_value(hdc, "b2 =", b2, 10, 70);
 
   
             EndPaint(hWnd, &ps);
