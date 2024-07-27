@@ -1,3 +1,12 @@
+// This program starts by drawing an square and then
+// given an angle in radians triangle i solved for squares
+// inside the other squares that progressively get smaller
+// the program loops to recalculate the triangle for each of
+// the 50 iterations.  for odd iterations the triangles are
+// drawn filled in
+//
+// by.  T. Sciple 7/27/2024
+
 #include <Windows.h>
 #include <sstream>
 #include <cmath>
