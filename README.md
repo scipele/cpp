@@ -24,6 +24,10 @@ This repository contains several small cpp functions as follows:
 1. listFiles_v14.cpp
 2. thumbs_del.cpp
 
+##  Graphics
+1. swirl.cpp - Draws a swirling pattern of triangles / rectangles with filled in triangles for odd iterations
+2. draw_lines_with_eyeball_pattern.cpp - A line pattern with eyball in the middle with various colors
+
 ##  Math
 1. math_operators.cpp
    - Example usage of various mthematicl operators (sqrt, pow, M_PI, std::sin,  using the math lib
