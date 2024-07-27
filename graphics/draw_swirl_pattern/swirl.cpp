@@ -1,9 +1,8 @@
-// This program starts by drawing an square and then
-// given an angle in radians triangle i solved for squares
-// inside the other squares that progressively get smaller
-// the program loops to recalculate the triangle for each of
-// the 50 iterations.  for odd iterations the triangles are
-// drawn filled in
+// This program starts by drawing an square and then given an angle in radians triangle i solved for squares
+// inside the other squares that progressively get smaller the program loops to recalculate the triangle for each of
+// the 50 iterations.  For odd iterations the triangles are drawn filled in with two different RGB colors
+//
+// Using command line compiler in Windows 11, g++ -o swirl.exe swirl.cpp -mwindows
 //
 // by.  T. Sciple 7/27/2024
 
@@ -67,6 +66,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 }
 
 void line(HDC& hdc, double x1, double y1, double x2, double y2) {
+    // Cast double values to long to avoid warnings
     long x1_lg = static_cast<long>(x1); 
     long y1_lg = static_cast<long>(y1); 
     long x2_lg = static_cast<long>(x2); 
@@ -76,24 +76,20 @@ void line(HDC& hdc, double x1, double y1, double x2, double y2) {
     LineTo(hdc, x2_lg, y2_lg);
 }
 
-void drawFilledTriangle(HDC hdc, std::initializer_list<POINT> vertices, COLORREF color) {
-    if (vertices.size() != 3) {
-        // Handle error: there must be exactly 3 points
-        return;
-    }
+void drawFilledTriangle(HDC hdc, double x1, double y1, double x2, double y2, double x3, double y3, COLORREF color) {
+
+    // Convert points to POINT structure with static_cast
     POINT pts[3];
-    std::copy(vertices.begin(), vertices.end(), pts);
+    pts[0] = { static_cast<LONG>(x1), static_cast<LONG>(y1) };
+    pts[1] = { static_cast<LONG>(x2), static_cast<LONG>(y2) };
+    pts[2] = { static_cast<LONG>(x3), static_cast<LONG>(y3) };
+    
 
     HBRUSH hBrush = CreateSolidBrush(color); // Create a brush with the specified color
     HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
     Polygon(hdc, pts, 3);
     SelectObject(hdc, hOldBrush);
     DeleteObject(hBrush);
-}
-
-// function to convert double to long
-long dtl(double num) {
-    return static_cast<long>(num);
 }
 
 // Window procedure
@@ -127,7 +123,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
             double ycen = (ymax - ymin) /2 ;
 
             // Declare Variables
-            point p[10];
+            point p[8];
             p[0] = { 450, 10 };
             p[1] = { 1430, 10 };
             p[2] = { 1430, 990 };
@@ -167,10 +163,10 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
                 line(hdc, p[3].x, p[3].y, p[7].x, p[7].y);
 
                 // draw filled in triangle for odd iterations
-                if (i % 2 == 1) drawFilledTriangle(hdc, { { dtl(p[0].x), dtl(p[0].y) }, { dtl(p[1].x), dtl(p[1].y) }, { dtl(p[4].x), dtl(p[4].y) } }, RGB(234, 63, 247));
-                if (i % 2 == 1) drawFilledTriangle(hdc, { { dtl(p[1].x), dtl(p[1].y) }, { dtl(p[5].x), dtl(p[5].y) }, { dtl(p[2].x), dtl(p[2].y) } }, RGB(0, 255, 0));
-                if (i % 2 == 1) drawFilledTriangle(hdc, { { dtl(p[2].x), dtl(p[2].y) }, { dtl(p[3].x), dtl(p[3].y) }, { dtl(p[6].x), dtl(p[6].y) } }, RGB(234, 63, 247));
-                if (i % 2 == 1) drawFilledTriangle(hdc, { { dtl(p[3].x), dtl(p[3].y) }, { dtl(p[7].x), dtl(p[7].y) }, { dtl(p[0].x), dtl(p[0].y) } }, RGB(0, 255, 0));
+                if (i % 2 == 1) drawFilledTriangle(hdc, p[0].x, p[0].y, p[1].x, p[1].y, p[4].x, p[4].y, RGB(234, 63, 247));
+                if (i % 2 == 1) drawFilledTriangle(hdc, p[1].x, p[1].y, p[5].x, p[5].y, p[2].x, p[2].y, RGB(0, 255, 0));
+                if (i % 2 == 1) drawFilledTriangle(hdc, p[2].x, p[2].y, p[3].x, p[3].y, p[6].x, p[6].y, RGB(234, 63, 247));
+                if (i % 2 == 1) drawFilledTriangle(hdc, p[3].x, p[3].y, p[7].x, p[7].y, p[0].x, p[0].y, RGB(0, 255, 0));
 
                 // Compute starting length for next iteration
                 xd = p[4].x - p[7].x;
