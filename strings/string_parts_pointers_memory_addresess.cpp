@@ -2,7 +2,7 @@
 #include <string>
 
 // This example shows how strings are stored in memory addresses for each letter or space
-// Also the example shows how pointers can be defined to different parts of a string
+// Also the example shows how pointers can be defined to point to different parts of a string
 
 int main() {
     std::string str = "Show Memory Address of Each Character";
@@ -21,7 +21,6 @@ int main() {
 
     std::cout << "Example to Show how a string is stored in c++:";
     std::cout << "\t with string input -> " << str << "\n\n";
-
 
     std::cout << "Pointer to the beginning (ptr_begin): " << static_cast<void*>(ptr_begin) << " (" << *ptr_begin << ")\n";
     std::cout << "Pointer to the middle (ptr_space)   : " << static_cast<void*>(ptr_space) << " (" << *ptr_space << ")\n";
