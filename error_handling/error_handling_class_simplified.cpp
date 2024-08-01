@@ -46,7 +46,6 @@ private:
     }
 };
 
-
 ErrCode proportionNumbers(double a, double b, double c);
 ErrCode concreteVolume(std::string type, double param1_ft, double param2_ft, double param3_ft );
 double near_zero(double num);
@@ -85,7 +84,6 @@ int main() {
 
     return 0;
 }
-
 
 // Example function to simulate file reading
 ErrCode proportionNumbers(double a, double b, double c ) {
