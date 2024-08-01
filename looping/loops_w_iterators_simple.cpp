@@ -37,28 +37,23 @@ int for_loop_example() {
 
 int for_each_char_in_str_example() {
     std::string str = "Print message with space btw characters";
-
     // Iterate through each character in the string
     std::cout << "\n2. Example 'for' loop, iterates thru each character('c') contained in string('str'):\n\t";
     for (char c : str) {
         std::cout << c << " ";
     }
     std::cout << "\n\n";
-
     return 0;
 }
 
 int for_each_string_in_vector_example() {
     std::vector<std::string> planets = { "Mercury", "Venus", "Earth", "Mars", "Saturn", "Neptune", "Pluto" };
-
     // Iterate through a vector of std::strings
     std::cout << "3. Example of a range based for loop with auto iterators not shown explicitely\n\t";
-
     for (std::string planet : planets) {
         std::cout << planet << ", ";
     }
     std::cout << std::endl;
-
     return 0;
 }
 
@@ -77,20 +72,16 @@ int for_each_string_in_vector_example_with_iterator() {
         }
     }
     std::cout << std::endl;
-
     return 0;
 }
 
 int whileLoopWithTwoIteratorsInParalell() {
-
     std::cout << "\n5. Example While Loop With Two Iterators In Paralell\n\t";
     // Given two separate Vectors with the same number of elements
     std::vector<int> RowNos = { 103, 105, 110, 345, 500 };
     std::vector<std::string> Desc = { "Pipe", "Pipe", "Steel", "Equip", "Indirect" };
-
     std::vector<int>::iterator it1 = RowNos.begin();
     std::vector<std::string>::iterator it2 = Desc.begin();
-
     while ( it1 != RowNos.end() && it2 != Desc.end() ) {
             std::cout << *it1 << ", " << *it2;
             if (it1 != RowNos.end()-1 && it2 != Desc.end()-1) {
@@ -100,34 +91,28 @@ int whileLoopWithTwoIteratorsInParalell() {
             it2++;
     }
     std::cout << "\n\n";
-
     return 0;
 }
 
 int do_while_loop_example() {
     int num = 1;
-
     std::cout << "6. Example 'do-while' loop print 11 to 20:\n\t";
     num = 11;
     do {
         std::cout << num << " ";
         num++;
     } while (num <= 20);
-
     return 0;
 }
 
 int while_loop_example() {
     int num = 20;
-
-    std::cout << "\n\n7. Example 'while' loop to print numbers 20-30:\n\t";
+   std::cout << "\n\n7. Example 'while' loop to print numbers 20-30:\n\t";
     while (num <= 30) {
         std::cout << num << " ";
         num++;
     }
-
     std::cout << "\n\n";
-
     return 0;
 }
 
