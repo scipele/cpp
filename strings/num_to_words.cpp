@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 
+//fix this later - not working correctly - sciple
+
 std::string numToWords(double MyNumber);
 
 std::string Place[] = {"", "Thousand", "Million", "Billion", "Trillion"};
