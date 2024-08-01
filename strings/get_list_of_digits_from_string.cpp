@@ -19,7 +19,7 @@ void getConsecutiveNumsAndPosition(std::string& inp, std::vector<parsed>& prsd) 
                 prsd.back().item = prsd.back().item + inp[i];
             } else {
                 strg += inp[i];
-                prsd.push_back( { strg, i } );
+                prsd.back( { strg, i } );
                 strg.clear();        
             }
             prev_is_num = true;

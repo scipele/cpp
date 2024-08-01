@@ -79,7 +79,6 @@ int main() {
     return 0;
 }
 
-
 std::string FormatWithCommas(int num) {
     std::string str = std::to_string(num);
     int bkw_cnt = str.length(); // initialize a backward counter to count down from string len to 0
