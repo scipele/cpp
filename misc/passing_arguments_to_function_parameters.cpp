@@ -5,7 +5,7 @@
 //declare functions above so they are recognized by the compiler
 void area_of_circle_byVal(double dia);
 void area_of_circle_byRef(double& dia);
-
+const double PI = 3.14159265358979323846;
 
 /* 
 in C++, the terms "variables," "parameters," and "arguments" have specific meanings within the context of the language:
@@ -52,7 +52,7 @@ return 0;
 
 void area_of_circle_byVal(double diameter) {
 
-    double area = M_PI / 4 * pow(diameter, 2);
+    double area = PI / 4 * pow(diameter, 2);
     std::cout << "\nScope (area_of_circle_byVal):\n";
     std::cout << "\tNote that the parameter is defined as a different name 'diameter' in the function 'area_of_circle_byVal'\n";    
     std::cout << "\twhich is the usual convention when passing an argument to a parameter by value\n";        
@@ -62,12 +62,13 @@ void area_of_circle_byVal(double diameter) {
 
     // now divide diamters by 2 and recalc area
     diameter = diameter / 2;
-    area = M_PI / 4 * pow(diameter, 2);
+
+    area = PI / 4 * pow(diameter, 2);
     std::cout << "\tdiameter = " << diameter << ", and area = " << area << "\n\n";
 }
 
-void area_of_circle_byRef(double& dia) {  // The '&' operator placed behind the the type is what indicates the variable as a by reference pass
-    double area = M_PI / 4 * pow(dia, 2);
+void area_of_circle_byRef(double& dia) {  // The '&' operator placed behind the the type is what indica7tes the variable as a by reference pass
+    double area = PI / 4 * pow(dia, 2);
 
     std::cout << "\nScope (area_of_circle_byRef):\n";
     std::cout << "\tNote that the ampersand '&' sign is used immeditely following the 'double' which indicates that the argument will be passed\n";
@@ -78,6 +79,6 @@ void area_of_circle_byRef(double& dia) {  // The '&' operator placed behind the 
 
     // now divide diamters by 4 and recalc area
     dia = dia / 4;
-    area = M_PI / 4 * pow(dia, 2);
+    area = PI / 4 * pow(dia, 2);
     std::cout << "\tdia: " << dia << ", and area = " << area << "\n\n";
 }
