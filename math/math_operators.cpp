@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include <stdlib.h>
+const double PI = 3.14159265358979323846;
 
 //Function Prototypes
 void PythagExample();
@@ -38,7 +39,7 @@ void ConvertFtInDecFtExample() {  // next example is conversion of feet and inch
 void TrigFunctionExample() {   // next example is using a trig function
     double opp_len = 1;
     double ang_deg = 45.0;
-    double ang_rad = ang_deg * M_PI / 180.0; // convert degrees to radians
+    double ang_rad = ang_deg * PI / 180.0; // convert degrees to radians
     double sine_ang = std::sin(ang_rad);  // sin, cos, tan, asin, acos, atan Functions in the math
     double hyp_len = opp_len / sine_ang;
     std::cout << "\n\n3. Trigonomotry Example:" << "\n";
