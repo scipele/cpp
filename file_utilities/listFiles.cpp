@@ -1,5 +1,5 @@
 /*
-listFiles_v13
+listFiles_v14
 Purpose:   Create a file listing with sha1 hash for a pathname entered by the user
            SHA-1 Hash creates a 40 Hexidecimal Digit unique id for the binary content of any file
            Skips file larger than 50 Mb
