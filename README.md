@@ -13,6 +13,7 @@ This repository contains several small cpp functions as follows:
 3. vector_of_struct_with_inner_vector_with_unpivot.cpp
 4. vector_of_struct_with_inner_vector.cpp
 5. vector_of_structure.cpp
+
 ###   vectors
 1. vectors_chars.cpp
 2. vectors_string.cpp
@@ -30,7 +31,7 @@ This repository contains several small cpp functions as follows:
 
 ##  Math
 1. math_operators.cpp
-   - Example usage of various mthematicl operators (sqrt, pow, M_PI, std::sin,  using the math lib
+   - Example usage of various mthematicl operators (sqrt, pow, M_PI, std::sin),  using the math lib
 
 ##  Misc
 1. clear_screen_by_inserting_blank_rows.cpp
