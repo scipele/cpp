@@ -59,7 +59,7 @@ void InsertAtBack(Node** head, int new_value) {        	// 1. Prepare new Node
 
 void insertAfter(Node* prev_node, int new_value) {
      // 1. Make sure prev node is not NULL
-    if (prev_val == NULL) {
+    if (prev_node == NULL) {
 	std::cout << "Previous value cant be NULL";
 	return;
      }
