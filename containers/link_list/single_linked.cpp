@@ -9,88 +9,103 @@
 //
 #include <iostream>
 
-class Node {
+class LinkedList {
+private:
+
+	struct Node {
+		int value;
+		Node* next;
+
+		Node(int val) : value(val), next(nullptr) {}	
+	};
+
+	Node* head;
+
 public:
-	int value;
-	Node* next;
-};
+	LinkedList() : head(nullptr) {}
 
-void print_list(Node* n) {
-		while (n != NULL) {
-			std::cout	<< "Node Value: "
-	           			<< n->value
-							<< ", pointer memory addr of next node :"
-							<< static_cast<void*> (n->next)
-							<< "\n";
-		n = n->next;
-	}
-}
-
-void InsertAtFront(Node** head, int new_value) {
-	// 1. Prepare new node by new keyword and class obj specification
-	Node* new_node = new Node();
-	new_node->value = new_value;
-	// 2. Put in front of current head
-	new_node->next = *head;
-	// move head to point to the  newnode
-	*head = new_node;
-}
-
-
-void InsertAtBack(Node** head, int new_value) {        	// 1. Prepare new Node
-	// 1.  Prepare for addition of a new node
-	Node* new_node = new Node();
-	new_node->value = new_value;
-	new_node->next = NULL;
-	// 2. if linked list is empty then make this new element head
-	if(*head == NULL) {
-		*head = new_node;
-		return;
-	}
-	// 3. Find the last node
-	Node *chk_last = *head;
-	while (chk_last->next != NULL) {
-		chk_last = chk_last->next;
+	~LinkedList() {
+		while (head != nullptr) {
+			Node* temp = head;
+			head = head->next;
+			delete temp;
 		}
-	// 4. set the value of the last node
-	chk_last->next = new_node;
-}
+	}
 
 
-void insertAfter(Node* prev_node, int new_value) {
-     // 1. Make sure prev node is not NULL
-    if (prev_node == NULL) {
-	std::cout << "Previous value cant be NULL";
-	return;
-     }
-     // 2.  Prepare for addition of new node
-     Node* new_node = new Node();
-     new_node->value = new_value;
-     // 3.  insert new node after previou value referenced 
-     new_node->next = prev_node->next;
-     prev_node->next = new_node;
-}
+	void PrintList() const {
+			Node* n = head;
+			while (n != NULL) {
+				std::cout	<< "Node Value: "
+							<< n->value
+								<< ", pointer memory addr of next node :"
+								<< static_cast<void*> (n->next)
+								<< "\n";
+			n = n->next;
+		}
+	}
+
+
+	void InsertAtFront(int new_value) {
+		Node* new_node = new Node(new_value);
+		new_node->next = head;
+		head = new_node;
+	}
+
+
+	void InsertAtBack(int new_value) {        	// 1. Prepare new Node
+		Node* new_node = new Node(new_value);
+		new_node->value = new_value;
+		new_node->next = NULL;
+		if(head == nullptr) {
+			head = new_node;
+			return;
+		}
+		Node* chk_last = head;
+		while (chk_last->next != nullptr) {
+			chk_last = chk_last->next;
+			}
+		chk_last->next = new_node;
+	}
+
+
+	void insertAfter(Node* prev_node, int new_value) {
+		if (prev_node == nullptr) {
+		std::cout << "Previous value cant be NULL";
+		return;
+		}
+		Node* new_node = new Node(new_value);
+		new_node->next = prev_node->next;
+		prev_node->next = new_node;
+	}
+
+	
+	Node* getHead() const {
+    	return head;
+    }
+};
 
 
 int main () {
 
-   Node* head = new Node();
-	Node* second = new Node();
-	Node* third = new Node();
-	
-	head->value = 10;
-	head->next = second;
-	second->value = 20;
-	second->next = third;
-	third->value = 30;
-	third->next = NULL;
-	
-	// Try out the Insert At Front Function
-	InsertAtFront(&head, 5);
-	InsertAtFront(&head, 3);
-	InsertAtBack(&head, 35);
-	InsertAfter(second, 25);
-	print_list(head);
+	LinkedList list;
+
+    list.InsertAtBack(10);
+    list.InsertAtBack(20);
+//    Node* second = list.getHead()->next; // Accessing the second node directly
+    list.InsertAtBack(30);
+
+    // Insert at the front
+    list.InsertAtFront(5);
+    list.InsertAtFront(3);
+
+    // Insert after the second node
+//    list.insertAfter(second, 25);
+
+    // Print the list
+    list.PrintList();
+
+
 return 0;
 }
 
