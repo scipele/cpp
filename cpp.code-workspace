@@ -1,0 +1,21 @@
+{
+    "folders": [
+        {
+            "path": "."
+        },
+        {
+            "name": "vba",
+            "path": "../vba"
+        },
+        {
+            "name": "asm",
+            "path": "../asm"
+        }
+    ],
+    "settings": {
+        "files.associations": {
+            "vector": "cpp",
+            "xstring": "cpp"
+        }
+    }
+}
