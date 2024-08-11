@@ -34,6 +34,157 @@
 #include <fstream>
 #include <sstream>
 
+class ReadBom {
+public:
+
+    struct bom {
+        std::string orig;    
+        std::string size1;
+        std::string size2;
+        std::string desc;
+    };
+
+
+    std::vector<bom> GetData() {
+        // Step 1. Determine from user if size information needs to be split
+        int input_type = get_input_type();
+        std::cout << input_type << "\n";
+
+        // Step 2. read user input depending on type
+        std::vector<bom> lines;
+        int result = read_user_input(input_type, lines);
+
+        // Step 3 Call Splitter Function
+        separ_sizes_from_desc(lines);
+
+        // Temp Print out
+        for(auto& line : lines) {
+            std::cout << line.orig << " | ";
+            std::cout << line.size1 << " | ";
+            std::cout << line.size2 << " | ";
+            std::cout << line.desc << "\n";
+        }
+        return lines;
+    }
+
+
+private:
+    // Step 1
+    int get_input_type() {
+        for (int i=0; i<25; i++) std::cout << "\n";
+        std::cout   << "create a text file named and located in c:\\t\\bom\\input.txt\n\n"
+                    << "Input 1, 2, or 3 depending on how the input file is organized:\n"
+                    << "1. Already separated with a pipe delimeter \"|\" by size1 | size 2 | desc\n"
+                    << "2. Separated with a pipe delimeter \"|\" by size1/2 | desc\n"
+                    << "3. Sizes and Description is merged together\n"
+                    << "User Enter (1, 2, or 3) -> ";
+        
+        int type;
+        std::cin >> type;
+
+        if(type > 0 && type < 4) {
+            return type;
+        } else {
+            std::cout << "Invalid Entry - Run Again\n";
+            return -1;
+        }
+    }
+
+    // Step 2 read input
+    int read_user_input(int, std::vector<bom>& lines) {
+
+        // open file
+        std::ifstream file("C:/t/bom/input.txt");
+
+        // check if the file opened successfully
+        if (!file) {
+            std::cerr << "Unable to open file: " << std::endl;
+            return -1;  // return -1 iff error reading the file
+        }
+
+        std::string line;
+        while (std::getline(file, line)) {
+            lines.push_back( { line , "", "", "" });
+        }
+
+        file.close();
+        return 0;
+    }
+
+    // Step 3 separate sizes from desc
+    void separ_sizes_from_desc (std::vector<bom>& lines) {
+        for (auto& line : lines) {
+            int loc=0;
+            int len = line.orig.size();
+            for (int i=0; i<len; i++) {
+                if(line.orig[i] == '\"') {
+                    if(loc == 0) {
+                        line.size1 = line.orig.substr(0, i+1);
+                        remove_lead_space_and_trailing_spaces(line.size1);
+                        loc = i + 1;
+                    } else {
+                        line.size2 = line.orig.substr(loc, i-loc+1);
+                        remove_lead_space_and_trailing_spaces(line.size2);
+                        remove_lead_space_or_x(line.size2);
+                        loc = i + 1;
+                        break;
+                    }
+                } 
+                // Assume Size 1 and or Size 2 are located within the first 12 characters
+                if(i > 11) break; 
+            }
+            line.desc = line.orig.substr(loc, len-loc);   // try -1
+            remove_lead_space_and_trailing_spaces(line.desc);
+        }
+    }
+
+
+    void remove_lead_space_and_trailing_spaces(std::string& str) {
+        //trim any leading spaces
+        char c;
+        for (int i=0; i<str.length(); i++) {
+            c = tolower(str[i]);
+            if(c != ' ') {
+                str = str.substr(i,str.length()-i);
+                break;
+            }
+        }
+        //trim any trailing spaces
+        int start_pos = str.length()-1;
+        for (int i=start_pos; i>0; i--) {
+            c = str[i]; 
+            if(c != ' ') {
+                str = str.substr(0,i+1);
+                break;
+            }
+        }
+    }
+
+
+    void remove_lead_space_or_x(std::string& str) {
+        //trim any leading spaces or x or X
+        char c;
+        for (int i=0; i<str.length(); i++) {
+            c = tolower(str[i]);
+            if(c != 'x' && c != ' ') {
+                str = str.substr(i,str.length()-i);
+                break;
+            }
+        }
+    }
+
+
+    std::string lCase(const std::string& str) {
+        std::string result = str;
+        for (char& c : result) {
+            c = std::tolower(c);  // replaces each character in the ByRef Operator '&'str
+        }
+        return result;
+    }
+};
+
+
+
 class FracConvert {
 public:
     double FracToDecInch(const std::string& input) {
@@ -158,103 +309,15 @@ private:
 };
 
 
-//Function Prototypes
-int get_input_type();
-int read_user_input(int, std::vector<std::string>& input);
-std::string lCase(const std::string& str);
-
-/*Function getSize1(strg)
-    Dim inchLoc1 As Integer
-    inchLoc1 = InStr(1, strg, """", vbTextCompare)
-    getSize1 = convFtInToDecIn(Left(strg, inchLoc1)) 
-End Function*/
-
-
-
 int main(int argc, char const *argv[])
 {
-    // Step 1. Determine from user if size information needs to be split
-    int input_type = get_input_type();
-    std::cout << input_type << "\n";
-
-    // Step 2. read user input depending on type
-    std::vector<std::string> input;
-    int result = read_user_input(input_type, input);
-
-    for(auto& line : input) {
-        std::cout << line << "\n";
-    }
-
-    // Step 3. split user input by pipe delimeter
-
-
-
-
-//    FracConvert conv;
-//    std::cout << "Decimal Inch = " << conv.FracToDecInch("5 1/2\"") << "\n";    
+    //Get User Input from ReadBom Class
+    ReadBom rb;
+    rb.GetData();
+       
+    // ToDo - Get this working later and add Size1_2 Dec
+    FracConvert conv;
+    std::cout << "Decimal Inch = " << conv.FracToDecInch("5 1/2\"") << "\n";    
 
     return 0;
-}
-
-// Step 1
-int get_input_type() {
-    for (int i=0; i<25; i++) std::cout << "\n";
-    std::cout   << "create a text file named and located in c:\\t\\bom\\input.txt\n\n"
-                << "Input 1, 2, or 3 depending on how the input file is organized:\n"
-                << "1. Already separated with a pipe delimeter \"|\" by size1 | size 2 | desc\n"
-                << "2. Separated with a pipe delimeter \"|\" by size1/2 | desc\n"
-                << "3. Sizes and Description is merged together\n"
-                << "User Enter (1, 2, or 3) -> ";
-    
-    int type;
-    std::cin >> type;
-
-    switch (type)
-    {
-    case 1:
-        return 1;
-    
-    case 2:
-        return 2;
-
-    case 3:
-        return 3;
-
-    default:
-        std::cout << "Invalid Entry - Run Again\n";
-        return -1;
-    }
-}
-
-// Step 2 read input
-int read_user_input(int, std::vector<std::string>& input) {
-
-    // open file
-    std::ifstream file("C:/t/bom/input.txt");
-
-    // check if the file opened successfully
-    if (!file) {
-        std::cerr << "Unable to open file: " << std::endl;
-        return -1;  // return -1 iff error reading the file
-    }
-
-    std::string line;
-    while (std::getline(file, line)) {
-        input.push_back(line);
-    }
-
-    file.close();
-    return 0;
-}
-
-
-
-
-
-std::string lCase(const std::string& str) {
-    std::string result = str;
-    for (char& c : result) {
-        c = std::tolower(c);  // replaces each character in the ByRef Operator '&'str
-    }
-    return result;
 }
