@@ -33,37 +33,32 @@
 #include <cctype>  //Provides functions for character handling, such as std::tolower.
 #include <fstream>
 #include <sstream>
+#include <chrono>
 
 class ReadBom {
 public:
 
-    struct bom {
+    struct Bom {
         std::string orig;    
         std::string size1;
         std::string size2;
         std::string desc;
+        double size1_dec;
+        double size2_dec;
     };
 
-
-    std::vector<bom> GetData() {
+    std::vector<Bom> GetData() {
         // Step 1. Determine from user if size information needs to be split
         int input_type = get_input_type();
         std::cout << input_type << "\n";
 
         // Step 2. read user input depending on type
-        std::vector<bom> lines;
+        std::vector<Bom> lines;
         int result = read_user_input(input_type, lines);
 
-        // Step 3 Call Splitter Function
+        // Step 3 call splitter function
         separ_sizes_from_desc(lines);
 
-        // Temp Print out
-        for(auto& line : lines) {
-            std::cout << line.orig << " | ";
-            std::cout << line.size1 << " | ";
-            std::cout << line.size2 << " | ";
-            std::cout << line.desc << "\n";
-        }
         return lines;
     }
 
@@ -80,7 +75,11 @@ private:
                     << "User Enter (1, 2, or 3) -> ";
         
         int type;
-        std::cin >> type;
+        //********************************************************************************************************************
+        // ToDo - Finish other cases - hardcode as 3 for now *****************************************************************
+        //********************************************************************************************************************
+        // std::cin >> type;
+        type = 3;
 
         if(type > 0 && type < 4) {
             return type;
@@ -91,7 +90,7 @@ private:
     }
 
     // Step 2 read input
-    int read_user_input(int, std::vector<bom>& lines) {
+    int read_user_input(int, std::vector<Bom>& lines) {
 
         // open file
         std::ifstream file("C:/t/bom/input.txt");
@@ -104,7 +103,8 @@ private:
 
         std::string line;
         while (std::getline(file, line)) {
-            lines.push_back( { line , "", "", "" });
+            lines.push_back( { line , "", "", "", _BLANK , _BLANK });
+            //lines.push_back( { line , "", "", "", 0.0, 0.0 });
         }
 
         file.close();
@@ -112,7 +112,7 @@ private:
     }
 
     // Step 3 separate sizes from desc
-    void separ_sizes_from_desc (std::vector<bom>& lines) {
+    void separ_sizes_from_desc (std::vector<Bom>& lines) {
         for (auto& line : lines) {
             int loc=0;
             int len = line.orig.size();
@@ -172,21 +172,20 @@ private:
             }
         }
     }
-
-
-    std::string lCase(const std::string& str) {
-        std::string result = str;
-        for (char& c : result) {
-            c = std::tolower(c);  // replaces each character in the ByRef Operator '&'str
-        }
-        return result;
-    }
 };
-
 
 
 class FracConvert {
 public:
+
+    int ConvertSizesToDec(std::vector<ReadBom::Bom>& bm) {
+        for ( auto& b : bm ) {
+            b.size1_dec = FracToDecInch(b.size1);
+            b.size2_dec = FracToDecInch(b.size2);
+        }
+        return 0;
+    }
+
     double FracToDecInch(const std::string& input) {
         parseInput(input);
         return calcDecInch();
@@ -311,13 +310,40 @@ private:
 
 int main(int argc, char const *argv[])
 {
-    //Get User Input from ReadBom Class
+     // Record start time
+    auto start = std::chrono::high_resolution_clock::now();
+
+    //instantiate class as rb
     ReadBom rb;
-    rb.GetData();
-       
-    // ToDo - Get this working later and add Size1_2 Dec
+    //create a vector of the class
+    std::vector<ReadBom::Bom> bm;
+    bm = rb.GetData();
+    
+    // Convert Sizes to Decimal
     FracConvert conv;
-    std::cout << "Decimal Inch = " << conv.FracToDecInch("5 1/2\"") << "\n";    
+    int result = conv.ConvertSizesToDec(bm);
+
+    /* Temp Print out
+    for(auto& line : bm) {
+        std::cout << line.orig << " | ";
+        std::cout << line.size1 << " | ";
+        std::cout << line.size2 << " | ";
+        std::cout << line.desc << " | ";
+        std::cout << line.size1_dec << " | ";
+        std::cout << line.size2_dec << " |\n";
+    } */
+
+    // Record end time
+    auto end = std::chrono::high_resolution_clock::now();
+
+    // Calculate the duration
+    std::chrono::duration<double> duration = end - start;
+
+    // Output the duration
+    std::cout << "\n\nProcessed " << bm.size() << " lines in " << duration.count() << " seconds" << std::endl;
+    
+    // Pause the console window before exiting
+    system("pause");
 
     return 0;
 }
