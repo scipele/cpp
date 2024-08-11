@@ -185,11 +185,7 @@ int main(int argc, char const *argv[])
         std::cout << line << "\n";
     }
 
-
-    //std::cout << input << std::endl;
-
     // Step 3. split user input by pipe delimeter
-    //input = split_user_input();
 
 
 
@@ -230,7 +226,6 @@ int get_input_type() {
     }
 }
 
-
 // Step 2 read input
 int read_user_input(int, std::vector<std::string>& input) {
 
@@ -253,25 +248,13 @@ int read_user_input(int, std::vector<std::string>& input) {
 }
 
 
+
+
+
 std::string lCase(const std::string& str) {
     std::string result = str;
     for (char& c : result) {
         c = std::tolower(c);  // replaces each character in the ByRef Operator '&'str
     }
     return result;
-}
-
-
-
-
-
-// Function to split a string by a delimiter and return a vector of strings
-std::vector<std::string> split(const std::string& str, char delimiter) {
-    std::vector<std::string> parts;
-    std::stringstream ss(str);
-    std::string part;
-    while (std::getline(ss, part, delimiter)) {
-        parts.push_back(part);
-    }
-    return parts;
 }
