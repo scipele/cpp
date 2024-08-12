@@ -68,7 +68,7 @@ private:
     // Step 1
     int get_input_type() {
         for (int i=0; i<25; i++) std::cout << "\n";
-        std::cout   << "create a text file named and located in c:\\t\\bom\\input.txt\n\n"
+        std::cout   << "create a text file named and located in c:\\t\\bom\\input.csv\n\n"
                     << "Input 1, 2, or 3 depending on how the input file is organized:\n"
                     << "1. Already separated with a pipe delimeter \"|\" by size1 | size 2 | desc\n"
                     << "2. Separated with a pipe delimeter \"|\" by size1&2 | desc\n"
@@ -94,7 +94,7 @@ private:
     int read_user_input(int, std::vector<Bom>& lines) {
 
         // open file
-        std::ifstream file("C:/t/bom/input.txt");
+        std::ifstream file("C:/t/bom/input.csv");
 
         // check if the file opened successfully
         if (!file) {
