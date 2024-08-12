@@ -197,7 +197,6 @@ private:
     }
 };
 
-
 class FracConvert {
 public:
     int ConvertSizesToDec(std::vector<ReadBom::Bom>& bm) {
@@ -376,9 +375,145 @@ private:
     }
 };
 
+class CategorizeBom {
 
-int main(int argc, char const *argv[])
-{
+public:
+    // Define the struct
+    struct categ_data {
+        int cat_id;
+        std::string grp;
+        std::string short_desc;
+        std::vector<std::string> incl_all;
+        std::vector<std::string> incl_any;
+        std::vector<std::string> incl_none;
+    };
+
+
+    int Read_Categ() {
+        std::ifstream file("c:/dev/cpp/piping/bom/cat_def.csv"); // Open CSV file
+
+        if (!file.is_open()) {
+            std::cerr << "Error opening file!" << std::endl;
+            return 1;
+        }
+
+        std::vector<categ_data> data_vector; // Vector to store parsed data
+        std::string line;
+        if (std::getline(file, line)) {
+            // Line with headers is read and discarded
+        }
+
+        // start reading at second line to the end
+        while (std::getline(file, line)) {
+            categ_data data = parse_line(line);
+            data_vector.push_back(data); // Add parsed data to the vector
+        }
+
+        file.close();
+
+        // print the contents of the vector to confirm read
+        for (const auto& data : data_vector) {
+            std::cout << "\ncat_id: " << data.cat_id << std::endl;
+            std::cout << "\tgrp: " << data.grp << std::endl;
+            std::cout << "\tshort_desc: " << data.short_desc << std::endl;
+            std::cout << "\tincl_all: ";
+            for (const auto& s : data.incl_all) std::cout << s << "|";
+            std::cout << "\n";
+            std::cout << "\tincl_any: ";
+            for (const auto& s : data.incl_any) std::cout << s << "|";
+            std::cout << "\n";
+            std::cout << "\tincl_none: ";
+            for (const auto& s : data.incl_none) std::cout << s << "|";
+            std::cout << "\n";
+            std::cout << "\tuom_incl_any: ";
+        }
+    }
+
+
+private:
+
+    // Helper function to split a string by a delimiter
+    std::vector<std::string> split(const std::string& str, char delimiter) {
+        std::vector<std::string> tokens;
+        std::string token;
+        std::stringstream ss(str);
+        while (std::getline(ss, token, delimiter)) {
+            tokens.push_back(token);
+        }
+        return tokens;
+    }
+
+    // Helper function to parse the input line into a struct
+    categ_data parse_line(const std::string& line) {
+        categ_data data;
+        std::stringstream ss(line);
+        std::string field;          // temp string to hold field data
+
+        // Read cat_id
+        std::getline(ss, field, ';');
+        data.cat_id = std::stoi(field);
+
+        // Read grp
+        std::getline(ss, data.grp, ';');
+
+        // Read short_desc
+        std::getline(ss, data.short_desc, ';');
+
+        // Read incl_all
+        std::getline(ss, field, ';');
+        data.incl_all = split(field, '|');
+
+        // Read incl_any
+        std::getline(ss, field, ';');
+        data.incl_any = split(field, '|');
+
+        // Read incl_none
+        std::getline(ss, field, ';');
+        data.incl_none = split(field, '|');
+
+        return data;
+    }
+};
+
+class TimerCls {
+public:
+    // Constructor
+    TimerCls() : start_time(), end_time(), is_started(false) {}
+
+    // Start the timer
+    void start() {
+        start_time = std::chrono::high_resolution_clock::now();
+        is_started = true;
+    }
+
+    // Stop the timer and display the elapsed time
+    void end() {
+        if (!is_started) {
+            std::cerr << "Timer was not started." << std::endl;
+            return;
+        }
+
+        end_time = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> duration = end_time - start_time;
+
+        // Output the duration
+        std::cout << "\n\nProcessed bom in " << duration.count() << " seconds" << std::endl;
+
+        // Pause the console window before exiting (Windows-specific)
+        system("pause");
+    }
+
+private:
+    std::chrono::high_resolution_clock::time_point start_time;
+    std::chrono::high_resolution_clock::time_point end_time;
+    bool is_started;
+};
+
+
+int main(int argc, char const *argv[]) {
+    TimerCls timer;
+    timer.start();
+
      // Record start time
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -405,18 +540,11 @@ int main(int argc, char const *argv[])
         i++;
     }
 
+    CategorizeBom Ct;
+    Ct.Read_Categ();
 
-    // Record end time
-    auto end = std::chrono::high_resolution_clock::now();
+    timer.end();
 
-    // Calculate the duration
-    std::chrono::duration<double> duration = end - start;
-
-    // Output the duration
-    std::cout << "\n\nProcessed " << bm.size() << " lines in " << duration.count() << " seconds" << std::endl;
-    
-    // Pause the console window before exiting
-    system("pause");
-
+ 
     return 0;
 }
