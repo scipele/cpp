@@ -46,12 +46,13 @@ public:
         std::string desc;
         double size1_dec;
         double size2_dec;
+        int indx_code;
     };
 
     std::vector<Bom> GetData() {
         // Step 1. Determine from user if size information needs to be split
         int input_type = get_input_type();
-        std::cout << input_type << "\n";
+        //std::cout << input_type << "\n";
 
         // Step 2. read user input depending on type
         std::vector<Bom> lines;
@@ -62,7 +63,6 @@ public:
 
         return lines;
     }
-
 
 private:
     // Step 1
@@ -94,7 +94,7 @@ private:
     int read_user_input(int, std::vector<Bom>& lines) {
 
         // open file
-        std::ifstream file("C:/t/bom/input.csv");
+        std::ifstream file("C:/dev/cpp/piping/bom/input.csv");
 
         // check if the file opened successfully
         if (!file) {
@@ -104,8 +104,7 @@ private:
 
         std::string line;
         while (std::getline(file, line)) {
-            lines.push_back( { line , "", "", "", _BLANK , _BLANK });
-            //lines.push_back( { line , "", "", "", 0.0, 0.0 });
+            lines.push_back( { line , "", "", "", _BLANK , _BLANK, 0 });
         }
 
         file.close();
@@ -213,7 +212,7 @@ public:
             }
                                     
             // used for testing
-            std::cout << i << ". sz1 = " << b.size1 << "|" << "sz2 = " << b.size2 << "\n";
+            //std::cout << i << ". sz1 = " << b.size1 << "|" << "sz2 = " << b.size2 << "\n";
             i++;
         }
         return 0;
@@ -388,50 +387,14 @@ public:
         std::vector<std::string> incl_none;
     };
 
-
+    // Public method to read and categorize data
     int Read_Categ() {
-        std::ifstream file("c:/dev/cpp/piping/bom/cat_def.csv"); // Open CSV file
-
-        if (!file.is_open()) {
-            std::cerr << "Error opening file!" << std::endl;
-            return 1;
-        }
-
-        std::vector<categ_data> data_vector; // Vector to store parsed data
-        std::string line;
-        if (std::getline(file, line)) {
-            // Line with headers is read and discarded
-        }
-
-        // start reading at second line to the end
-        while (std::getline(file, line)) {
-            categ_data data = parse_line(line);
-            data_vector.push_back(data); // Add parsed data to the vector
-        }
-
-        file.close();
-
-        // print the contents of the vector to confirm read
-        for (const auto& data : data_vector) {
-            std::cout << "\ncat_id: " << data.cat_id << std::endl;
-            std::cout << "\tgrp: " << data.grp << std::endl;
-            std::cout << "\tshort_desc: " << data.short_desc << std::endl;
-            std::cout << "\tincl_all: ";
-            for (const auto& s : data.incl_all) std::cout << s << "|";
-            std::cout << "\n";
-            std::cout << "\tincl_any: ";
-            for (const auto& s : data.incl_any) std::cout << s << "|";
-            std::cout << "\n";
-            std::cout << "\tincl_none: ";
-            for (const auto& s : data.incl_none) std::cout << s << "|";
-            std::cout << "\n";
-            std::cout << "\tuom_incl_any: ";
-        }
+        std::vector<categ_data> data_vector = read_file("c:/dev/cpp/piping/bom/cat_def.csv");
+        print_data(data_vector);
+        return 0; // Success
     }
 
-
 private:
-
     // Helper function to split a string by a delimiter
     std::vector<std::string> split(const std::string& str, char delimiter) {
         std::vector<std::string> tokens;
@@ -473,6 +436,49 @@ private:
 
         return data;
     }
+
+    std::vector<categ_data> read_file(const std::string& filename) {
+
+        std::vector<categ_data> data_vector;
+        std::ifstream file(filename); // Open CSV file
+        if (!file.is_open()) {
+            std::cerr << "Error opening file!" << std::endl;
+            return data_vector;
+        }
+
+        std::string line;
+        if (std::getline(file, line)) {
+            // Line with headers is read and discarded
+        }
+
+        // start reading at second line to the end
+        while (std::getline(file, line)) {
+            categ_data data = parse_line(line);
+            data_vector.push_back(data); // Add parsed data to the vector
+        }
+
+        file.close();
+        return data_vector;
+    }
+
+    void print_data(const std::vector<categ_data>& data_vector) {
+        // print the contents of the vector to confirm read
+        for (const auto& data : data_vector) {
+            std::cout << "\ncat_id: " << data.cat_id << std::endl;
+            std::cout << "\tgrp: " << data.grp << std::endl;
+            std::cout << "\tshort_desc: " << data.short_desc << std::endl;
+            std::cout << "\tincl_all: ";
+            for (const auto& s : data.incl_all) std::cout << s << "|";
+            std::cout << "\n";
+            std::cout << "\tincl_any: ";
+            for (const auto& s : data.incl_any) std::cout << s << "|";
+            std::cout << "\n";
+            std::cout << "\tincl_none: ";
+            for (const auto& s : data.incl_none) std::cout << s << "|";
+            std::cout << "\n";
+            std::cout << "\tuom_incl_any: ";
+        }
+    }
 };
 
 class TimerCls {
@@ -511,23 +517,32 @@ private:
 
 
 int main(int argc, char const *argv[]) {
+    //start the Timer using the 'TimerCls' class called 'timer'
     TimerCls timer;
     timer.start();
 
-     // Record start time
-    auto start = std::chrono::high_resolution_clock::now();
-
-    //instantiate class as rb
+    //instantiate class as rb, then create vector of the bom
     ReadBom rb;
+    
     //create a vector of the class
-    std::vector<ReadBom::Bom> bm;
-    bm = rb.GetData();
+    std::vector<ReadBom::Bom> bm = rb.GetData();
     
     // Convert Sizes to Decimal
     FracConvert conv;
     int result = conv.ConvertSizesToDec(bm);
 
-    //Temp Print out
+    CategorizeBom Ct;
+    Ct.Read_Categ();
+
+
+    //call end method from TimerCls Class
+    timer.end();
+
+ 
+    return 0;
+}
+
+    /*Temp Print out that will list all BOM Items
     int i=1;
     for(auto& line : bm) {
         std::cout   << i << ". |"
@@ -538,13 +553,4 @@ int main(int argc, char const *argv[]) {
                     << line.size1_dec << "|"
                     << line.size2_dec << "\n";
         i++;
-    }
-
-    CategorizeBom Ct;
-    Ct.Read_Categ();
-
-    timer.end();
-
- 
-    return 0;
-}
+    } */
