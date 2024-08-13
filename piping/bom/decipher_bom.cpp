@@ -503,7 +503,7 @@ public:
         std::chrono::duration<double> duration = end_time - start_time;
 
         // Output the duration
-        std::cout << "\n\nProcessed bom in " << duration.count() << " seconds" << std::endl;
+        std::cout << "\n\nProgram Execution Completed in " << duration.count() << " seconds" << std::endl;
 
         // Pause the console window before exiting (Windows-specific)
         system("pause");
