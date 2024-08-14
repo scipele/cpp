@@ -6,12 +6,12 @@
 // Dependencies:    'TimerCls'
 //
 //      Option 1:   Indicate full path of the header file
-//                  This option an example of how full path can be shown in header files
+//                  This option is an example of how full path can be shown in header files
 //                  so that the compliler/linker will locate the header file without any
 //                  special modification to the /json file
 //                  #include "c:/dev/cpp/misc/Classes/TimerCls.hpp"
 //
-//      Option 2:   Alternative Method is to modify this line tasks.json as follows which
+//      Option 2:   Alternative Method is to modify this line in .vscode {} tasks.json as follows which
 //                  will compile all files in the current folder:  
 //                  "${file}" , ->  "${fileDirname}\\*.cpp" ,
 //                  include format name only -> #include "TimerCls.hpp"
