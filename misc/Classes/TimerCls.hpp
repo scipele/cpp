@@ -11,7 +11,7 @@
 //              timer.interval();   <- Show Interval Time
 //              timer.end();    <- End the timer
 //
-// By:          T. Sciple 8/13/2024
+// By:          T. Sciple 8/14/2024
 #pragma once
 #include<iostream>  
 #include<chrono>

@@ -15,6 +15,7 @@
 //                  will compile all files in the current folder:  
 //                  "${file}" , ->  "${fileDirname}\\*.cpp" ,
 //                  include format name only -> #include "TimerCls.hpp"
+//  By: T.Sciple    8/14/2024
 
 #include<iostream>
 #include "TimerCls.hpp"
