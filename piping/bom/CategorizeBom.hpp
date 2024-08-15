@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <map>
 
 class CategorizeBom {
 
@@ -17,14 +18,36 @@ public:
         std::vector<std::string> incl_any;
         std::vector<std::string> incl_none;
     };
+    
+    // Enum to specify the type of check
+    enum CheckType { ALL, ANY, NONE };
 
     // Public method to read and categorize data
+    std::vector<categ_data> categ_vec;
     int Read_Categ() {
-        std::vector<categ_data> data_vector = read_file("c:/dev/cpp/piping/bom/cat_def.csv");
-        // used for testing
-        //print_data(data_vector);
+        categ_vec = read_file("c:/dev/cpp/piping/bom/cat_def.csv");
+        // used for testing ->  print_data(categ_vec);
+        return 0; // Success
+
+    }
+
+    int LookupCategories(std::vector<ReadBom::Bom>& bom) {
+        // Categorize each description
+        for (auto& bom_line : bom) {
+            int cat_id = categorize(bom_line.desc, categ_vec);
+            if (cat_id != -1) {
+                bom_line.indx_code = cat_id;
+                // testing only - std::cout << "Description: \"" << bom_line.desc << "\" matched category ID: " << cat_id << "\n";
+            } else {
+                // testing only - std::cout << "Description: \"" << bom_line.desc << "\" did not match any category.\n";
+            }
+        }
+        LookupGrpAndShortDesc(bom); // Construct a map and fill in the group and short desc
         return 0; // Success
     }
+
+    
+
 
 private:
     // Helper function to split a string by a delimiter
@@ -71,11 +94,11 @@ private:
 
     std::vector<categ_data> read_file(const std::string& filename) {
 
-        std::vector<categ_data> data_vector;
+        std::vector<categ_data> categ_vec;
         std::ifstream file(filename); // Open CSV file
         if (!file.is_open()) {
             std::cerr << "Error opening file!" << std::endl;
-            return data_vector;
+            return categ_vec;
         }
 
         std::string line;
@@ -86,16 +109,62 @@ private:
         // start reading at second line to the end
         while (std::getline(file, line)) {
             categ_data data = parse_line(line);
-            data_vector.push_back(data); // Add parsed data to the vector
+            categ_vec.push_back(data); // Add parsed data to the vector
         }
 
         file.close();
-        return data_vector;
+        return categ_vec;
     }
 
-    void print_data(const std::vector<categ_data>& data_vector) {
+    // Combined function to check substrings based on the CheckType
+    bool contains_check(const std::string& str, const std::vector<std::string>& substrings, CheckType checkType) {
+        auto predicate = [&](const std::string& s) {
+            return str.find(s) != std::string::npos;
+        };
+        
+        switch (checkType) {
+            case ALL:
+                return std::all_of(substrings.begin(), substrings.end(), predicate);
+            case ANY:
+                return std::any_of(substrings.begin(), substrings.end(), predicate);
+            case NONE:
+                return std::none_of(substrings.begin(), substrings.end(), predicate);
+            default:
+                return false; // In case of an invalid CheckType
+        }
+    }
+
+    // Function to categorize a BOM description
+    int categorize(const std::string& description, const std::vector<categ_data>& categories) {
+        for (const auto& cat : categories) {
+            if (contains_check(description, cat.incl_all, ALL) &&
+                contains_check(description, cat.incl_any, ANY) &&
+                contains_check(description, cat.incl_none, NONE)) {
+                return cat.cat_id; // Return the matching category ID
+            }
+        }
+        return -1; // No match found
+    }
+
+    void LookupGrpAndShortDesc(std::vector<ReadBom::Bom>& bom) {
+        std::map<int, categ_data> lookup_map;
+        // Create the lookup map with cat_id as the key
+        for (const auto& cat_item : categ_vec) {
+            lookup_map[cat_item.cat_id] = cat_item;     // Creates a map where we can lookup any item in the struct using the cat_id
+        }
+
+        // now loop thru the bom and fill in the data from the map
+        for( auto& b : bom) {
+            b.grp = lookup_map[b.indx_code].grp;
+            b.short_desc = lookup_map[b.indx_code].short_desc;
+        }
+    }
+
+
+    // Used only for testing purposes
+    void print_data(const std::vector<categ_data>& categ_vec) {
         // print the contents of the vector to confirm read
-        for (const auto& data : data_vector) {
+        for (const auto& data : categ_vec) {
             std::cout << "\ncat_id: " << data.cat_id << std::endl;
             std::cout << "\tgrp: " << data.grp << std::endl;
             std::cout << "\tshort_desc: " << data.short_desc << std::endl;

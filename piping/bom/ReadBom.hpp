@@ -15,6 +15,8 @@ public:
         double size1_dec;
         double size2_dec;
         int indx_code;
+        std::string grp;
+        std::string short_desc;
     };
 
     std::vector<Bom> GetData() {
@@ -72,7 +74,7 @@ private:
 
         std::string line;
         while (std::getline(file, line)) {
-            lines.push_back( { line , "", "", "", _BLANK , _BLANK, 0 });
+            lines.push_back( { line , "", "", "", _BLANK , _BLANK, 0, "", "" });
         }
 
         file.close();

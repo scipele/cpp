@@ -34,41 +34,52 @@
 #include "ReadBom.hpp"
 #include "FracConvert.hpp"
 #include "CategorizeBom.hpp"
+#include "WriteData.hpp"
 
 int main(int argc, char const *argv[]) {
-    //start the Timer using the 'TimerCls' class called 'timer'
+    //Start the Timer using the 'TimerCls' class called 'timer'
     TimerCls timer;
     timer.start();
 
-    //instantiate class as rb, then create vector of the bom
+    //*** Step 1 *** instantiate class as rb, then create vector of the bom
     ReadBom rb;
-    std::vector<ReadBom::Bom> bm = rb.GetData();    // uses the .GetData Method in the class which reads the Bom
+    std::vector<ReadBom::Bom> bom = rb.GetData();    // uses the .GetData Method in the class which reads the Bom
     timer.interval();
 
-    // Convert Sizes to Decimal using the FracConvert Class
+    //*** Step 2 *** Convert Sizes to Decimal using the FracConvert Class
     FracConvert conv;
-    int result = conv.ConvertSizesToDec(bm);
+    int result = conv.ConvertSizesToDec(bom);
     timer.interval();
 
+    //*** Step 3 *** Categorize the BOM Items
     CategorizeBom Ct;
     Ct.Read_Categ();
+    Ct.LookupCategories(bom);
+    timer.interval();
 
-    //call last interval and end method from TimerCls Class
+    //*** Step 4 *** Call the following class to Open and Write File
+    WriteData wd;
+    wd.WriteDataToCsv(bom);
     timer.interval();
     timer.end();
  
     return 0;
 }
 
-    /*Temp Print out that will list all BOM Items
-    int i=1;
-    for(auto& line : bm) {
-        std::cout   << i << ". |"
-                    << line.orig << "|"
-                    << line.size1 << "|"
-                    << line.size2 << "|"
-                    << line.desc << "|"
-                    << line.size1_dec << "|"
-                    << line.size2_dec << "\n";
-        i++;
-    } */
+
+/*    //Temp Print out that will list all BOM Items
+        int i=1;
+        for(auto& line : bom) {
+            std::cout   << i << ". |"
+                        << line.indx_code << "|"
+                        << line.grp << "|"
+                        << line.short_desc << "|"
+                        << line.orig << "|"
+                        << line.size1 << "|"
+                        << line.size2 << "|"
+                        << line.desc << "|"
+                        << line.size1_dec << "|"
+                        << line.size2_dec << "\n";
+            i++;
+        } 
+*/

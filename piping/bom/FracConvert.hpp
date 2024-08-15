@@ -7,9 +7,9 @@
 
 class FracConvert {
 public:
-    int ConvertSizesToDec(std::vector<ReadBom::Bom>& bm) {
+    int ConvertSizesToDec(std::vector<ReadBom::Bom>& bom) {
         int i=1;
-        for ( auto& b : bm ) {
+        for ( auto& b : bom ) {
             try
             {
                 b.size1_dec = FracToDecInch(b.size1);
