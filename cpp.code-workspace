@@ -94,7 +94,10 @@
             "xutility": "cpp",
             "*.tcc": "cpp",
             "memory_resource": "cpp",
-            "string_view": "cpp"
+            "string_view": "cpp",
+            "cerrno": "cpp",
+            "cfloat": "cpp",
+            "climits": "cpp"
         }
     }
 }

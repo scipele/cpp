@@ -64,6 +64,7 @@ int main(int argc, char const *argv[]) {
     timer.interval();
     timer.end();
  
+    system("pause");
     return 0;
 }
 
