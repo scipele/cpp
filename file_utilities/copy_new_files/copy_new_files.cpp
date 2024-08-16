@@ -1,8 +1,24 @@
 // filename:    copy_new_files
 //
-// Purpose:     Copy over new files that are confirmed to have a new hash code
+// Purpose:     copy over only files if they are new files determined as follows
+//
+// How if works:
+//              1. Get Path information from the user
+//                  - copy from path                     
+//                  - copy to path                     
+//
+//              2. Return a vector of File Properties and Hash
+//                 Copy over new files that are confirmed to have a new hash code
 //              SHA-1 Hash creates a 40 Hexidecimal Digit unique id for the binary content of any file
 //              Skips file larger than 50 Mb
+//
+// Dependencies:
+//            +-------------------+--------------+-----------------+
+//            |  Class File Name  |  Class Name  |  Public Method  |
+//            +-------------------+--------------+-----------------+
+//            |  GetPaths.hpp     |  GetPaths    |  Public Method  |
+//
+//
 //
 // Output:    The log file listing is placed in the c:\t\log_file.txt
 // By:          Tony Sciple  08/15/2024
@@ -16,10 +32,9 @@ void updateProgress(int current, int total);
 
 int main() {
 
+    // call a class to get path names from the user and validate that the paths are legit
     GetPaths pth;
-    pth.UserInput();
-
-
+    pth.GetPathLocs();
 
     //std::cout << "Check Path from User" << 
 

@@ -2,9 +2,9 @@
 #include <array>
 #include <cstdint>
 #include <cstring>
-#include <chrono>
 #include <iomanip>
 #include <iostream>
+#include <ostream>
 #include <filesystem>
 #include <fstream>
 #include <cstdint>
@@ -19,32 +19,65 @@
 class GetPaths {
 
 public:
-    struct paths {
-        std::wstring copy_from_path;
-        std::wstring copy_to_path;
-        std::wstring log_file_path;
-    };
+    std::wstring copy_from_path;
+    std::wstring copy_to_path;
+    std::wstring log_file_path;
 
-    paths pth;
+    int GetPathLocs() {
+        std::cout << std::endl;
+        std::vector<std::wstring> msgs = {   L"Copy From Path",
+                                            L"Copy To Path",
+                                            L"Log File Path" };
+        std::vector<int> results(2);                                    
+        results[0] = UserInput(msgs[0], this->copy_from_path);
+        results[1] = UserInput(msgs[1], this->copy_to_path);
 
-    int UserInput () {
+        bool chk_results = true;    // assume results are good unless reset to false
+        for (auto& result : results) {
+            if (result != 0) chk_results = false;   // means that an error was encountered if not 0
+        }
+       
+        if (chk_results) {
+            print_path_info(msgs[0], this->copy_from_path);
+            print_path_info(msgs[1], this->copy_to_path);
+        } else {
+            return -1;
+        }
+        // return standard 0 if no errors were encountered
+        return 0;
+    }
+
+
+private:
+
+    void print_path_info(std::wstring& msg, std::wstring& tmp_path) {
+        std::wcout  << L"Path Entered for '" 
+                    << msg
+                    << L"' was '"
+                    << tmp_path
+                    << L"' and was validated\n";
+    }
+
+    int UserInput (std::wstring msg_to_user, std::wstring& tmp_path) {
         // get user entered path
-        std::cout << "Enter the path to copy files from\n"
-                << "   Example Entry 'c:\\myFolder'\n"
-                << "   Or press 'c' to cancel\n"
-                << "   User entry here ============> ";
+        std::wcout   << L"Enter the path to "
+                    << msg_to_user << "\n"
+                    << L"   Example Entry 'c:\\myFolder'\n"
+                    << L"   Or press 'c' to cancel\n"
+                    << L"   User entry here ============> ";
 
-        std::getline(std::wcin, pth.copy_from_path );
+        std::getline(std::wcin, tmp_path );
 
         // Allow user to cancel execution by entering 'c'
-        if (pth.copy_from_path == L"c") {
+        if (tmp_path == L"c") {
             std::cout << "Execution cancelled by user." << std::endl;
             system("pause");
+            tmp_path = L"";  // reset the path equal to nothing
             return 0; // Exit gracefully
         }
 
         // Check if the entered path exists
-        if (!std::filesystem::exists(pth.copy_from_path)) {
+        if (!std::filesystem::exists(tmp_path)) {
             std::cerr << "Error: The specified path does not exist." << std::endl;
             system("pause");
             return -1; // Exit with error
