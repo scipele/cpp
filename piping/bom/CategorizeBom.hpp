@@ -147,16 +147,16 @@ private:
     }
 
     void LookupGrpAndShortDesc(std::vector<ReadBom::Bom>& bom) {
-        std::map<int, categ_data> lookup_map;
+        std::map<int, categ_data> lookup_cat_map;
         // Create the lookup map with cat_id as the key
         for (const auto& cat_item : categ_vec) {
-            lookup_map[cat_item.cat_id] = cat_item;     // Creates a map where we can lookup any item in the struct using the cat_id
+            lookup_cat_map[cat_item.cat_id] = cat_item;     // Creates a map where we can lookup any item in the struct using the cat_id
         }
 
         // now loop thru the bom and fill in the data from the map
         for( auto& b : bom) {
-            b.grp = lookup_map[b.indx_code].grp;
-            b.short_desc = lookup_map[b.indx_code].short_desc;
+            b.grp = lookup_cat_map[b.indx_code].grp;
+            b.short_desc = lookup_cat_map[b.indx_code].short_desc;
         }
     }
 
