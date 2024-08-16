@@ -1,10 +1,11 @@
-// filename: copy_new_files
+// filename:    copy_new_files
 //
-// Purpose:   Copy over new files that are confirmed to have a new hash code
-//           SHA-1 Hash creates a 40 Hexidecimal Digit unique id for the binary content of any file
-//           Skips file larger than 50 Mb
-// Output:    The file listing is placed in the c:\t\file_list.csv which can be imported into excel and separated with pipe "|" either during import
-// By:    Tony Sciple  08/15/2024
+// Purpose:     Copy over new files that are confirmed to have a new hash code
+//              SHA-1 Hash creates a 40 Hexidecimal Digit unique id for the binary content of any file
+//              Skips file larger than 50 Mb
+//
+// Output:    The log file listing is placed in the c:\t\log_file.txt
+// By:          Tony Sciple  08/15/2024
 
 #include "GetPaths.hpp"
 #include "SafeDirIter.hpp"
