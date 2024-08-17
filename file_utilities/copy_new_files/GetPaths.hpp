@@ -1,19 +1,9 @@
+//filename: GetPaths.hpp
+
 #pragma once
-#include <array>
-#include <cstdint>
-#include <cstring>
-#include <iomanip>
-#include <iostream>
-#include <ostream>
 #include <filesystem>
-#include <fstream>
-#include <cstdint>
-#include <windows.h>
-#include <tchar.h>
+#include <iostream>
 #include <string>
-#include <sstream>
-#include <strsafe.h>
-#include <codecvt>
 #include <vector>
 
 class GetPaths {
@@ -21,15 +11,15 @@ class GetPaths {
 public:
     std::wstring copy_from_path;
     std::wstring copy_to_path;
-    std::wstring log_file_path;
 
-    int GetPathLocs() {
+    int get_path_locs() {
         std::cout << std::endl;
-        std::vector<std::wstring> msgs = {   L"Copy From Path",
-                                            L"Copy To Path",
-                                            L"Log File Path" };
+        std::vector<std::wstring> msgs = {  L"New Dowload",
+                                            L"Orig Download",
+                                            L"Log File Path (Assumed Same as Copy To Path)" };
         std::vector<int> results(2);                                    
-        results[0] = UserInput(msgs[0], this->copy_from_path);
+        //hard code the new files path
+        this->copy_from_path = L"c:\\t\\new";
         results[1] = UserInput(msgs[1], this->copy_to_path);
 
         bool chk_results = true;    // assume results are good unless reset to false
@@ -37,21 +27,20 @@ public:
             if (result != 0) chk_results = false;   // means that an error was encountered if not 0
         }
        
-        if (chk_results) {
+        if (chk_results) {  // prints the path info entered if chk_results is true
             print_path_info(msgs[0], this->copy_from_path);
             print_path_info(msgs[1], this->copy_to_path);
         } else {
             return -1;
         }
         // return standard 0 if no errors were encountered
+        std::cout << std::endl;
         return 0;
     }
 
-
 private:
-
     void print_path_info(std::wstring& msg, std::wstring& tmp_path) {
-        std::wcout  << L"Path Entered for '" 
+        std::wcout  << L"Path Set for '" 
                     << msg
                     << L"' was '"
                     << tmp_path
@@ -82,30 +71,8 @@ private:
             system("pause");
             return -1; // Exit with error
         }
-        int result = SetupOutputFile();
         return 0;
     }
-
-private:
-
-    int SetupOutputFile () {
-        // Define the output folder and filename
-        const std::string outputFolderPath = "c:\\temp";
-        const std::string outputFileName = "fileList.csv";
-        const std::string outputFullFile = outputFolderPath + "\\" + outputFileName;
-
-        // Create the output folder if it doesn't exist
-        if (!std::filesystem::exists(outputFolderPath)) {
-            if (!std::filesystem::create_directory(outputFolderPath)) {
-                std::cerr << "Error: Unable to create output folder." << std::endl;
-                return 1;
-            }
-        }
-
-        // hard code where to place the filename
-        std::string outputFile = "c:\\temp\\log_file.txt";
-        return 0;
-    }   
 };
 
 
