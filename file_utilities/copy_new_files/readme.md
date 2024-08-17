@@ -1,4 +1,4 @@
-# filename - copy_new_files
+# main filename - copy_new_files.cpp
 
 ## Purpose - copy over only files if they are new files determined as follows
 
