@@ -11,7 +11,7 @@
 //  - Handles user input to get the source and destination paths.
 //  - Validates the paths.
 //
-//  3. CompareFiles Class (DirectoryIterator.hpp):
+//  3. CompareFiles Class:
 //  - Creates a map of original files and the new ones by calling the .get_hashes method from the
 //    the DirectoryAnalyzer Class
 //  - compares the hashes of the original/new files and only copies over the new files that 
