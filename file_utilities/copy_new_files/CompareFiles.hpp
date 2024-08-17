@@ -84,11 +84,6 @@ public:
                 std::filesystem::create_directories(std::filesystem::path(dest_added_files_path).parent_path());
 
                 try {
-                   
-                    // Copy to the original path with subfolder structure
-                    std::wcout << file_path << L"\n";
-                    std::wcout << dest_orig_path << L"\n";
-
                     std::filesystem::copy(file_path, dest_orig_path, std::filesystem::copy_options::overwrite_existing);
 
                     // Copy to the added_files_folder with subfolder structure
@@ -129,12 +124,12 @@ private:
 
     void print_file_hashes(const std::wstring& title, const std::map<std::wstring, std::wstring>& file_hashes) {
         std::wcout << title << L":" << std::endl;
-        std::wcout  << L"+------------------------------------------+-------------------------------------------------------------------------------+\n"
-                    << L"| Hash Code                                |  Filename                                                                     |\n"
-                    << L"+------------------------------------------+-------------------------------------------------------------------------------+\n";
+        std::wcout  << L"+------------------------------------------+---------------------------------------------------------------------+\n"
+                    << L"| Hash Code                                |  Filename                                                           |\n"
+                    << L"+------------------------------------------+---------------------------------------------------------------------+\n";
 
         for (const auto& [file_path, file_hash] : file_hashes) {
-            std::wcout << L"| " << std::left << std::setw(41) << file_hash << L"| " << std::setw(78) << file_path << L"|" << std::endl;
+            std::wcout << L"| " << std::left << std::setw(41) << file_hash << L"| " << std::setw(68) << file_path << L"|" << std::endl;
         }
         std::wcout << std::endl;
     }

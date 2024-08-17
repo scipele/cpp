@@ -1,7 +1,6 @@
 //filename:  DirectoryAnalyzer.hpp
 #pragma once
 
-#include <filesystem>
 #include <map>
 #include <string>
 #include "FileHasher.hpp"
