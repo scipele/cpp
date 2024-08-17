@@ -1,6 +1,6 @@
-##filename:    copy_new_files
+#filename - copy_new_files
 
-#Purpose:  copy over only files if they are new files determined as follows
+##Purpose - copy over only files if they are new files determined as follows
 
 ##Structure:
 ###Main Program - This File (copy_new_files.cpp):
