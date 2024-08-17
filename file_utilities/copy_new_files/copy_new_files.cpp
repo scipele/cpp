@@ -14,9 +14,11 @@
 //  3. CompareFiles Class (DirectoryIterator.hpp):
 //  - Creates a map of original files and the new ones by calling the .get_hashes method from the
 //    the DirectoryAnalyzer Class
-//  
-//  - compare_and_copy.
-//  - Provides methods to retrieve file properties.
+//  - compares the hashes of the original/new files and only copies over the new files that 
+//    have different hash codes.
+//  - creates a print to the screen showning the ahas values and the filenames
+//  - creates a log file to record the new files that were copied and the ones that were
+//    skipped if they were already existing in the orig path provided
 //
 //  4. DirectoryAnalyzer Class (DirectoryAnalyzer.hpp):
 //  - Analyzes the directory and computes the hash values for each file.

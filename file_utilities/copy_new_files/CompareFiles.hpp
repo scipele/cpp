@@ -40,9 +40,6 @@ public:
         print_file_hashes(L"Original Files", orig_hashes);
         print_file_hashes(L"New Files", new_hashes);
 
-        // Open a log file for recording operations
-        
-
         // Create a directory for added files with the current date
         std::wstring added_files_folder = orig_path + L"/added_files_" + get_current_date();
         std::filesystem::create_directory(added_files_folder);
@@ -64,20 +61,39 @@ public:
                     << L"+------------------------------------------+-----------------------+--------------------------------------------------------------------------------+\n";
 
         for (const auto& [file_path, file_hash] : new_hashes) {
-            // Check if the hash code already exists in the original hash codes
-            // orig_hash_codes.find(file_hash): This function searches for file_hash in the orig_hash_codes map. It returns an 
-            // iterator to the element if found, or end() if not found.
-            // orig_hash_codes.end(): This is an iterator that represents the end of the map, which means the element was not found.
             if (orig_hash_codes.find(file_hash) == orig_hash_codes.end()) {
-                 // Hash code does not exist, so copy the file// Hash code does not exist, so copy the file
+                // Hash code does not exist, so copy the file
                 std::filesystem::path fs_path(file_path);
-                std::wstring new_file_name = fs_path.filename().wstring() + L"_" + get_current_date() + fs_path.extension().wstring();
-                std::wstring dest_orig_path = orig_path + L"/" + new_file_name;
-                std::wstring dest_added_files_path = added_files_folder + L"/" + new_file_name;
+
+                // Create the relative path by removing new_path prefix from the file_path
+                std::wstring relative_path = fs_path.lexically_relative(new_path).wstring();
+
+                // Extract the filename and extension
+                std::wstring filename = fs_path.stem().wstring();
+                std::wstring extension = fs_path.extension().wstring();
+
+                // Append the current date to the filename
+                std::wstring new_filename = filename + L"_" + get_current_date() + extension;
+
+                // Construct the destination paths within orig_path and added_files_folder, preserving the subfolder structure
+                std::filesystem::path dest_orig_path = orig_path / fs_path.parent_path().lexically_relative(new_path) / new_filename;
+                std::filesystem::path dest_added_files_path = added_files_folder / fs_path.parent_path().lexically_relative(new_path) / new_filename;
+
+                // Ensure the destination directories exist
+                std::filesystem::create_directories(std::filesystem::path(dest_orig_path).parent_path());
+                std::filesystem::create_directories(std::filesystem::path(dest_added_files_path).parent_path());
 
                 try {
+                   
+                    // Copy to the original path with subfolder structure
+                    std::wcout << file_path << L"\n";
+                    std::wcout << dest_orig_path << L"\n";
+
                     std::filesystem::copy(file_path, dest_orig_path, std::filesystem::copy_options::overwrite_existing);
+
+                    // Copy to the added_files_folder with subfolder structure
                     std::filesystem::copy(file_path, dest_added_files_path, std::filesystem::copy_options::overwrite_existing);
+
                     log_file    << L"| " << std::left << std::setw(41) << file_hash
                                 << L"| Copied new file       | " 
                                 << std::setw(78) << file_path << L" |\n";

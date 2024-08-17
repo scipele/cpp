@@ -18,7 +18,14 @@ public:
                                             L"Orig Download",
                                             L"Log File Path (Assumed Same as Copy To Path)" };
         std::vector<int> results(2);                                    
+        
+        // print blank lines
+        for ( int i=0; i< 25; i++) std::wcout << L"\n";
+
         //hard code the new files path
+        std::wcout << L"Place your New Files in c:\\t\\new\n";
+        std::wcout << L"\n";
+
         this->copy_from_path = L"c:\\t\\new";
         results[1] = UserInput(msgs[1], this->copy_to_path);
 
@@ -51,7 +58,7 @@ private:
         // get user entered path
         std::wcout   << L"Enter the path to "
                     << msg_to_user << "\n"
-                    << L"   Example Entry 'c:\\myFolder'\n"
+                    << L"   Example 'c:\\t\\orig'\n"
                     << L"   Or press 'c' to cancel\n"
                     << L"   User entry here ============> ";
 
