@@ -29,11 +29,11 @@ Structure:
    - Handles file I/O and hashing operations.
 
 Dependencies:
-+-------+-----------------------+-------------------+----------------------+
-|  Seq  |  Class File Name      |  Class Name       |  Public Method       |
-+-------+-----------------------+-------------------+----------------------+
-|  1    | GetPaths.hpp          | GetPaths          | .get_path_locs()     |
-|  2    | CompareFiles.hpp      | CompareFiles      | .compare_and_copy()  |
-|  2.1  | DirectoryAnalyzer.hpp | DirectoryAnalyzer | .get_hashes()         |
-|  2.2  | FileHasher.hpp        | FileHasher        | .sha1FileHash()      |
-+-------+-----------------------+-------------------+----------------------+
+   +-------+-----------------------+-------------------+----------------------+
+   |  Seq  |  Class File Name      |  Class Name       |  Public Method       |
+   +-------+-----------------------+-------------------+----------------------+
+   |  1    | GetPaths.hpp          | GetPaths          | .get_path_locs()     |
+   |  2    | CompareFiles.hpp      | CompareFiles      | .compare_and_copy()  |
+   |  2.1  | DirectoryAnalyzer.hpp | DirectoryAnalyzer | .get_hashes()        |
+   |  2.2  | FileHasher.hpp        | FileHasher        | .sha1FileHash()      |
+   +-------+-----------------------+-------------------+----------------------+
