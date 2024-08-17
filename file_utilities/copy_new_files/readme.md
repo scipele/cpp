@@ -1,17 +1,17 @@
-#filename - copy_new_files
+# filename - copy_new_files
 
-##Purpose - copy over only files if they are new files determined as follows
+## Purpose - copy over only files if they are new files determined as follows
 
-##Structure:
-###Main Program - This File (copy_new_files.cpp):
+## Structure:
+### Main Program - This File (copy_new_files.cpp):
 - Gets the paths from the user.
 - Uses the CompareFiles class to compare files and copy only the new ones.
 
-###GetPaths Class (GetPaths.hpp):
+### GetPaths Class (GetPaths.hpp):
 - Handles user input to get the source and destination paths.
 - Validates the paths.
 
-###CompareFiles Class (DirectoryIterator.hpp):
+### CompareFiles Class (DirectoryIterator.hpp):
 - Creates a map of original files and the new ones by calling the .get_hashes method from the
   the DirectoryAnalyzer Class
 - compares the hashes of the original/new files and only copies over the new files that 
@@ -20,15 +20,15 @@
 - creates a log file to record the new files that were copied and the ones that were
   skipped if they were already existing in the orig path provided
 
-###DirectoryAnalyzer Class (DirectoryAnalyzer.hpp):
+### DirectoryAnalyzer Class (DirectoryAnalyzer.hpp):
 - Analyzes the directory and computes the hash values for each file.
 - Stores these hash values in a map for comparison.
 
-###FileHasher Class (FileHasher.hpp):
+### FileHasher Class (FileHasher.hpp):
 - Computes the SHA-1 hash for files, with a maximum size limit of 50MB.
 - Handles file I/O and hashing operations.
 
-##Dependencies:
+## Dependencies:
 | Seq | Class File Name        | Class Name        | Public Method         |
 |-----|------------------------|-------------------|-----------------------|
 | 1   | `GetPaths.hpp`          | `GetPaths`        | `.get_path_locs()`   |
