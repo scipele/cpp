@@ -13,7 +13,6 @@ public:
     std::wstring copy_to_path;
 
     int get_path_locs() {
-        std::cout << std::endl;
         std::vector<std::wstring> msgs = {  L"New Dowload",
                                             L"Orig Download",
                                             L"Log File Path (Assumed Same as Copy To Path)" };
