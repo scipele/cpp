@@ -1,4 +1,4 @@
-// filename:  decipher_bom.cpp
+// filename:  decipher_bom.cpp test
 //
 // Purpose:
 //   1. Read bom description lines from a text file (each line as separate item)
