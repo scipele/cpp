@@ -4,7 +4,7 @@
 //
 // Using command line compiler in Windows 11, g++ -o swirl.exe swirl.cpp -mwindows
 //
-// by.  T. Sciple 7/27/2024
+// by.  T. Sciple 7/27/2024 
 
 #include <Windows.h>
 #include <sstream>
