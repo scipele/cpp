@@ -16,7 +16,7 @@
 //    the DirectoryAnalyzer Class
 //  - compares the hashes of the original/new files and only copies over the new files that 
 //    have different hash codes.
-//  - creates a print to the screen showning the ahas values and the filenames
+//  - creates a print to the screen showning the hash values and the filenames
 //  - creates a log file to record the new files that were copied and the ones that were
 //    skipped if they were already existing in the orig path provided
 //
@@ -39,7 +39,7 @@
 //       +-------+-----------------------+-------------------+----------------------+
 //
 // Output:  The log file listing is placed in the orig path file_comparison_log.csv
-// By:      Tony Sciple  08/16/2024
+// By:      Tony Sciple  08/19/2024
 
 #include <iostream>
 #include "GetPaths.hpp"
