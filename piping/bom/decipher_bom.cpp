@@ -31,7 +31,7 @@
 // By:  T.Sciple, 8/14/2024
 
 #include <vector>
-#include "C:/dev/cpp/misc/Classes/Timer.hpp"
+#include "../../misc/Classes/Timer.hpp"
 #include "ReadBom.hpp"
 #include "FracConvert.hpp"
 #include "CategorizeBom.hpp"
@@ -62,14 +62,7 @@ int main(int argc, char const *argv[]) {
     WriteData wd;
     wd.WriteDataToCsv(bom);
     timer.interval();
-    timer.end();
- 
-    system("pause");
-    return 0;
-}
-
-
-/*    //Temp Print out that will list all BOM Items
+//Temp Print out that will list all BOM Items
         int i=1;
         for(auto& line : bom) {
             std::cout   << i << ". |"
@@ -84,4 +77,11 @@ int main(int argc, char const *argv[]) {
                         << line.size2_dec << "\n";
             i++;
         } 
-*/
+
+    timer.end();
+ 
+    system("pause");
+    return 0;
+}
+
+
