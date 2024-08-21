@@ -28,7 +28,6 @@ public:
         categ_vec = read_file("c:/dev/cpp/piping/bom/cat_def.csv");
         // used for testing ->  print_data(categ_vec);
         return 0; // Success
-
     }
 
     int LookupCategories(std::vector<ReadBom::Bom>& bom) {
@@ -45,9 +44,6 @@ public:
         LookupGrpAndShortDesc(bom); // Construct a map and fill in the group and short desc
         return 0; // Success
     }
-
-    
-
 
 private:
     // Helper function to split a string by a delimiter
