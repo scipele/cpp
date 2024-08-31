@@ -8,9 +8,10 @@
 //                  PipeData.hpp                            PipeData
 //                  PipeData.cpp                            PipeData
 //
-
-//                This directive must be used in the tasks.json file so that the compiler will compile all the files in the current path
-//                      "*.cpp",  // Compile all .cpp files in the current directory
+//              The following directive must be used in the '"args": [' section of the 'tasks.json' file so that the
+//              compiler will compile all the files in the current path
+//                  - Placement:  put the following after the "-g", argument
+//                      "*.cpp",  // This compiles all .cpp files in the current directory
 //                      comment this out -> // "${file}",  which tells the compiler to compile only the current file
 //
 //  By:         T.Sciple, 8/31/2024
