@@ -21,7 +21,7 @@ private:
     double pipeID = 0;
     double emptyWtPerFt = 0;
     double waterWtPerFt = 0;
-    double pipeWtFullPerFt= 0;
+    double pipeWtFullPerFt = 0;
 
     // Function Prototypes for class member functions
     std::string get_size();
