@@ -20,6 +20,7 @@
 #include <iostream>
 #include "PipeData.hpp" // Header file definition for PipeData Class, note that the implementation file is PipeData.cpp
 
+
 int main(int argc, char const *argv[])
 {
     std::string loopAgain;
@@ -28,10 +29,10 @@ int main(int argc, char const *argv[])
         // Instantiate an Object PipeData
         PipeData pd;
 
-        // Call Member Function / Method  which will get the asize and schedule from the user
+        // Call member function/method which will get the size, schedule from the user and then use this data to lookup OD, thickness, and calculate addn data
         pd.GetUserInput();
 
-        // Call the following Member Function / Method which will print the detailed data
+        // Call the following member function/method which will print the detailed data
         pd.PrintPipeData();
 
         //Keep looping or 'q' to quit
