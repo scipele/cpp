@@ -2,12 +2,32 @@
 //
 // Purpose:     This is the class implementation file that defines all the member functions of the class
 //              1. The constructor creates an instance of the class and initializes the class member variables to blank/zero
-//              2. Public Member Function 'GetUserInput' does the following
-//                  2.1 Calls private member function get_size()
-//                  2.2 Calls private member function get_sched()
-//              3. Gets the OD and Thickness with member function 'get_od_and_thk()'
-//              5. Gets additional data with member function 'get_addn_data()'
-//              6. Prints the data with member function 'print_pipe_data()'    
+//              2. Public Member Function/method 'void GetUserInput()' does the following
+//                  2.1 Calls private member function 
+//                      this->nom_size = get_str_from_user(msg...)
+//                      returns size entered by user to the private member variable 'nom_size'
+//
+//                  2.2 Calls private member function again
+//                      this->sched = get_str_from_user(msg...)
+//                      returns size entered by user to the private member variable 'sched'
+//
+//                  2.3 Private member function is called which gets the OD and Thickness 
+//                      int result = get_od_and_thk();
+//                      the result is to capture any error messages
+//                      Portions of two dimensional string array pipAry[][16] are read into map objects to find the matching Size and Schedule index
+//                      The following private member variables are then based on the index values returned by the map with size/sched
+//                          this->pipeOD = std::stod(pipAry[size_index][1]);
+//                          this->pipeThk = std::stod(pipAry[size_index][sch_index]);
+//
+//                  2.4 Private member function is called to print any errors if not = SUCCESS print_any_errors(result);
+//
+//                  2.5 Private member function 'get_addn_data()' is called which calculates and sets the following private class member variables
+//                          this->pipeID 
+//                          this->emptyWtPerFt
+//                          this->waterWtPerFt
+//                          this->pipeWtFullPerFt
+//
+//              3. Public member Funciton 'PrintPipeData()' Prints the values of the private member variables which are set by getter Functions / calculated    
 //
 //  By:         T.Sciple, 8/31/2024
 
