@@ -15,7 +15,7 @@
 //                      int result = get_od_and_thk();
 //                      the result is to capture any error messages
 //                      Portions of two dimensional string array pipAry[][16] are read into map objects to find the matching Size and Schedule index
-//                      The following private member variables are then based on the index values returned by the map with size/sched
+//                      The following private member variables are then set based on the index values returned by the map with size/sched
 //                          this->pipeOD = std::stod(pipAry[size_index][1]);
 //                          this->pipeThk = std::stod(pipAry[size_index][sch_index]);
 //
