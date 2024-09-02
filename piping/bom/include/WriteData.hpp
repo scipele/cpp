@@ -17,7 +17,7 @@ private:
 
     int OpenAndWriteFile(std::vector<ReadBom::Bom>& bom) {
         // Open a file for writing
-        std::ofstream file("output.csv");
+        std::ofstream file("../output/results.csv");
 
         // Check if the file is open
         if (!file.is_open()) {
@@ -45,7 +45,7 @@ private:
         // Close the file
         file.close();
 
-        std::cout << "Data written to output.csv\n";
+        std::cout << "Data written to results.csv\n";
         return 0;
     }
 };

@@ -31,11 +31,11 @@
 // By:  T.Sciple, 8/14/2024
 
 #include <vector>
-#include "../../misc/Classes/Timer.hpp"
-#include "ReadBom.hpp"
-#include "FracConvert.hpp"
-#include "CategorizeBom.hpp"
-#include "WriteData.hpp"
+#include "../../../misc/Classes/Timer.hpp"
+#include "../include/ReadBom.hpp"
+#include "../include/FracConvert.hpp"
+#include "../include/CategorizeBom.hpp"
+#include "../include/WriteData.hpp"
 
 int main(int argc, char const *argv[]) {
     //Start the Timer using the 'TimerCls' class called 'timer'

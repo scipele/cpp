@@ -64,7 +64,7 @@ private:
     int read_user_input(int, std::vector<Bom>& lines) {
 
         // open file
-        std::ifstream file("C:/dev/cpp/piping/bom/input.csv");
+        std::ifstream file("../data/input/input.csv");
 
         // check if the file opened successfully
         if (!file) {
