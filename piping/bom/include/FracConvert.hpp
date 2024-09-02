@@ -1,13 +1,14 @@
 #pragma once
+#include "Bom.hpp"
+#include "ReadBom.hpp"
 #include <vector>
 #include <algorithm>
 #include <map>
-#include "ReadBom.hpp"
 
 
 class FracConvert {
 public:
-    int ConvertSizesToDec(std::vector<ReadBom::Bom>& bom) {
+    int ConvertSizesToDec(std::vector<Bom>& bom) {
         int i=1;
         for ( auto& b : bom ) {
             try

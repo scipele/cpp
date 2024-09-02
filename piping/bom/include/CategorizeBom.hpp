@@ -1,10 +1,11 @@
 #pragma once
-#include<string>
-#include<vector>
-#include <sstream>
-#include <iostream>
+#include "Bom.hpp"
 #include <fstream>
+#include <iostream>
 #include <map>
+#include <sstream>
+#include <string>
+#include <vector>
 
 class CategorizeBom {
 
@@ -30,7 +31,7 @@ public:
         return 0; // Success
     }
 
-    int LookupCategories(std::vector<ReadBom::Bom>& bom) {
+    int LookupCategories(std::vector<Bom>& bom) {
         // Categorize each description
         for (auto& bom_line : bom) {
             int cat_id = categorize(bom_line.desc, categ_vec);
@@ -142,7 +143,7 @@ private:
         return -1; // No match found
     }
 
-    void LookupGrpAndShortDesc(std::vector<ReadBom::Bom>& bom) {
+    void LookupGrpAndShortDesc(std::vector<Bom>& bom) {
         std::map<int, categ_data> lookup_cat_map;
         // Create the lookup map with cat_id as the key
         for (const auto& cat_item : categ_vec) {

@@ -32,6 +32,7 @@
 
 #include <vector>
 #include "../../../misc/Classes/Timer.hpp"
+#include "../include/Bom.hpp"
 #include "../include/ReadBom.hpp"
 #include "../include/FracConvert.hpp"
 #include "../include/CategorizeBom.hpp"
@@ -44,27 +45,27 @@ int main(int argc, char const *argv[]) {
 
     //*** Step 1 *** instantiate class as rb, then create vector of the bom
     ReadBom rb;
-    std::vector<ReadBom::Bom> bom = rb.GetData();    // uses the .GetData Method in the class which reads the Bom
+    std::vector<Bom> bm = rb.GetData();    // uses the .GetData Method in the class which reads the Bom
     timer.interval();
 
     //*** Step 2 *** Convert Sizes to Decimal using the FracConvert Class
     FracConvert conv;
-    int result = conv.ConvertSizesToDec(bom);
+    int result = conv.ConvertSizesToDec(bm);
     timer.interval();
 
     //*** Step 3 *** Categorize the BOM Items
     CategorizeBom Ct;
     Ct.Read_Categ();
-    Ct.LookupCategories(bom);
+    Ct.LookupCategories(bm);
     timer.interval();
 
     //*** Step 4 *** Call the following class to Open and Write File
     WriteData wd;
-    wd.WriteDataToCsv(bom);
+    wd.WriteDataToCsv((bm));
     timer.interval();
 //Temp Print out that will list all BOM Items
         int i=1;
-        for(auto& line : bom) {
+        for(auto& line : bm) {
             std::cout   << i << ". |"
                         << line.indx_code << "|"
                         << line.grp << "|"

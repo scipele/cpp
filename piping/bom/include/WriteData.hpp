@@ -8,14 +8,14 @@ class WriteData {
 
 public:
     //Declare a public method to write the file
-    int WriteDataToCsv(std::vector<ReadBom::Bom>& bom) {
+    int WriteDataToCsv(std::vector<Bom>& bom) {
         int result  = OpenAndWriteFile(bom);
         return result;
     }
 
 private:
 
-    int OpenAndWriteFile(std::vector<ReadBom::Bom>& bom) {
+    int OpenAndWriteFile(std::vector<Bom>& bom) {
         // Open a file for writing
         std::ofstream file("../output/results.csv");
 
