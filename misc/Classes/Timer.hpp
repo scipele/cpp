@@ -67,13 +67,13 @@ public:
         std::cout << "+-------------+---------+" << std::endl;
         for (int i = 0; i < durations.size(); i++) {
             std::cout   << "| " << std::left << std::setw(11) << i + 1 << " | " << std::setw(7)
-                        << std::right << std::fixed << std::setprecision(3) << durations[i] << " |" << std::endl;
+                        << std::right << std::fixed << std::setprecision(5) << durations[i] << " |" << std::endl;
             //std::cout << "+-------------+---------+" << std::endl;
         }
 
         // Output the total duration
         std::cout   << "| Overall     | " << std::setw(7)
-                    << std::fixed << std::setprecision(3) << duration.count() << " |" << std::endl;
+                    << std::fixed << std::setprecision(5) << duration.count() << " |" << std::endl;
         std::cout << "+-------------+---------+" << std::endl;
     }
 
