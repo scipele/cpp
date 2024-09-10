@@ -23,31 +23,32 @@ int main()
     std::random_device rd;
     // Initialize a Mersenne Twister random number generator
     std::mt19937 gen(rd());
-    // Define a uniform distribution between a given range, for example 1 to 100
-    std::uniform_int_distribution<> dist(1, 10000);
+    // Define a uniform distribution between a given range, for example 1 to 10000
+    std::uniform_int_distribution<> dist(1, 50000);
 
-    // Generate 2000 random numbers for testing purposes
+    // Generate 10000 random numbers for testing purposes
     std::vector<int> vec;
-    for (int i = 0; i < 10000; ++i) {
+    for (int i = 0; i < 50000; ++i) {
         vec.push_back(dist(gen));
     }
     // print blank lines to clear screen
     for (int i=0; i<10; i++) std::cout << "\n";
 
     std::cout << "Given unsorted vector is \n";
-    printVector(vec);
+    // printVector(vec);
 
     TimerCls timer;
-    timer.start();
-
     int n = vec.size();
+    timer.start();
     mergeSort(vec, 0, n - 1);
     timer.interval();
 
     std::cout << "\nSorted vector is \n";
-    printVector(vec);
+    // printVector(vec);
     timer.end();
-
+    
+    // Pause the console window before exiting
+    system("pause");
     return 0;
 }
 
