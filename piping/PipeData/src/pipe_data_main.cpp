@@ -18,7 +18,7 @@
 
 
 #include <iostream>
-#include "PipeData.hpp" // Header file definition for PipeData Class, note that the implementation file is PipeData.cpp
+#include "../include/PipeData.hpp" // Header file definition for PipeData Class, note that the implementation file is PipeData.cpp
 
 
 int main(int argc, char const *argv[])
