@@ -27,9 +27,7 @@ private:
         char type;  // defined delimiters f = feet delim, i = inch delim, p = decimal point
         double num;
     };
-
     std::vector<ParsedData> prsd;
-
     void parseInput(const std::string& input) {
         prsd.clear();  // Clear previous parsed data
         getParsedPartsOfInput(input);
@@ -50,7 +48,6 @@ private:
         if (pos != std::string::npos) {
             str.erase(pos, toRemove.length());
         }
-        
         return str;
     }
 
