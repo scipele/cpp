@@ -5,10 +5,23 @@
 //              - See the implementation file 'PipeData.cpp' for Public and Private Member Function Details
 //
 // Dependencies:    Header/Implementation Files             Class Name
-//                  PipeData.hpp                            PipeData
-//                  PipeData.cpp                            PipeData
+//                  PipeData.hpp (Header File)              PipeData
+//                                                          PipeDataExtended
+//                  PipeData.cpp (Class Implementation File)
+//                                                          PipeData
+//                                                          PipeDataExtended
 //
-//              The following directive must be used in the '"args": [' section of the 'tasks.json' file so that the
+// How to Compile:  
+//              The following directive must be used in the '"args": [' section of the 'tasks.json' 
+//            "args": [
+//                "-fdiagnostics-color=always",
+//                "-g",
+//                "*.cpp",  // Compile all .cpp files in the current directory
+//                "class/*.cpp",    // compiles the implementation files
+//                "-o",
+//                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+//            ],
+
 //              compiler will compile all the files in the current path
 //                  - Placement:  put the following after the "-g", argument
 //                      "*.cpp",  // This compiles all .cpp files in the current directory
@@ -26,14 +39,11 @@ int main(int argc, char const *argv[])
     std::string loopAgain;
     do
     {
-        // Instantiate an Object PipeData
-        PipeData pd;
-
-        // Call member function/method which will get the size, schedule from the user and then use this data to lookup OD, thickness, and calculate addn data
-        pd.GetUserInput();
-
-        // Call the following member function/method which will print the detailed data
-        pd.PrintPipeData();
+        // Instantiate the extended property derived class so that we can get all the pipe properties
+        PipeDataExtended pdExt;
+        //  Prints the data from the base class 'PipeData' which automatically gets instantiated when the derived class is instantiated
+        pdExt.PrintPipeData();      
+        pdExt.PrintPipeDataExt();
 
         //Keep looping or 'q' to quit
         std::cout << "Enter to Continue, q to quit ";
@@ -41,8 +51,9 @@ int main(int argc, char const *argv[])
 
     } while (loopAgain != "q");
 
-    //pause for user input to prevent window from closing
-    system("pause");
+    // Alternate try just getting basic properties with base class 'PipeData'
+    // PipeData pd;
+    // pd.PrintPipeData();
 
     return 0;
 }

@@ -12,16 +12,12 @@
 
 class PipeData
 {
-private:
+protected:
     // Private member Variables
     std::string nom_size = "";
     std::string sched = "";
     double pipeOD = 0;
     double pipeThk = 0;
-    double pipeID = 0;
-    double emptyWtPerFt = 0;
-    double waterWtPerFt = 0;
-    double pipeWtFullPerFt = 0;
 
     // Function Prototypes for class member functions
     std::string get_size();
@@ -30,7 +26,6 @@ private:
     std::string toUpperCase(const std::string str);
     int get_od_and_thk();
     void print_any_errors(int result);
-    void get_addn_data();
 
     
 public:
@@ -43,6 +38,23 @@ public:
 
     //Destructor Prototype
     ~PipeData();
+};
+
+
+class PipeDataExtended : public PipeData
+{
+private:
+    // Additional properties in derived class
+    double pipeID;
+    double emptyWtPerFt;
+    double waterWtPerFt;
+    double pipeWtFullPerFt;
+    void get_addn_data();
+
+public:
+    PipeDataExtended();         // Constructor Prototype
+    ~PipeDataExtended();        // Destructor Prototype
+    void PrintPipeDataExt();
 };
 
 #endif // PIPEDATA_HPP

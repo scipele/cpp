@@ -47,8 +47,9 @@ enum ErrorCode {
 };
 
 
-// This Constructor is used call other member functions
+// This Constructor just instantiates the object and calls get user input
 PipeData::PipeData() {
+    GetUserInput();
 }
 
 // This is a destructor to assure that there will not be any memory leaks and class members are destructed 
@@ -65,7 +66,6 @@ void PipeData::GetUserInput() {
     // print any errors using the result integer return value from the 'get_od_and_thk' function
     print_any_errors(result);
     // calculation additional data
-    get_addn_data();
 }
 
 
@@ -185,7 +185,25 @@ void PipeData::print_any_errors(int result) {
 }
 
 
-void PipeData::get_addn_data() {
+void PipeData::PrintPipeData() {
+    //Print data to screen
+    std::cout << "\tEntered NPS =          " << std::setw(10) << std::left << this->nom_size << "\n";
+    std::cout << "\tEntered Schedule =     " << std::setw(10) << std::left << this->sched << "\n";
+    std::cout << "\tPipe OD =              " << this->pipeOD << "\n";
+    std::cout << "\tPipe Thickness =       " << this->pipeThk << "\n";
+}
+
+// Constructor for the extended properties calls the 'get_addn_data' function
+PipeDataExtended::PipeDataExtended() {
+    get_addn_data();
+}
+
+// Constructor for the extended properties calls the 'get_addn_data' function
+PipeDataExtended::~PipeDataExtended() {
+}
+
+
+void PipeDataExtended::get_addn_data() {
     this->pipeID = this->pipeOD - 2 * this->pipeThk;
 
     //Calculate Empty Weight of Steel Pipe per Foot
@@ -200,14 +218,11 @@ void PipeData::get_addn_data() {
 }
 
 
-void PipeData::PrintPipeData() {
+void PipeDataExtended::PrintPipeDataExt() {
     //Print data to screen
-    std::cout << "\nEntered NPS =          " << std::setw(10) << std::left << this->nom_size << "\n";
-    std::cout << "Entered Schedule =     " << std::setw(10) << std::left << this->sched << "\n";
-    std::cout << "Pipe OD =              " << this->pipeOD << "\n";
-    std::cout << "Pipe ID =              " << this->pipeID << "\n";
-    std::cout << "Pipe Thickness =       " << this->pipeThk << "\n";
-    std::cout << "Pipe Empty Wt/Ft =     " << this->emptyWtPerFt << "\n";
-    std::cout << "Water #/Ft =           " << this->waterWtPerFt << "\n";
-    std::cout << "Pipe Full H2O #/Ft =   " << this->pipeWtFullPerFt << "\n\n";    
+    std::cout << "Additional Data from PipeDataExtended Class:" << "\n";
+    std::cout << "\tPipe ID =              " << this->pipeID << "\n";
+    std::cout << "\tPipe Empty Wt/Ft =     " << this->emptyWtPerFt << "\n";
+    std::cout << "\tWater #/Ft =           " << this->waterWtPerFt << "\n";
+    std::cout << "\tPipe Full H2O #/Ft =   " << this->pipeWtFullPerFt << "\n\n";    
 }
