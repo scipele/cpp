@@ -46,8 +46,8 @@ enum ErrorCode {
     ERROR_INVALID_SCHEDULE = -2
 };
 
-
-// This Constructor just instantiates the object and calls get user input
+// ***********************  Base Class PipeData **************************
+// This Constructor just instantiates the object and calls 'GetUserInput'
 PipeData::PipeData() {
     GetUserInput();
 }
@@ -193,6 +193,8 @@ void PipeData::PrintPipeData() {
     std::cout << "\tPipe Thickness =       " << this->pipeThk << "\n";
 }
 
+
+// ***********************  Derived Class PipeDataExtended **************************
 // Constructor for the extended properties calls the 'get_addn_data' function
 PipeDataExtended::PipeDataExtended() {
     get_addn_data();
