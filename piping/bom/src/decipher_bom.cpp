@@ -30,13 +30,11 @@
 //
 // By:  T.Sciple, 8/14/2024
 
-#include <vector>
-#include "../../../misc/Classes/Timer.hpp"
-#include "../include/Bom.hpp"
+#include "../../../misc/Class/Timer.hpp"
 #include "../include/ReadBom.hpp"
-#include "../include/FracConvert.hpp"
-#include "../include/CategorizeBom.hpp"
-#include "../include/WriteData.hpp"
+//#include "../include/FracConvert.hpp"
+//#include "../include/CategorizeBom.hpp"
+//#include "../include/WriteData.hpp"
 
 int main(int argc, char const *argv[]) {
     //Start the Timer using the 'TimerCls' class called 'timer'
@@ -45,7 +43,7 @@ int main(int argc, char const *argv[]) {
 
     //*** Step 1 *** instantiate class as rb, then create vector of the bom
     ReadBom rb;
-    std::vector<Bom> bm = rb.GetData();    // uses the .GetData Method in the class which reads the Bom
+    rb.GetData();    // uses the .GetData Method in the class which reads the Bom
     timer.interval();
 
     //*** Step 2 *** Convert Sizes to Decimal using the FracConvert Class
@@ -53,6 +51,7 @@ int main(int argc, char const *argv[]) {
     int result = conv.ConvertSizesToDec(bm);
     timer.interval();
 
+/*
     //*** Step 3 *** Categorize the BOM Items
     CategorizeBom Ct;
     Ct.Read_Categ();
@@ -63,9 +62,11 @@ int main(int argc, char const *argv[]) {
     WriteData wd;
     wd.WriteDataToCsv((bm));
     timer.interval();
+*/
+
 //Temp Print out that will list all BOM Items
         int i=1;
-        for(auto& line : bm) {
+        for(auto& line : rb.bom_lines) {
             std::cout   << i << ". |"
                         << line.indx_code << "|"
                         << line.grp << "|"
@@ -78,7 +79,7 @@ int main(int argc, char const *argv[]) {
                         << line.size2_dec << "\n";
             i++;
         } 
-
+    
     timer.end();
  
     system("pause");

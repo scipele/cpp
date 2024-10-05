@@ -1,5 +1,4 @@
 #pragma once
-#include "Bom.hpp"
 #include "ReadBom.hpp"
 #include <vector>
 #include <algorithm>

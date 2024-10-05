@@ -1,22 +1,20 @@
-#include "../../include/Bom.hpp"
 #include "../../include/ReadBom.hpp"
 #include <iostream>
 #include <fstream>
 #include <vector>
 
-std::vector<Bom> ReadBom::GetData() {
+int ReadBom::GetData() {
     // Step 1. Determine from user if size information needs to be split
     int input_type = get_input_type();
     //std::cout << input_type << "\n";
 
     // Step 2. read user input depending on type
-    std::vector<Bom> lines;
-    int result = read_user_input(input_type, lines);
+    int result = read_user_input(input_type);
 
     // Step 3 call splitter function
-    separ_sizes_from_desc(lines);
+    separ_sizes_from_desc();
 
-    return lines;
+    return 0;
 }
 
 // Step 1
@@ -45,7 +43,7 @@ int ReadBom::get_input_type() {
 }
 
 // Step 2 read input
-int ReadBom::read_user_input(int, std::vector<Bom>& lines) {
+int ReadBom::read_user_input(int) {
 
     // open file
     std::ifstream file("../data/input/input.csv");
@@ -58,7 +56,7 @@ int ReadBom::read_user_input(int, std::vector<Bom>& lines) {
 
     std::string line;
     while (std::getline(file, line)) {
-        lines.push_back( { line , "", "", "", _BLANK , _BLANK, 0, "", "" });
+        this->bom_lines.push_back( { line , "", "", "", _BLANK , _BLANK, 0, "", "" });
     }
 
     file.close();
@@ -66,9 +64,9 @@ int ReadBom::read_user_input(int, std::vector<Bom>& lines) {
 }
 
 // Step 3 separate sizes from desc
-void ReadBom::separ_sizes_from_desc(std::vector<Bom>& lines) {
+void ReadBom::separ_sizes_from_desc() {
     int indx=1;
-    for (auto& line : lines) {
+    for (auto& line : bom_lines) {
         int loc=0;
         int offset;
         int len = line.orig.size();
