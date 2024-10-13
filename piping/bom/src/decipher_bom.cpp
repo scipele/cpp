@@ -42,8 +42,8 @@ int main(int argc, char const *argv[]) {
     timer.start();
 
     //*** Step 1 *** instantiate class as rb, then create vector of the bom
-    ReadBom rb;
-    rb.GetData();    // uses the .GetData Method in the class which reads the Bom
+    ReadBom bm;
+    bm.GetData();    // uses the .GetData Method in the class which reads the Bom
     timer.interval();
 
     //*** Step 2 *** Convert Sizes to Decimal using the FracConvert Class
