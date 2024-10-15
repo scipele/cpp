@@ -1,3 +1,15 @@
+// filename:    SteelShapes.hpp
+// 
+// Purpose:     SteelShapes Class Header File
+//              - defines public, private, or protected access specifiers
+//              - defines member variables
+//              - provides constructor and destructor prototypes
+//              - provides function prototypes of member functions
+// Dependencies:
+//              - See SteelShapes.cpp for class implementation file
+//
+// By:  T. Sciple, 2024-10-14
+
 #pragma once
 #include <iostream>
 #include <string>
@@ -6,16 +18,39 @@
 #include <sstream>
 #include <iomanip>
 
-// *******************************************************************************************************************************
-// **** The following portion of the class definition is typically placed in a header file 'ClassName.h' or 'ClassName.hpp' ****
-// *******************************************************************************************************************************
-// Provides the following:
-//      - public, private, or protected access specifiers
-//      - defines member variables
-//      - provides constructor and destructor prototypes
-//      - provides function prototypes of member functions
 class SteelShapes
 {
+
+public:
+    // Define an enum to describe error codes
+    enum ErrorCode {
+        ERROR_NONE = 0,    // No error
+        ERROR_BINARY_READ = 1,     // Specific error A
+        ERROR_CSV_READ = 2,     // Specific error B
+        ERROR_UNKNOWN = 99  // Unknown error
+    };
+
+
+    // This is called a constructor protype which is basically similar to a function with the exact same name as the class that automatically runs
+    // anytime that an instance of the Object 'SteelShapes' is created (aka instantiated).  
+    SteelShapes();
+    
+    // This is called a destructor which is basically a function with the exact same name as the class that automatically runs anytime that an instance
+    // of the Object 'SteelShapes' is created.  This is called 'instantiated'
+    ~SteelShapes();
+
+    void get_str_from_user();
+    int PrintShapeProperties();
+
+    // Getter for errorCode
+    ErrorCode getErrorCode() const;
+
+    // Setter for errorCode
+    void setError(ErrorCode code);
+
+    // Function to check if there is an error
+    bool hasError() const;
+
 private:
     std::string input_name;  //	Shape_name 
     std::string Type; 	 	 //	Shape_type 
@@ -101,6 +136,7 @@ private:
     double T1; 	 	 	 	 // Distance_between_web_toes_of_fillets 
     double WGi; 	 	 	 // Workable_gage_for_fastener_holes 
     double WGo; 	 	 	 // Bolt_spacing_across_the_flange
+    ErrorCode errorCode;     // Use enum type to track errors
 
     struct field_def {
         std::string field_name;
@@ -113,18 +149,8 @@ private:
 
     int read_binary_file();
     void readString(std::ifstream &file, std::string &str);
-    void PrintShapeProperties();
     void readCSV();
     field_def parseCSVLine(const std::string& line);
-    std::string get_str_from_user(std::string user_msg);
     std::string toUpperCase(const std::string str);
 
-public:
-    // This is called a constructor protype which is basically similar to a function with the exact same name as the class that automatically runs
-    // anytime that an instance of the Object 'SteelShapes' is created (aka instantiated).  
-    SteelShapes();
-    
-    // This is called a destructor which is basically a function with the exact same name as the class that automatically runs anytime that an instance
-    // of the Object 'SteelShapes' is created.  This is called 'instantiated'
-    ~SteelShapes();
 };

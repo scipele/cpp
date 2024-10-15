@@ -1,39 +1,65 @@
+// filename:    SteelShapes.cpp
+// 
+// Purpose:     SteelShapes Class Implementation File
+//              - provides constructor and destructor prototypes
+//              - provides function prototypes of member functions
+// Dependencies:
+//              - See SteelShapes.cpp for class implementation file
+//
+// By:  T. Sciple, 2024-10-14
+
+#include "../../include/SteelShapes.hpp"
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <vector>
 #include <sstream>
 #include <iomanip>
-#include "../../include/SteelShapes.hpp"
 
-// ***********************************************************************************************************
-// **** Class implentation File ****
-// ***********************************************************************************************************
-// This class implimentation is typically placed in a separate file named 'ClassName.cpp'
 
-// This is the constructor  which is basically similar to a function with the exact same name as the class that automatically runs
-// anytime that an instance of the Object 'SteelShapes' is created (aka instantiated).  
-SteelShapes::SteelShapes() {
-    
-    for (int i=0; i<25; i++) std::cout << std::endl;
-    input_name = get_str_from_user("1. Enter Shape Desc and Size to get Properties (i.e. W14X109)-> ");
+// This is the constructor which is basically similar to a function with the exact 
+// same name as the class that automatically runs anytime that an instance of the
+// Object 'SteelShapes' is created (aka instantiated).  
 
-    int read_status = read_binary_file();
-    if (read_status == 0) {
-        readCSV();
-        PrintShapeProperties();
-    } else {
-        std::cout << "Matching Shape Not Found\n";
-    }
-}
+// Constructor set to NO_ERROR by default
+SteelShapes::SteelShapes() : errorCode(ErrorCode::ERROR_NONE) {}
 
 // Destructor to destroy the object at end of scope
 SteelShapes::~SteelShapes() {
 }
 
+void SteelShapes::get_str_from_user() {
+    for (int i=0; i<25; i++) std::cout << std::endl;
+    std::string user_msg = "1. Enter Shape Desc and Size to get Properties (i.e. W14X109)-> ";
+    std::cout << std::left << user_msg;
+    std::string tmp;
+    std::getline(std::cin, tmp);
+
+    // set member variable to the value provided by the user
+    this->input_name = SteelShapes::toUpperCase(tmp);
+
+    int read_status = read_binary_file();
+
+    if ( hasError() ) {
+        std::cout << "Matching Shape Not Found\n";
+        setError(ErrorCode::ERROR_BINARY_READ);
+    } else {
+        readCSV();
+    }
+}
+
+//function to convert string to uppercase
+std::string SteelShapes::toUpperCase(const std::string str) {  
+    std::string result = str;
+    for (char& c : result) {
+        c = std::toupper(c);
+    }
+    return result;
+}
+
 
 int SteelShapes::read_binary_file() {
-       std::ifstream file("../def_tables/shapes.bin", std::ios::binary);
+    std::ifstream file("../def_tables/shapes.bin", std::ios::binary);
     if (!file) {
         std::cerr << "Unable to open 'shapes.bin' file";
         return 1;
@@ -151,6 +177,7 @@ void SteelShapes::readCSV() {
     std::ifstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Failed to open 'field_names.csv' file: " << filename << std::endl;
+        setError(ERROR_CSV_READ);
         return;
     }
 
@@ -181,92 +208,100 @@ SteelShapes::field_def SteelShapes::parseCSVLine(const std::string& line) {
 }
 
 
-void SteelShapes::PrintShapeProperties() {
+int SteelShapes::PrintShapeProperties() {
+
+    if ( hasError() ) {
+        std::cout << "Error detected, cannot print shape properties\n";
+        return -1;
+    }
+
     // Prints the non zero properties of the shape input
     auto itt = fields.begin();
-    std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Type << " " << itt->uom << "\n"; itt++;
-    std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << EDI_Name << " " << itt->uom << "\n"; itt++;
-    std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << t_f << " " << itt->uom << "\n"; itt++;
-    if(W>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << W << " " << itt->uom << "\n"; itt++;
-    if(A>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << A << " " << itt->uom << "\n"; itt++;
-    if(d>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << d << " " << itt->uom << "\n"; itt++;
-    if(ddet>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << ddet << " " << itt->uom << "\n"; itt++;
-    if(Ht>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Ht << " " << itt->uom << "\n"; itt++;
-    if(h>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << h << " " << itt->uom << "\n"; itt++;
-    if(OD>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << OD << " " << itt->uom << "\n"; itt++;
-    if(bf>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << bf << " " << itt->uom << "\n"; itt++;
-    if(bfdet>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << bfdet << " " << itt->uom << "\n"; itt++;
-    if(B1>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << B1 << " " << itt->uom << "\n"; itt++;
-    if(b>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << b << " " << itt->uom << "\n"; itt++;
-    if(ID>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << ID << " " << itt->uom << "\n"; itt++;
-    if(tw>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << tw << " " << itt->uom << "\n"; itt++;
-    if(twdet>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << twdet << " " << itt->uom << "\n"; itt++;
+    std::cout               << std::left << std::setw(61) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Type << " " << itt->uom << "\n"; itt++;
+    std::cout               << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << EDI_Name << " " << itt->uom << "\n"; itt++;
+    std::cout               << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << t_f << " " << itt->uom << "\n"; itt++;
+    if(W>0) std::cout       << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << W << " " << itt->uom << "\n"; itt++;
+    if(A>0) std::cout       << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << A << " " << itt->uom << "\n"; itt++;
+    if(d>0) std::cout       << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << d << " " << itt->uom << "\n"; itt++;
+    if(ddet>0) std::cout    << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << ddet << " " << itt->uom << "\n"; itt++;
+    if(Ht>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Ht << " " << itt->uom << "\n"; itt++;
+    if(h>0) std::cout       << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << h << " " << itt->uom << "\n"; itt++;
+    if(OD>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << OD << " " << itt->uom << "\n"; itt++;
+    if(bf>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << bf << " " << itt->uom << "\n"; itt++;
+    if(bfdet>0) std::cout   << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << bfdet << " " << itt->uom << "\n"; itt++;
+    if(B1>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << B1 << " " << itt->uom << "\n"; itt++;
+    if(b>0) std::cout       << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << b << " " << itt->uom << "\n"; itt++;
+    if(ID>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << ID << " " << itt->uom << "\n"; itt++;
+    if(tw>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << tw << " " << itt->uom << "\n"; itt++;
+    if(twdet>0) std::cout   << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << twdet << " " << itt->uom << "\n"; itt++;
     if(twdet_2>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << twdet_2 << " " << itt->uom << "\n"; itt++;
-    if(tf>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << tf << " " << itt->uom << "\n"; itt++;
-    if(tfdet>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << tfdet << " " << itt->uom << "\n"; itt++;
-    if(t>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << t << " " << itt->uom << "\n"; itt++;
-    if(tnom>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << tnom << " " << itt->uom << "\n"; itt++;
-    if(tdes>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << tdes << " " << itt->uom << "\n"; itt++;
-    if(kdes>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << kdes << " " << itt->uom << "\n"; itt++;
-    if(kdet>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << kdet << " " << itt->uom << "\n"; itt++;
-    if(k1>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << k1 << " " << itt->uom << "\n"; itt++;
-    if(x>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << x << " " << itt->uom << "\n"; itt++;
-    if(y>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << y << " " << itt->uom << "\n"; itt++;
-    if(eo>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << eo << " " << itt->uom << "\n"; itt++;
-    if(xp>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << xp << " " << itt->uom << "\n"; itt++;
-    if(yp>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << yp << " " << itt->uom << "\n"; itt++;
-    if(bf_2tf>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << bf_2tf << " " << itt->uom << "\n"; itt++;
-    if(b_t>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << b_t << " " << itt->uom << "\n"; itt++;
-    if(b_tdes>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << b_tdes << " " << itt->uom << "\n"; itt++;
-    if(h_tw>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << h_tw << " " << itt->uom << "\n"; itt++;
-    if(h_tdes>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << h_tdes << " " << itt->uom << "\n"; itt++;
-    if(D_t>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << D_t << " " << itt->uom << "\n"; itt++;
-    if(Ix>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Ix << " " << itt->uom << "\n"; itt++;
-    if(Zx>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Zx << " " << itt->uom << "\n"; itt++;
-    if(Sx>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Sx << " " << itt->uom << "\n"; itt++;
-    if(rx>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << rx << " " << itt->uom << "\n"; itt++;
-    if(Iy>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Iy << " " << itt->uom << "\n"; itt++;
-    if(Zy>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Zy << " " << itt->uom << "\n"; itt++;
-    if(Sy>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Sy << " " << itt->uom << "\n"; itt++;
-    if(ry>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << ry << " " << itt->uom << "\n"; itt++;
-    if(Iz>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Iz << " " << itt->uom << "\n"; itt++;
-    if(rz>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << rz << " " << itt->uom << "\n"; itt++;
-    if(Sz>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Sz << " " << itt->uom << "\n"; itt++;
-    if(J>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << J << " " << itt->uom << "\n"; itt++;
-    if(Cw>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Cw << " " << itt->uom << "\n"; itt++;
-    if(C>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << C << " " << itt->uom << "\n"; itt++;
-    if(Wno>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Wno << " " << itt->uom << "\n"; itt++;
-    if(Sw1>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Sw1 << " " << itt->uom << "\n"; itt++;
-    if(Sw2>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Sw2 << " " << itt->uom << "\n"; itt++;
-    if(Sw3>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Sw3 << " " << itt->uom << "\n"; itt++;
-    if(Qf>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Qf << " " << itt->uom << "\n"; itt++;
-    if(Qw>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Qw << " " << itt->uom << "\n"; itt++;
-    if(ro>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << ro << " " << itt->uom << "\n"; itt++;
-    if(H1>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << H1 << " " << itt->uom << "\n"; itt++;
+    if(tf>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << tf << " " << itt->uom << "\n"; itt++;
+    if(tfdet>0) std::cout   << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << tfdet << " " << itt->uom << "\n"; itt++;
+    if(t>0) std::cout       << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << t << " " << itt->uom << "\n"; itt++;
+    if(tnom>0) std::cout    << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << tnom << " " << itt->uom << "\n"; itt++;
+    if(tdes>0) std::cout    << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << tdes << " " << itt->uom << "\n"; itt++;
+    if(kdes>0) std::cout    << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << kdes << " " << itt->uom << "\n"; itt++;
+    if(kdet>0) std::cout    << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << kdet << " " << itt->uom << "\n"; itt++;
+    if(k1>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << k1 << " " << itt->uom << "\n"; itt++;
+    if(x>0) std::cout       << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << x << " " << itt->uom << "\n"; itt++;
+    if(y>0) std::cout       << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << y << " " << itt->uom << "\n"; itt++;
+    if(eo>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << eo << " " << itt->uom << "\n"; itt++;
+    if(xp>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << xp << " " << itt->uom << "\n"; itt++;
+    if(yp>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << yp << " " << itt->uom << "\n"; itt++;
+    if(bf_2tf>0) std::cout  << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << bf_2tf << " " << itt->uom << "\n"; itt++;
+    if(b_t>0) std::cout     << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << b_t << " " << itt->uom << "\n"; itt++;
+    if(b_tdes>0) std::cout  << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << b_tdes << " " << itt->uom << "\n"; itt++;
+    if(h_tw>0) std::cout    << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << h_tw << " " << itt->uom << "\n"; itt++;
+    if(h_tdes>0) std::cout  << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << h_tdes << " " << itt->uom << "\n"; itt++;
+    if(D_t>0) std::cout     << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << D_t << " " << itt->uom << "\n"; itt++;
+    if(Ix>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Ix << " " << itt->uom << "\n"; itt++;
+    if(Zx>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Zx << " " << itt->uom << "\n"; itt++;
+    if(Sx>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Sx << " " << itt->uom << "\n"; itt++;
+    if(rx>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << rx << " " << itt->uom << "\n"; itt++;
+    if(Iy>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Iy << " " << itt->uom << "\n"; itt++;
+    if(Zy>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Zy << " " << itt->uom << "\n"; itt++;
+    if(Sy>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Sy << " " << itt->uom << "\n"; itt++;
+    if(ry>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << ry << " " << itt->uom << "\n"; itt++;
+    if(Iz>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Iz << " " << itt->uom << "\n"; itt++;
+    if(rz>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << rz << " " << itt->uom << "\n"; itt++;
+    if(Sz>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Sz << " " << itt->uom << "\n"; itt++;
+    if(J>0) std::cout       << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << J << " " << itt->uom << "\n"; itt++;
+    if(Cw>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Cw << " " << itt->uom << "\n"; itt++;
+    if(C>0) std::cout       << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << C << " " << itt->uom << "\n"; itt++;
+    if(Wno>0) std::cout     << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Wno << " " << itt->uom << "\n"; itt++;
+    if(Sw1>0) std::cout     << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Sw1 << " " << itt->uom << "\n"; itt++;
+    if(Sw2>0) std::cout     << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Sw2 << " " << itt->uom << "\n"; itt++;
+    if(Sw3>0) std::cout     << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Sw3 << " " << itt->uom << "\n"; itt++;
+    if(Qf>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Qf << " " << itt->uom << "\n"; itt++;
+    if(Qw>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Qw << " " << itt->uom << "\n"; itt++;
+    if(ro>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << ro << " " << itt->uom << "\n"; itt++;
+    if(H1>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << H1 << " " << itt->uom << "\n"; itt++;
     if(tan_alpha>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << tan_alpha << " " << itt->uom << "\n"; itt++;
-    if(Iw>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Iw << " " << itt->uom << "\n"; itt++;
-    if(zA>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << zA << " " << itt->uom << "\n"; itt++;
-    if(zB>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << zB << " " << itt->uom << "\n"; itt++;
-    if(zC>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << zC << " " << itt->uom << "\n"; itt++;
-    if(wA>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << wA << " " << itt->uom << "\n"; itt++;
-    if(wB>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << wB << " " << itt->uom << "\n"; itt++;
-    if(wC>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << wC << " " << itt->uom << "\n"; itt++;
-    if(SwA>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << SwA << " " << itt->uom << "\n"; itt++;
-    if(SwB>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << SwB << " " << itt->uom << "\n"; itt++;
-    if(SwC>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << SwC << " " << itt->uom << "\n"; itt++;
-    if(SzA>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << SzA << " " << itt->uom << "\n"; itt++;
-    if(SzB>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << SzB << " " << itt->uom << "\n"; itt++;
-    if(SzC>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << SzC << " " << itt->uom << "\n"; itt++;
-    if(rts>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << rts << " " << itt->uom << "\n"; itt++;
-    if(ho>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << ho << " " << itt->uom << "\n"; itt++;
-    if(PA>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << PA << " " << itt->uom << "\n"; itt++;
-    if(PA2>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << PA2 << " " << itt->uom << "\n"; itt++;
-    if(PB>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << PB << " " << itt->uom << "\n"; itt++;
-    if(PC>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << PC << " " << itt->uom << "\n"; itt++;
-    if(PD>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << PD << " " << itt->uom << "\n"; itt++;
-    if(T1>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << T1 << " " << itt->uom << "\n"; itt++;
-    if(WGi>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << WGi << " " << itt->uom << "\n"; itt++;
-    if(WGo>0) std::cout << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << WGo << " " << itt->uom << "\n"; itt++;
+    if(Iw>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << Iw << " " << itt->uom << "\n"; itt++;
+    if(zA>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << zA << " " << itt->uom << "\n"; itt++;
+    if(zB>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << zB << " " << itt->uom << "\n"; itt++;
+    if(zC>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << zC << " " << itt->uom << "\n"; itt++;
+    if(wA>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << wA << " " << itt->uom << "\n"; itt++;
+    if(wB>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << wB << " " << itt->uom << "\n"; itt++;
+    if(wC>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << wC << " " << itt->uom << "\n"; itt++;
+    if(SwA>0) std::cout     << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << SwA << " " << itt->uom << "\n"; itt++;
+    if(SwB>0) std::cout     << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << SwB << " " << itt->uom << "\n"; itt++;
+    if(SwC>0) std::cout     << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << SwC << " " << itt->uom << "\n"; itt++;
+    if(SzA>0) std::cout     << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << SzA << " " << itt->uom << "\n"; itt++;
+    if(SzB>0) std::cout     << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << SzB << " " << itt->uom << "\n"; itt++;
+    if(SzC>0) std::cout     << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << SzC << " " << itt->uom << "\n"; itt++;
+    if(rts>0) std::cout     << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << rts << " " << itt->uom << "\n"; itt++;
+    if(ho>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << ho << " " << itt->uom << "\n"; itt++;
+    if(PA>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << PA << " " << itt->uom << "\n"; itt++;
+    if(PA2>0) std::cout     << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << PA2 << " " << itt->uom << "\n"; itt++;
+    if(PB>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << PB << " " << itt->uom << "\n"; itt++;
+    if(PC>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << PC << " " << itt->uom << "\n"; itt++;
+    if(PD>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << PD << " " << itt->uom << "\n"; itt++;
+    if(T1>0) std::cout      << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << T1 << " " << itt->uom << "\n"; itt++;
+    if(WGi>0) std::cout     << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << WGi << " " << itt->uom << "\n"; itt++;
+    if(WGo>0) std::cout     << std::left << std::setw(58) << std::setfill('.') << itt->field_name << " " << itt->var_name << " = " << WGo << " " << itt->uom << "\n";
+
+    return 0;
 }
 
 
@@ -279,19 +314,18 @@ void SteelShapes::readString(std::ifstream &file, std::string &str) {
 }
 
 
-std::string SteelShapes::get_str_from_user(std::string user_msg) {
-    std::string tmp;
-    std::cout << std::left << user_msg;
-    std::getline(std::cin, tmp);
-    return SteelShapes::toUpperCase(tmp);
+// Getter for errorCode
+SteelShapes::ErrorCode SteelShapes::getErrorCode() const {
+    return errorCode;
+}
+
+// Setter for errorCode
+void SteelShapes::setError(ErrorCode code) {
+    errorCode = code;
 }
 
 
-//function to convert string to uppercase
-std::string SteelShapes::toUpperCase(const std::string str) {  
-    std::string result = str;
-    for (char& c : result) {
-        c = std::toupper(c);
-    }
-    return result;
+// Function to check if an error has occurred
+bool SteelShapes::hasError() const {
+    return errorCode != 0;  // Returns true if errorCode is non-zero
 }
