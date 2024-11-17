@@ -17,7 +17,7 @@ int main() {
 
 void PythagExample() {  // This is an example of pythagorean theorem [ c = sqrt(a^2+b^2) ] //
     double a = 1;
-    double b = sqrt(3);  // square root of three
+    double b = sqrt(4);  // square root of three
     double c = sqrt(pow(a, 2) + pow(b, 2));  // sqrt of ( a^2 + b^2 )
     std::cout << "\n\n1. Example of Solving Triange using pythagorean theorem:" << "\n";
     std::cout << "\tGiven a = " << a << "\n";
