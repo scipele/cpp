@@ -152,5 +152,6 @@ private:
     void readCSV();
     field_def parseCSVLine(const std::string& line);
     std::string toUpperCase(const std::string str);
+    int TempWriteCSV(std::vector<std::string> temp[13]);
 
 };

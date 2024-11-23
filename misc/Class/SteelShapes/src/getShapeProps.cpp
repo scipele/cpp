@@ -21,9 +21,9 @@ int main(int argc, char const *argv[])
 
         // Call public member function to get user shape
         stl.get_str_from_user();
-        
+
         // Call public member function to print the properties
-        stl.PrintShapeProperties();
+        //stl.PrintShapeProperties();
 
         //Keep looping or 'q' to quit
         std::cout << "\n" << "Enter to Continue, q to quit ";

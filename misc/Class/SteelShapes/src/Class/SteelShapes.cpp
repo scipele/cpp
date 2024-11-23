@@ -38,6 +38,8 @@ void SteelShapes::get_str_from_user() {
     // set member variable to the value provided by the user
     this->input_name = SteelShapes::toUpperCase(tmp);
 
+
+
     int read_status = read_binary_file();
 
     if ( hasError() ) {
@@ -66,15 +68,32 @@ int SteelShapes::read_binary_file() {
     }
 
     short row_cnt;
+    
+    // temp vector
+    std::vector<std::string> temp[13];
 
-    while (file.peek() != EOF) {        
+    while (file.peek() != EOF) {       
+
         // Read the number of rows of data that were written in the Binary File
         file.read(reinterpret_cast<char*>(&row_cnt), sizeof(row_cnt));
 
         //Read each row from the Binary file
+        std::string prev_type = "";
+        int indx =-1;
+
         for (int i=0; i<row_cnt; i++) {
+            // temporary printing of new type
             readString(file, Type);
+            if (Type != prev_type) {
+                indx++;
+                // std::cout << "} \n\n" << Type << " {";
+                prev_type = Type;
+            }
             readString(file, EDI_Name);
+            // temp
+            //std::cout << "\"" << EDI_Name << "\",";
+            temp[indx].push_back(EDI_Name);
+
             file.read(reinterpret_cast<char*>(&t_f), sizeof(t_f));
             file.read(reinterpret_cast<char*>(&W), sizeof(W));
             file.read(reinterpret_cast<char*>(&A), sizeof(A));
@@ -163,7 +182,7 @@ int SteelShapes::read_binary_file() {
                 return 0;
             }
         }
-
+        int temp_int = TempWriteCSV(temp);    
     }
     file.close();
     // return -1 if not match is found
@@ -328,4 +347,33 @@ void SteelShapes::setError(ErrorCode code) {
 // Function to check if an error has occurred
 bool SteelShapes::hasError() const {
     return errorCode != 0;  // Returns true if errorCode is non-zero
+}
+
+
+int SteelShapes::TempWriteCSV(std::vector<std::string> temp[13]) {
+    // Define the CSV file name
+    std::string filename = "output.csv";
+
+    // Open an output file stream (ofstream) in write mode
+    std::ofstream csvFile(filename);
+
+    // Check if the file opened successfully
+    if (!csvFile.is_open()) {
+        std::cerr << "Could not open the file " << filename << " for writing!" << std::endl;
+        return 1;
+    }
+
+        for (int i=0; i<13; i++) {
+            for (auto rit = temp[i].rbegin() ; rit != temp[i].rend(); rit++ ) {
+                csvFile << *rit << "\n";
+            }
+            csvFile << "NextType:\n";
+        }
+
+    // Close the file
+    csvFile.close();
+
+    std::cout << "Data written to " << filename << " successfully." << std::endl;
+
+    return 0;
 }
