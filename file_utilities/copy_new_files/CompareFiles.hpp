@@ -37,8 +37,9 @@ public:
         }
 
         // Print the original and new file maps
-        print_file_hashes(L"Original Files", orig_hashes);
-        print_file_hashes(L"New Files", new_hashes);
+        // Dont print to screen to speed up
+        // print_file_hashes(L"Original Files", orig_hashes);
+        // print_file_hashes(L"New Files", new_hashes);
 
         // Create a directory for added files with the current date
         std::wstring added_files_folder = orig_path + L"/added_files_" + get_current_date();
@@ -91,21 +92,22 @@ public:
 
                     log_file    << L"| " << std::left << std::setw(41) << file_hash
                                 << L"| Copied new file       | " 
-                                << std::setw(78) << file_path << L" |\n";
+                                << std::setw(78) << file_path << L" |" << std::endl;
 
                 } catch (const std::filesystem::filesystem_error& e) {
                     log_file    << L"| " << std::left << std::setw(41) << file_hash 
                                 << L"| Copy Error            | "
-                                   //| Remarks               |
-                                << std::setw(78) << file_path << L" |\n";  // removed e.what()
+                                << std::setw(78) << file_path << L" |" << std::endl; 
                 }
             } else {
                 // Hash code already exists in the original hashes
                     log_file    << L"| " << std::left << std::setw(41) << file_hash 
                                 << L"| Skip Exists in orig   | "
-                                << std::setw(78) << file_path << L" |\n";
+                                << std::setw(78) << file_path << L" |" << std::endl;
             }
         }
+        // close the log file
+        log_file.close();
     }
 
 
