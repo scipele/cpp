@@ -30,12 +30,13 @@ public:
 
     // Method to update and display the progress bar
     void Update(int cur_progress) {
-         
-         if (cur_progress > completed_progress_amount) cur_progress = completed_progress_amount;
-        
-        float pct_compl = (float)cur_progress / completed_progress_amount;
-        int pos = barWidth * pct_compl;
+        if (cur_progress > completed_progress_amount) {
+            cur_progress = completed_progress_amount;
+        }
 
+        float pct_compl = static_cast<float>(cur_progress) / completed_progress_amount;
+        int pos = static_cast<int>(barWidth * pct_compl);  // No rounding, just truncating
+        
         std::cout << "[";
         for (int i = 0; i < barWidth; ++i) {
             if (i < pos)
@@ -43,12 +44,14 @@ public:
             else
                 std::cout << emptyChar;
         }
-        std::cout << "] " << int(pct_compl * 100.0) << " %\r";
+        
+        // Truncate percentage to ensure no premature 100%
+        int displayed_pct = static_cast<int>(pct_compl * 100);  // Explicit truncation
+        std::cout << "] " << displayed_pct << " %\r";
         std::cout.flush();
         
-        // Complete the bar if progress reaches total
         if (cur_progress == completed_progress_amount) {
-            std::cout << std::endl;
+            std::cout << "\n";  // Move to the next line when fully complete
         }
     }
 };
