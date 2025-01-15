@@ -1,9 +1,14 @@
 #pragma once
 #include <filesystem>
+#include <windows.h>
+#include <bcrypt.h>
+#include <fstream>
+#include <vector>
 #include <iostream>
 #include <string>
+#pragma comment(lib, "bcrypt.lib")
 #include "../../../misc/Class/ProgressBar.hpp"
-    
+   
 
 class FilePropGatherer {
 public:
@@ -31,6 +36,7 @@ public:
     int getFileProperties();
     int getFileCount();
     int getFolderCount();
+    void OutputToCSV();
 
     // Public member variables
     int fileCount;
@@ -40,4 +46,6 @@ private:
     std::wstring user_path;
     std::string get_current_date();
     ProgressBar prg;  // Declare ProgressBar class
+    std::string GetHashCode(const std::string& filePath);
+    std::string hashFileWithSHA1(const std::string& filePath);
 };

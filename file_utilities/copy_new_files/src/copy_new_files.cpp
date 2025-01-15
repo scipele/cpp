@@ -45,14 +45,15 @@ int main() {
     OrigFiles.getFileProperties();
     NewFiles.getFileProperties();
 
-    // ************** TEMPORARY **************************************************************
-    // End the Timer class
+    // Output to csv
+    OrigFiles.OutputToCSV();
+
+    // 7. End the Timer class
     std::cout << std::endl;
     timer.end();
 
-    // Pause the console window before exiting
+    // 8. Pause the console window before exiting
     system("pause");
- 
     return 0;
 }
 
