@@ -16,7 +16,6 @@
 
 #include "../include/GetPaths.hpp"
 #include "../include/FilePropGatherer.hpp"
-#include "../../../misc/Class/ProgressBar.hpp"
 #include "../../../misc/Class/Timer.hpp"
 
 // Function Protypes:
@@ -34,31 +33,21 @@ int main() {
     GetPaths pth;
     pth.GetPathLocsAndValidate();
 
-    // Initialize FilePropGather Class and return file counts for 
+    // 3. Initialize FilePropGather class and return file counts for 
     FilePropGatherer OrigFiles(pth.copy_to_path);
     FilePropGatherer NewFiles(pth.copy_from_path);
 
-    // Get the counts of the files
+    // 4. Get the counts of the files
     int both_counts = OrigFiles.fileCount + NewFiles.fileCount;
     printFileAndFolderInfo(pth, OrigFiles, NewFiles);
 
-    // 3. initialize progress bar class
-    std::cout << "Progress Bar indicates ";
-    ProgressBar prg(both_counts/10);  //<- Instantiate the class with a 100% Complete Value
+    // 5. Get file parent paths and file names
+    OrigFiles.getFileProperties();
+    NewFiles.getFileProperties();
 
-    // ************** TEMPORARY TEST *********************************************************
-    for (int cur_prog=0; cur_prog<= both_counts/10; cur_prog++) {
-        int a;
-        for (long int j=0; j<= 1000; j++) {
-            a = 1 + 1234;
-        }    // Do something to burn time for the example
-        prg.Update(cur_prog);
-    }
-    std::cout << std::endl;
     // ************** TEMPORARY **************************************************************
-
-
     // End the Timer class
+    std::cout << std::endl;
     timer.end();
 
     // Pause the console window before exiting
