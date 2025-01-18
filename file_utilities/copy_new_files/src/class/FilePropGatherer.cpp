@@ -1,11 +1,13 @@
 #include "../../include/FilePropGatherer.hpp"
 
-
 int FilePropGatherer::getFileProperties() {
+
+    getFolderParentPath();
+
     vecFileInfo.reserve(this->fileCount);
     const std::filesystem::path directory = user_path;
     int current_progress = 0;
-    int progressStep = (fileCount > 0) ? fileCount / 100 : 1;  // Define step for progress updates
+    int progressStep = (fileCount > 500) ? fileCount / 100 : 1;  // Define step for progress updates
 
     std::cout << "\n";
     std::wcout << L"Getting file properties for " << this->user_path << "\n";
@@ -26,6 +28,14 @@ int FilePropGatherer::getFileProperties() {
             }
         }
     }
+    populate_map_with_hashes();
+    return 0;
+}
+
+
+int FilePropGatherer::getFolderParentPath() {
+    std::filesystem::path tmp_path(this->user_path);
+    folder_parent_path = tmp_path.parent_path().wstring();
     return 0;
 }
 
@@ -138,10 +148,35 @@ std::string FilePropGatherer::hashFileWithSHA1(const std::string& filePath) {
 }
 
 
-// Member function to output file properties to a CSV
-void FilePropGatherer::OutputToCSV() {
+int FilePropGatherer::populate_map_with_hashes() {
 
-    const std::wstring& filename = this->user_path + L"\\log.csv";
+    // allocate space for the number of files
+    hashes.reserve(fileCount);
+
+    // First read in all the hashes and count duplicates
+    size_t vecSize = vecFileInfo.size();
+    for (size_t i = 0; i < vecSize; ++i) {
+        std::string cur_hash = vecFileInfo[i].hash_code;
+        if( hashes.count(cur_hash) > 0 ) {
+            hashes[cur_hash]++;     // count duplicate files by incrementing
+        } else {
+            hashes[cur_hash] = 1;   // set count to 1 if no duplicates
+        }
+    }   
+
+    // now that duplicate counts are known, write to fileInfo vector
+    for (auto& cur_file : vecFileInfo ) {
+        cur_file.hash_count = hashes[cur_file.hash_code];
+    }
+
+    return 0;
+}
+
+
+// Member function to output file properties to a CSV
+void FilePropGatherer::OutputToCSV(const std::wstring& file_name) {
+
+    const std::wstring& filename = this->folder_parent_path + L"/" + file_name;
     // Open the file in write mode
     // Convert std::wstring to std::string (UTF-8 or ASCII)
     std::string filename_str(filename.begin(), filename.end());
@@ -154,16 +189,22 @@ void FilePropGatherer::OutputToCSV() {
     }
 
     // Write header to the CSV
-    file << "Hash Code,File Parent Path,File Name" << std::endl;
+    file << "Seq|Hash Code|File Parent Path|File Name|hash_count" << std::endl;
 
     // Write data for each file in vecFileInfo
-    for (const auto& fileInfo : vecFileInfo) {
-        file << fileInfo.hash_code << "|"
-                << std::string(fileInfo.file_parent_path.begin(), fileInfo.file_parent_path.end()) << "|"
-                << std::string(fileInfo.file_name.begin(), fileInfo.file_name.end()) << std::endl;
+    size_t vecSize = vecFileInfo.size();
+    for (size_t i = 0; i < vecSize; ++i) {
+        file    << i+1 << "|"
+                << vecFileInfo[i].hash_code << "|"
+                // the following converts wide string path to standard string
+                << std::string(vecFileInfo[i].file_parent_path.begin(), vecFileInfo[i].file_parent_path.end()) << "|"
+                << std::string(vecFileInfo[i].file_name.begin(), vecFileInfo[i].file_name.end()) << "|"
+                << vecFileInfo[i].hash_count << std::endl;
     }
 
     // Close the file
     file.close();
-    std::cout << L"File properties written to " << filename_str << std::endl;
+    
+    std::cout << "\nFile properties written to " << filename_str;
 }
+

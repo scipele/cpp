@@ -61,7 +61,7 @@ public:
 
         // Output each intervals
         // Print the table header
-        std::cout << "Program Step Run Times:" << std::endl;
+        std::cout << "\n\nProgram Step Run Times:" << std::endl;
         std::cout << "+-------------+---------+" << std::endl;
         std::cout << "| Interval No | Dur (s) |" << std::endl;
         std::cout << "+-------------+---------+" << std::endl;
