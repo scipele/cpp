@@ -1,16 +1,10 @@
 # Changes/corrections to File Copy Program
 
-## Key Problem:  Running out of memory during program execution
-
 ## Solution
-
-1. Store the hash as a standard string instead of a wide string
-
-X. Hard Code the 'c:\t\orig
-
-X. Add progress bar
-
-X.  Add File Statistics on screen and in log file:
+[x] Store the hash as a standard string instead of a wide string
+[x] Hard Code the 'c:\t\orig
+[X] Add progress bar
+[x] Add File Statistics on screen and in log file:
 		
 	File statistics:
 		+---------------+------------+--------------+
@@ -24,12 +18,7 @@ X.  Add File Statistics on screen and in log file:
 		New files found -> x,xxx
 		Files already in the orig -> x,xxx
 		
-X.  Use unordered maps instead of standard maps to be more memory efficient.  Do 
-
-X. Convert file system wide characters strings to standard.  This should be more memory efficient 
-	   // Create a wstring_convert object with the appropriate codecvt facet
-	   std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-
-X. Store the new file information in a vector or standard array verses a map to have less overhead
+[X] Use unordered maps instead of standard maps to be more memory efficient.  Do 
+[X] Store most of the file information in a vector or standard array verses a map to have less overhead
 
 
