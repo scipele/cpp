@@ -8,7 +8,9 @@
 [X] Add progress bar
 
 [x] Add File Statistics on screen and in log file:
-		
+
+[ ] Add a column to show duplicate counts
+
 	File statistics:
 		+---------------+------------+--------------+
 		| Path Location | File Count | Folder Count |
