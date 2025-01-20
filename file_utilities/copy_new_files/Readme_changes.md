@@ -2,14 +2,10 @@
 
 ## Solution
 [x] Store the hash as a standard string instead of a wide string
-
 [x] Hard Code the 'c:\t\orig
-
 [X] Add progress bar
-
 [x] Add File Statistics on screen and in log file:
-
-[ ] Add a column to show duplicate counts
+[x] Add a column to show duplicate counts
 
 	File statistics:
 		+---------------+------------+--------------+
