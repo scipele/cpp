@@ -1,3 +1,9 @@
+//| Item	     | Class Documentation Notes                                   |
+//|--------------|-------------------------------------------------------------|
+//| Filename/type| FilePropGatherer.hpp / Class header file                    |
+//| EntryPoint   | instantiated from main                                      |
+//| By Name,Date | T.Sciple, 1/11/2025                                         |
+
 #pragma once
 #include <filesystem>
 #include <windows.h>
@@ -22,7 +28,7 @@ public:
     
     std::wstring folder_parent_path;
     std::vector<FileInfo> vecFileInfo;
-    std::unordered_map<std::string, size_t> hashes;
+    std::unordered_map<std::string, int> hashes;
     
     // Constructor that initializes the user_path member variable
     FilePropGatherer( const std::wstring& input_user_path)
@@ -46,12 +52,14 @@ public:
     // Public member variables
     int fileCount;
     int folderCount;
+    const std::wstring user_path;
 
 private:
-    const std::wstring user_path;
     std::string get_current_date();
     ProgressBar prg;  // Declare ProgressBar class
     std::string GetHashCode(const std::string& filePath);
     std::string hashFileWithSHA1(const std::string& filePath);
     int populate_map_with_hashes();
+
+    int number_of_duplicate_files;
 };

@@ -1,4 +1,8 @@
-//filename: GetPaths.hpp
+//| Item	     | Class Documentation Notes                                   |
+//|--------------|-------------------------------------------------------------|
+//| Filename/type| GetPaths.hpp / Class header file                            |
+//| EntryPoint   | instantiated from main                                      |
+//| By Name,Date | T.Sciple, 1/18/2025                                         |
 
 #pragma once
 #include <filesystem>
@@ -11,6 +15,12 @@
 class GetPaths {
 
 public:
+    // Default constructor
+    GetPaths();
+
+    // Destructor
+    virtual ~GetPaths();
+    
     std::wstring copy_from_path;
     std::wstring copy_to_path;
     int GetPathLocsAndValidate();

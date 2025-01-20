@@ -1,4 +1,19 @@
+//| Item	     | Class Documentation Notes                                   |
+//|--------------|-------------------------------------------------------------|
+//| Filename/type| GetPaths.cpp / Class implementation  file                   |
+//| EntryPoint   | instantiated from main                                      |
+//| By Name,Date | T.Sciple, 1/18/2025                                         |
+
 #include "../../include/GetPaths.hpp"
+
+// Constructor initialization with paths as empty strings
+GetPaths::GetPaths()
+    : copy_from_path(L""), copy_to_path(L"") {
+}
+
+GetPaths::~GetPaths() {
+    // Standard destructor
+}
 
 int GetPaths::GetPathLocsAndValidate() {
     
@@ -11,8 +26,8 @@ int GetPaths::GetPathLocsAndValidate() {
     for ( int i=0; i< 25; i++) std::cout << "\n";
 
     //hard code the new files path
-    this->copy_from_path = L"c:/t/new";
-    this->copy_to_path = L"c:/t/orig";
+    this->copy_from_path = L"c:\\t\\new";
+    this->copy_to_path = L"c:\\t\\orig";
 
     results[0] =IsPathValid(copy_from_path);
     results[1] =IsPathValid(copy_to_path);

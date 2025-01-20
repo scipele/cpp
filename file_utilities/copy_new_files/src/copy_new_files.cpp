@@ -1,8 +1,8 @@
 //| Item	     | Documentation Notes                                         |
 //|--------------|-------------------------------------------------------------|
-//| Filename     | x.vba                                                       |
+//| Filename     | copy_new_files.cpp                                          |
 //| EntryPoint   | main                                                        |
-//| Purpose      | copy over only new files                                    |
+//| Purpose      | copy over only new files, and document duplicates           |
 //| Inputs       | hard coded paths:                                           |
 //|              |    Place Original Files Here-> c:\t\orig                    |
 //|              |    Place New Files Here-> c:\t\new                          |
@@ -16,6 +16,7 @@
 // My Classes
 #include "../include/GetPaths.hpp"
 #include "../include/FilePropGatherer.hpp"
+#include "../include/CompareFiles.hpp"
 #include "../../../misc/Class/Timer.hpp"
 
 
@@ -34,7 +35,7 @@ int main() {
     FilePropGatherer NewFiles(pth.copy_from_path);
 
     // 4. Get the counts of the files
-    int both_counts = OrigFiles.fileCount + NewFiles.fileCount;
+    int both_counts = OrigFiles.fileCount + NewFiles.fileCount; 
 
     // 5. Print File path data and file statistics
     pth.printFileDataHeaderInfo();
@@ -44,15 +45,19 @@ int main() {
     OrigFiles.getFileProperties();
     NewFiles.getFileProperties();
 
-    // 7. Output to csv
+    // 7. Create indicidual logs to csv
     OrigFiles.OutputToCSV(L"log_orig.csv");
     NewFiles.OutputToCSV(L"log_new.csv");
 
-    // 8. End the Timer class
+    // 8. Instantiate CompareFiles Class to compare and copy new files
+    CompareFiles cpyNew(OrigFiles, NewFiles);
+    cpyNew.FindNewFiles();
+    
+    // 9. End the Timer class
     //std::cout << std::endl;
     timer.end();
 
-    // 9. Pause the console window before exiting
+    // 10. Pause the console window before exiting
     system("pause");
     return 0;
 }
