@@ -35,7 +35,7 @@ int main() {
     FilePropGatherer NewFiles(pth.copy_from_path);
 
     // 4. Get the counts of the files
-    int both_counts = OrigFiles.fileCount + NewFiles.fileCount; 
+    //int both_counts = OrigFiles.fileCount + NewFiles.fileCount; 
 
     // 5. Print File path data and file statistics
     pth.printFileDataHeaderInfo();

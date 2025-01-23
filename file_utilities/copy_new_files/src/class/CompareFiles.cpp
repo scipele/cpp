@@ -83,11 +83,6 @@ void CompareFiles::copyOverNewFile(int i) {
     std::string dest_path = getCopyDestinationFullPath(i);
     std::string dest_path_added = getCopyDestinationSeparateFullPath(i);
 
-    /* used for testing only
-    std::cout << "\nsrc: " << source_path << "\n"
-              << "\t, dest: " << dest_path << "\n"
-              << "\t, dest added: " << dest_path_added << "\n";*/
-
     // Ensure the destination directories exist
     std::filesystem::create_directories(std::filesystem::path(dest_path).parent_path());
     std::filesystem::create_directories(std::filesystem::path(dest_path_added).parent_path());
