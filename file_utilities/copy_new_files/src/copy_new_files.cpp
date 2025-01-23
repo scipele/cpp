@@ -22,42 +22,38 @@
 
 int main() {
 
-    // 1. Start Timer
+    // Start Timer
     TimerCls timer;
     timer.start();
     
-    // 2. Get hard coded paths and validate that they exist
+    // Get hard coded paths and validate that they exist
     GetPaths pth;
     pth.GetPathLocsAndValidate();
 
-    // 3. Initialize FilePropGather class and return file counts for 
+    // Initialize FilePropGather class and return file counts for 
     FilePropGatherer OrigFiles(pth.copy_to_path);
     FilePropGatherer NewFiles(pth.copy_from_path);
 
-    // 4. Get the counts of the files
-    //int both_counts = OrigFiles.fileCount + NewFiles.fileCount; 
-
-    // 5. Print File path data and file statistics
+    // Print File path data and file statistics
     pth.printFileDataHeaderInfo();
     pth.printFileAndFolderInfo(OrigFiles, NewFiles);
 
-    // 6. Get file parent paths and file names
+    // Get file parent paths and file names
     OrigFiles.getFileProperties();
     NewFiles.getFileProperties();
 
-    // 7. Create indicidual logs to csv
+    // Create indicidual logs to csv
     OrigFiles.OutputToCSV(L"log_orig.csv");
     NewFiles.OutputToCSV(L"log_new.csv");
 
-    // 8. Instantiate CompareFiles Class to compare and copy new files
+    // Instantiate CompareFiles Class to compare and copy new files
     CompareFiles cpyNew(OrigFiles, NewFiles);
     cpyNew.FindNewFiles();
     
-    // 9. End the Timer class
-    //std::cout << std::endl;
+    // End the Timer class
     timer.end();
 
-    // 10. Pause the console window before exiting
+    // Pause the console window before exiting
     system("pause");
     return 0;
 }

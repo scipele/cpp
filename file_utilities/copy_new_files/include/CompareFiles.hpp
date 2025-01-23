@@ -34,7 +34,8 @@ private:
     std::string getStrFromWstr(std::wstring& wstr);
     std::string getStrFromConstWstr(const std::wstring& wstr);
     void writeHeaderLineToCsv(std::ofstream& file);
-    void writeDataLineToCsv(int i, std::ofstream& file, std::string& hash, bool isNew);
+    void writeNewDataLineToCsv(int i, int id, std::ofstream& file, std::string& hash, bool isNew);
+    void writeOrigDataLineToCsv(int i, int id, std::ofstream& file, std::string& hash, bool isNew);
     std::optional<std::ofstream> getFileHandle();
     std::string getCopySourceFullPath(int i);
     std::string getCopyDestinationFullPath(int i);
