@@ -42,7 +42,7 @@ int main() {
     OrigFiles.getFileProperties();
     NewFiles.getFileProperties();
 
-    // Create indicidual logs to csv
+    // Create separate logs stored as csv format "|" delimeted
     OrigFiles.OutputToCSV(L"log_orig.csv");
     NewFiles.OutputToCSV(L"log_new.csv");
 

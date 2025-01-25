@@ -15,54 +15,51 @@ void CompareFiles::FindNewFiles() {
     if (file_opt) {
         std::ofstream& file = *file_opt;  // Extract the std::ofstream reference
 
-        // Iterate thru the new files to see if they are actually new or already exist
         writeHeaderLineToCsv(file);
         this->copied_count = 0;
         this->unique_files_count = 0;
 
-        // ToDo  Change to print in the following order
-        
-        // 1. Loop thru and only write the (isNew) lines at the Top
-        // 2. Next loop thru the Orig Files and only write lines if they are duplicates in new
-        // 3. Next loop thru the Orig Files and only write lines if they dont have match in new
-
         int id = 1;
-        // Loop thru new files
-        for ( int i=0; i < newFiles.fileCount; i++) {
-            // check if has exist in the original files and set 'isNew' flag
-            std::string hash = newFiles.vecFileInfo[i].hash_code;
-            bool isNew = (origFiles.hashes.count(hash) == 0) ? true : false;
-            if (isNew) {
-                unique_files_count++;
-                copyOverNewFile(i);
-                writeNewDataLineToCsv(i, id, file, hash, isNew);
-                id++;
+        fileCateg categ;        
+        // setup a loop to loop thru each potential scenario of FileType enums (0 , 1, 2)
+        for (int i = 0; i < 3; i++) {
+            
+            int file_count;
+            file_count = (i==0) ? newFiles.fileCount : origFiles.fileCount;
+        
+            std::string hash;
+            for ( int j=0; j < file_count; j++) {
+
+                // Determine the categ by i counter and hashes
+                if (i==0) {
+                    hash = newFiles.vecFileInfo[j].hash_code;
+                    categ = (origFiles.hashes.count(hash)==0) ? in_new_no_duplicate : in_new_is_duplicate;
+                } else {
+                    hash = origFiles.vecFileInfo[j].hash_code;
+                    categ = (newFiles.hashes.count(hash)==0) ? in_orig_no_duplicate : in_new_is_duplicate;
+                }
+
+                // Write the data in order of the 'i' loop and categ
+                if (i == 0 && categ == in_new_no_duplicate) {
+                    unique_files_count++;
+                    copyOverNewFile(j);
+                    writeDataLineToCsv(j, id, file, hash, categ);
+                    id++;
+                }
+
+                // Write the data in order of the 'i' loop and categ
+                if (i == 1 && categ == in_new_is_duplicate) {
+                    writeDataLineToCsv(j, id, file, hash, categ);
+                    id++;
+                }
+
+                // Write the data in order of the 'i' loop and categ
+                if (i == 2 && categ == in_orig_no_duplicate) {
+                    writeDataLineToCsv(j, id, file, hash, categ);
+                    id++;
+                }
             }
         }
-
-        // Loop thru orig files that have duplicates in the newFiles
-        for ( int i=0; i < origFiles.fileCount; i++) {
-            // check if has exist in the original files and set 'isNew' flag
-            std::string hash = origFiles.vecFileInfo[i].hash_code;
-            bool isNew = (newFiles.hashes.count(hash) == 0) ? true : false;
-            if (!isNew) {
-                writeOrigDataLineToCsv(i, id, file, hash, isNew);
-                id++;
-            }
-        }
-
-        // Loop thru orig files that do not have matching file in the newFiles
-        for ( int i=0; i < origFiles.fileCount; i++) {
-            // check if has exist in the original files and set 'isNew' flag
-            std::string hash = origFiles.vecFileInfo[i].hash_code;
-            bool isUnMatched = (newFiles.hashes.count(hash) == 0) ? true : false;
-            if (isUnMatched) {
-                bool isNew = false; // set to false
-                writeOrigDataLineToCsv(i, id, file, hash, isNew);
-                id++;
-            }
-        }
-
 
         file.close();
         std::cout << "File properties written to: " 
@@ -76,6 +73,68 @@ void CompareFiles::FindNewFiles() {
               << " of "
               << this->unique_files_count
               << " unique files found ";
+}
+
+
+void CompareFiles::writeDataLineToCsv(int j, int id, std::ofstream& file, std::string& hash, fileCateg categ) { 
+        
+    int new_indx;
+    // Get all the variables that are going to be output to the csv file
+    // id   <- passed in function
+    // hash <- passed in function
+    // type <- passed in function
+    int hash_count;
+    std::string new_id; 
+    std::string new_path;
+    std::string new_filename;
+    std::string orig_id; 
+    std::string orig_path;
+    std::string orig_file_name;
+
+    switch (categ) {
+        case in_new_no_duplicate:
+            hash_count = 1;
+            new_id = std::to_string(j+1);
+            new_path = getStrFromConstWstr(newFiles.vecFileInfo[j].file_parent_path);
+            new_filename = getStrFromConstWstr(newFiles.vecFileInfo[j].file_name);
+            orig_id = "";
+            orig_path = "";
+            orig_file_name = "";
+        break;
+
+        case in_new_is_duplicate:
+            hash_count = origFiles.vecFileInfo[j].hash_count;
+            new_indx = newFiles.hashes[hash];
+            new_id = std::to_string(new_indx+1);
+            new_path = getStrFromConstWstr(newFiles.vecFileInfo[new_indx].file_parent_path);
+            new_filename = getStrFromConstWstr(newFiles.vecFileInfo[new_indx].file_name);
+            orig_id = std::to_string(j+1);
+            orig_path = getStrFromConstWstr(origFiles.vecFileInfo[j].file_parent_path);
+            orig_file_name = getStrFromConstWstr(origFiles.vecFileInfo[j].file_name);
+        break;
+
+        case in_orig_no_duplicate:
+            hash_count = origFiles.vecFileInfo[j].hash_count;
+            new_id = "";
+            new_path = "";
+            new_filename = "";
+            orig_id = std::to_string(j+1);
+            orig_path = getStrFromConstWstr(origFiles.vecFileInfo[j].file_parent_path);
+            orig_file_name = getStrFromConstWstr(origFiles.vecFileInfo[j].file_name);
+        break;
+    }
+
+    file << id << "|"
+         << hash << "|"
+         << hash_count << "|"
+         << categ << "|"
+         << new_id << "|"
+         << new_path << "|"
+         << new_filename << "|"
+         << orig_id << "|"
+         << orig_path << "|"
+         << orig_file_name << "|"
+         << std::endl;
 }
 
 
@@ -109,7 +168,7 @@ std::optional<std::ofstream> CompareFiles::getFileHandle() {
 }
 
 void CompareFiles::writeHeaderLineToCsv(std::ofstream& file) {
-    file << "id|hash_code|is_new|new_id|new_path|new_file_name|orig_id|orig_path|orig_file_name|orig_path" << std::endl;
+    file << "id|hash_code|hash_count|file_categ|new_id|new_path|new_file_name|orig_id|orig_path|orig_file_name" << std::endl;
 }
 
 
@@ -141,9 +200,13 @@ std::string CompareFiles::getCopySourceFullPath(int i) {
 
 std::string CompareFiles::getCopyDestinationFullPath(int i) {
     
-    std::wstring new_path = newFiles.vecFileInfo[i].file_parent_path;
+    std::wstring new_par_path = newFiles.vecFileInfo[i].file_parent_path;
     // strips specified number of chars from the left of the string
-    std::wstring dest_path = this->orig_path + L"\\" + new_path.substr(this->new_path.size() + 1);
+
+    std::wstring dest_path = this->orig_path;
+    if (this->new_path.size() != new_par_path.size()) {
+        dest_path += + L"\\" + new_par_path.substr(this->new_path.size() + 1);
+    }
 
     std::wstring file_name = newFiles.vecFileInfo[i].file_name;
     std::wstring file_name_no_ext = stripExtension(newFiles.vecFileInfo[i].file_name);
@@ -181,50 +244,6 @@ std::wstring CompareFiles::stripExtension(const std::wstring& filename) {
         return filename;  // No extension found
     }
     return filename.substr(0, lastDot);
-}
-
-
-void CompareFiles::writeNewDataLineToCsv(int i, int id, std::ofstream& file, std::string& hash, bool isNew) { 
-        
-        int orig_id = (isNew) ? -1 : origFiles.hashes[hash];
-        file << id << "|"
-             << hash << "|" 
-             << isNew << "|"
-             << i << "|"
-             << getStrFromConstWstr(newFiles.vecFileInfo[i].file_parent_path) << "|"
-             << getStrFromConstWstr(newFiles.vecFileInfo[i].file_name) << "|";
-        
-        if (orig_id == -1) {
-            file << "-|-|-|"
-                 << getCopyDestinationFullPath(i) << std::endl;
-        } else {
-            file << orig_id + 1 << "|"
-                 << getStrFromConstWstr(origFiles.vecFileInfo[orig_id].file_parent_path) << "|"
-                 << getStrFromConstWstr(origFiles.vecFileInfo[orig_id].file_name) << "||"
-                 << std::endl;
-        }
-}
-
-
-void CompareFiles::writeOrigDataLineToCsv(int i, int id, std::ofstream& file, std::string& hash, bool isNew) { 
-        
-        int new_id = (isNew) ? -1 : newFiles.hashes[hash];
-        file << id << "|"
-             << hash << "|" 
-             << isNew << "|"
-             << new_id + 1 << "|"
-             << getStrFromConstWstr(newFiles.vecFileInfo[new_id].file_parent_path) << "|"
-             << getStrFromConstWstr(newFiles.vecFileInfo[new_id].file_name) << "|";
-        
-        if (new_id == -1) {
-            file << "-|-|-|"
-                 << getCopyDestinationFullPath(i) << std::endl;
-        } else {
-            file << i + 1 << "|"
-                 << getStrFromConstWstr(origFiles.vecFileInfo[i].file_parent_path) << "|"
-                 << getStrFromConstWstr(origFiles.vecFileInfo[i].file_name) << "||"
-                 << std::endl;
-        }
 }
 
 

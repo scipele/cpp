@@ -26,6 +26,11 @@ public:
     void FindNewFiles();
 
 private:
+    enum fileCateg {
+        in_new_no_duplicate = 0,
+        in_new_is_duplicate = 1,
+        in_orig_no_duplicate = 2
+    };
     // References to FilePropGatherer instances
     FilePropGatherer& origFiles;
     FilePropGatherer& newFiles;
@@ -34,8 +39,7 @@ private:
     std::string getStrFromWstr(std::wstring& wstr);
     std::string getStrFromConstWstr(const std::wstring& wstr);
     void writeHeaderLineToCsv(std::ofstream& file);
-    void writeNewDataLineToCsv(int i, int id, std::ofstream& file, std::string& hash, bool isNew);
-    void writeOrigDataLineToCsv(int i, int id, std::ofstream& file, std::string& hash, bool isNew);
+    void writeDataLineToCsv(int j, int id, std::ofstream& file, std::string& hash, fileCateg type);
     std::optional<std::ofstream> getFileHandle();
     std::string getCopySourceFullPath(int i);
     std::string getCopyDestinationFullPath(int i);
@@ -50,4 +54,6 @@ private:
     std::wstring new_path;
     int unique_files_count;    
     int copied_count;
+
+
 };
