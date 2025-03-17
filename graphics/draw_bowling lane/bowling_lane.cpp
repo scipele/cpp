@@ -1,9 +1,10 @@
 #include <windows.h>
 #include <cmath>
 
-const double LANE_WIDTH_INCHES = 41.5;
-const double BALL_DIAMETER_INCHES = 8.5;
+const double LANE_WIDTH_IN = 41.5;
+const double BALL_DIAMETER_IN = 8.5;
 const double PIN_OVERALL_DIA_IN = 4.766;
+const double BALL_TO_PIN_IMPACT_IN = (BALL_DIAMETER_IN + PIN_OVERALL_DIA_IN) / 2;
 const double PIN_NECK_IN = 1.797;
 const int TOTAL_BOARDS = 39;
 const double FOUL_LINE_TO_PIN_01_IN = 60 * 12;
@@ -12,7 +13,7 @@ const int APPROACH_LEN_IN = 15 * 12 + 8; // 15'-8" approach
 const double LANE_AND_APPROACH_LEN_IN = LANE_LEN_IN + APPROACH_LEN_IN;
 const int ARROW_SPACING_DY_BOARDS = 5;
 const int ARROW_DISTANCE_PX = 16 * 12;  // Distance to the Center Arrow located on board 20
-const int PIN_SPACING_INCHES = 12;
+const int PIN_SPACING_IN = 12;
 const double GUTTER_WIDTH = 9.25;
 const int SCREEN_WIDTH = 5120;
 const int SCREEN_WIDTH_MARGINS = SCREEN_WIDTH * 0.05;                   // 128 
@@ -20,8 +21,8 @@ const int SCREEN_WIDTH_MARGIN = SCREEN_WIDTH_MARGINS / 2;               // 64
 const int SCREEN_WIDTH_AVAIL = SCREEN_WIDTH - SCREEN_WIDTH_MARGINS;     // 2432
 const int SCREEN_HEIGHT = 1440;
 const double SCALE = SCREEN_WIDTH_AVAIL / LANE_AND_APPROACH_LEN_IN;    // 2.575794725302138
-const double LANE_WIDTH_PY = LANE_WIDTH_INCHES * SCALE;
-const double BALL_DIAMETER_PX = BALL_DIAMETER_INCHES * SCALE;
+const double LANE_WIDTH_PY = LANE_WIDTH_IN * SCALE;
+const double BALL_DIAMETER_PX = BALL_DIAMETER_IN * SCALE;
 const double PIN_OVERALL_DIA_PX = PIN_OVERALL_DIA_IN * SCALE;
 const double PIN_NECK_DIA_PX = PIN_NECK_IN * SCALE;
 const double BOARD_WIDTH_PY = LANE_WIDTH_PY / TOTAL_BOARDS;
@@ -30,14 +31,21 @@ const double BALL_SPEED_MPH = 15;  // Ball speed in mph
 double ball_speed_fps = BALL_SPEED_MPH * CONV_MPH_TO_FPS;  // Ball speed in feet per second
 double ball_speed_px = ball_speed_fps * 12 * SCALE;  // Speed in pixels per second
 
-
 // Define the origin as the foul line and the edge of lane
 int ORIGIN_X = SCREEN_WIDTH_MARGIN + APPROACH_LEN_IN * SCALE;  // Foul line called zero
-int ORIGIN_Y = (SCREEN_HEIGHT / 4) - (LANE_WIDTH_INCHES * SCALE / 2);   // bottom edge of the lane
+int ORIGIN_Y = (SCREEN_HEIGHT / 4) - (LANE_WIDTH_IN * SCALE / 2);   // bottom edge of the lane
+double calc_ball_to_pin_dist_in;
 
 // Set the initial ball location
-double ball_x = ORIGIN_X;
+double ball_x_scaled = ORIGIN_X;
+double ball_y_scaled = ORIGIN_Y + (22.5 * BOARD_WIDTH_PY);
 bool rolling = false;
+
+// Set Head Pin X and Y Coordinates
+const double PIN_BASE_X_SCALED = ORIGIN_X + FOUL_LINE_TO_PIN_01_IN * SCALE;
+const double PIN_BASE_X_TRUE = PIN_BASE_X_SCALED / SCALE;
+const double PIN_BASE_Y_SCALED = ORIGIN_Y + (LANE_WIDTH_PY / 2);
+const double PIN_BASE_Y_TRUE = PIN_BASE_Y_SCALED / SCALE;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -77,9 +85,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             RECT gutter = {
                 ORIGIN_X,
-                ORIGIN_Y + (i * (LANE_WIDTH_INCHES + GUTTER_WIDTH) * SCALE),
+                ORIGIN_Y + (i * (LANE_WIDTH_IN + GUTTER_WIDTH) * SCALE),
                 ORIGIN_X + LANE_LEN_IN * SCALE,
-                ORIGIN_Y - GUTTER_WIDTH * SCALE + (i * (LANE_WIDTH_INCHES + GUTTER_WIDTH) * SCALE)
+                ORIGIN_Y - GUTTER_WIDTH * SCALE + (i * (LANE_WIDTH_IN + GUTTER_WIDTH) * SCALE)
             };
 
             HBRUSH hBrush;
@@ -144,18 +152,16 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         DeleteObject(hPen);
 
         // Draw the pins (triangle formation)
-        const double pinBaseX = ORIGIN_X + FOUL_LINE_TO_PIN_01_IN * SCALE;
-        const double pinBaseY = ORIGIN_Y + (LANE_WIDTH_PY / 2);
         const double pi_const = 3.14159265358979323846;
-        const double rowSpacing = cos(30 * pi_const/180.0) * PIN_SPACING_INCHES * SCALE;
-        const double offset = PIN_SPACING_INCHES * SCALE / 2;
+        const double rowSpacing = cos(30 * pi_const/180.0) * PIN_SPACING_IN * SCALE;
+        const double offset = PIN_SPACING_IN * SCALE / 2;
 
         for (int row = 0; row < 4; ++row)
         {
             for (int col = 0; col <= row; ++col)
             {
-                int pinX = pinBaseX + (row * rowSpacing);
-                int pinY = pinBaseY - (row * offset) + (col * PIN_SPACING_INCHES * SCALE);
+                int pinX = PIN_BASE_X_SCALED + (row * rowSpacing);
+                int pinY = PIN_BASE_Y_SCALED - (row * offset) + (col * PIN_SPACING_IN * SCALE);
 
                // Create a solid white brush
                HBRUSH hPinBrush = CreateSolidBrush(RGB(255, 255, 255));
@@ -178,14 +184,15 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         // Draw the ball
         HBRUSH hBallBrush = CreateSolidBrush(RGB(0, 0, 0));
         Ellipse(hdc,
-            ball_x - (BALL_DIAMETER_PX / 2),
+            ball_x_scaled - (BALL_DIAMETER_PX / 2),
             ORIGIN_Y + (22.5 * BOARD_WIDTH_PY) - (BALL_DIAMETER_PX / 2),
-            ball_x + (BALL_DIAMETER_PX / 2),
+            ball_x_scaled + (BALL_DIAMETER_PX / 2),
             ORIGIN_Y + (22.5 * BOARD_WIDTH_PY) + (BALL_DIAMETER_PX / 2));
         DeleteObject(hBallBrush);
 
         EndPaint(hwnd, &ps);
         break;
+
     }
 
     case WM_KEYDOWN:
@@ -193,7 +200,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         if (wParam == VK_SPACE && !rolling)
         {
             rolling = true;
-            SetTimer(hwnd, 1, 30, NULL); // Start the timer with 30 ms interval
+            SetTimer(hwnd, 1, .5, NULL); // Start the timer with 1 ms interval
         }
         break;
     }
@@ -202,15 +209,24 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         if (rolling)
         {
-            // Update the ball's position based on speed and time per frame (30 ms)
-            ball_x += ball_speed_px * 0.03;  // Move the ball forward
+            // Update the ball's position based on speed and time per frame (X ms)
+            ball_x_scaled += ball_speed_px * 0.005;  // Move the ball forward
+
+            double ball_x_true = ball_x_scaled / SCALE;
+            double ball_y_true = ball_y_scaled / SCALE;
+
+            // Determine if the ball is hitting the head pin for now TODO *********  EXPAND THE CALC FOR ALL THE PINS
+            calc_ball_to_pin_dist_in = sqrt( pow((abs(PIN_BASE_X_TRUE - ball_x_true)),2.0) +
+                                             pow((abs(PIN_BASE_Y_TRUE - ball_y_true)),2.0) 
+                                           );
+
 
             // Check if the ball has reached the pins
-            if (ball_x >= ORIGIN_X + FOUL_LINE_TO_PIN_01_IN * SCALE)
+            if (calc_ball_to_pin_dist_in <= BALL_TO_PIN_IMPACT_IN )
             {
                 KillTimer(hwnd, 1);  // Stop the timer
                 rolling = false;     // Ball stops rolling
-                ball_x = ORIGIN_X;   // Reset ball's position
+                ball_x_scaled = ORIGIN_X;   // Reset ball's position
                 MessageBox(hwnd, "Strike!", "Bowling Game", MB_OK);  // Display message
             }
 
