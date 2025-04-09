@@ -12,6 +12,9 @@ int main() {
     PythagExample();
     ConvertFtInDecFtExample();
     TrigFunctionExample();
+
+    // Pause the console window before exiting
+    system("pause");
     return 0;
 }
 

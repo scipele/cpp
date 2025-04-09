@@ -2,7 +2,6 @@
 *.xlsx
 *.xlsm
 *.txt
-*.json
 *.accdb
 *.bat
 *.dll
