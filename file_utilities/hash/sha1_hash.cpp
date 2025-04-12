@@ -3,7 +3,9 @@
 #include <fstream>
 #include <vector>
 #include <iostream>
+#include <array>
 #pragma comment(lib, "bcrypt.lib")
+
 
 std::string hashFileWithSHA1(const std::string& filePath) {
     BCRYPT_ALG_HANDLE hAlgorithm;
@@ -66,12 +68,20 @@ std::string hashFileWithSHA1(const std::string& filePath) {
 }
 
 int main() {
-    try {
-        std::string filePath = "C:/t/orig/Database/EstimLog/EstimateLog_be_v111.accdb";  // Replace with your file path
-        std::string hash = hashFileWithSHA1(filePath);
-        std::cout << "SHA-1 hash: " << hash << std::endl;
-    } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+
+    std::array<std::string, 2> filePaths = {
+        "C:/t/test/60-PKDS-Z3303_a.xlsx",
+        "C:/t/test/60-PKDS-Z3303_b.xlsx"
+    };
+
+    // Method 2: Range-based for loop (C++11 and later)
+    for (const auto& file_path : filePaths) {
+        try {
+            std::string hash = hashFileWithSHA1(file_path);
+            std::cout << "SHA-1 hash a: " << hash << std::endl;
+        } catch (const std::exception& e) {
+            std::cerr << "Error: " << e.what() << std::endl;
+        }      
     }
     
     // 7. Pause the console window before exiting
