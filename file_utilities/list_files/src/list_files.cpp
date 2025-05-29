@@ -3,7 +3,7 @@
 //| Filename     | list_files.cpp                                              |
 //| EntryPoint   | main                                                        |
 //| Purpose      | list file properties                                        |
-//| Inputs       | hard coded paths:                                           |
+//| Inputs       | hard coded path:                                           |
 //|              |    Place Files Here-> c:\t\list                             |
 //| Outputs      | file log to csv                                             |
 //| Dependencies | see classes in #includes here                               |
@@ -13,7 +13,7 @@
 #include <locale>
 #include <codecvt>
 // My Classes
-#include "../include/GetPaths.hpp"
+#include "../include/GetPath.hpp"
 #include "../include/FilePropGatherer.hpp"
 #include "../../../misc/Class/Timer.hpp"
 
@@ -24,18 +24,18 @@ int main() {
     TimerCls timer;
     timer.start();
     
-    // Get hard coded paths and validate that they exist
-    GetPaths pth;
+    // Get hard coded path and validate that they exist
+    GetPath pth;
     pth.GetPathLocsAndValidate();
 
     // Initialize FilePropGather class and return file counts for 
-    FilePropGatherer OrigFiles(pth.copy_to_path);
+    FilePropGatherer OrigFiles(pth.list_path);
     
     // Print File path data and file statistics
     pth.printFileDataHeaderInfo();
     pth.printFileAndFolderInfo(OrigFiles);
 
-    // Get file parent paths and file names
+    // Get file parent path and file names
     OrigFiles.getFileProperties();
     
     // Create separate logs stored as csv format "|" delimeted
