@@ -25,9 +25,9 @@ int FilePropGatherer::getFileProperties() {
 
             vecFileInfo.emplace_back(
                 FileInfo {
-                    GetHashCode(entry.path().string()),
-                    entry.path().parent_path(),
-                    entry.path().filename()
+                    GetHashCode(entry.path().wstring()),
+                    entry.path().parent_path().wstring(),
+                    entry.path().filename().wstring()
                 }
             );
             current_progress++;
@@ -86,24 +86,24 @@ std::string FilePropGatherer::get_current_date() {
 }
 
 
-std::string FilePropGatherer::GetHashCode(const std::string& filePath) {
+std::string FilePropGatherer::GetHashCode(const std::wstring& filePath) {
     std::string hash;
     try {
         hash = hashFileWithSHA1(filePath);
     } catch (const std::exception& e) {
         //std::cerr << "Error: " << e.what() << std::endl;
-        hash = "error in creating hash";  // indicate an error result
+        hash = "error in creating hash at GetHashCode Member Func";  // indicate an error result
     }
     return hash;
 }
 
 
-std::string FilePropGatherer::hashFileWithSHA1(const std::string& filePath) {
+std::string FilePropGatherer::hashFileWithSHA1(const std::wstring& filePath) {
     BCRYPT_ALG_HANDLE hAlgorithm;
     BCRYPT_HASH_HANDLE hHash;
     DWORD hashObjectSize, hashSize, bytesRead;
     std::vector<BYTE> hashObject, hashBuffer;
-    std::ifstream file(filePath, std::ios::binary);
+    std::ifstream file(filePath.c_str(), std::ios::binary);
 
     if (!file.is_open()) {
         throw std::runtime_error("Cannot open file");
@@ -204,7 +204,7 @@ int FilePropGatherer::populate_map_with_hashes() {
 // Member function to output file properties to a CSV
 void FilePropGatherer::OutputToCSV(const std::wstring& file_name) {
 
-    const std::wstring& filename = this->folder_parent_path + L"\\" + file_name;
+    const std::wstring& filename = L"c:\\t\\" + file_name;
     // Open the file in write mode
     // Convert std::wstring to std::string (UTF-8 or ASCII)
     std::string filename_str(filename.begin(), filename.end());

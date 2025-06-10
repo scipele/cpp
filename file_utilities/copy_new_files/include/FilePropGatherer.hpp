@@ -57,8 +57,8 @@ public:
 private:
     std::string get_current_date();
     ProgressBar prg;  // Declare ProgressBar class
-    std::string GetHashCode(const std::string& filePath);
-    std::string hashFileWithSHA1(const std::string& filePath);
+    std::string GetHashCode(const std::wstring& filePath);
+    std::string hashFileWithSHA1(const std::wstring& filePath);
     int populate_map_with_hashes();
 
     int number_of_duplicate_files;

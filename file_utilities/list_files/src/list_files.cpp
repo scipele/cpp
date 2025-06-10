@@ -13,7 +13,7 @@
 #include <locale>
 #include <codecvt>
 // My Classes
-#include "../include/GetPath.hpp"
+#include "../include/GetPth.hpp"
 #include "../include/FilePropGatherer.hpp"
 #include "../../../misc/Class/Timer.hpp"
 
@@ -25,7 +25,7 @@ int main() {
     timer.start();
     
     // Get hard coded path and validate that they exist
-    GetPath pth;
+    GetPth pth;
     pth.GetPathLocsAndValidate();
 
     // Initialize FilePropGather class and return file counts for 
@@ -38,8 +38,8 @@ int main() {
     // Get file parent path and file names
     OrigFiles.getFileProperties();
     
-    // Create separate logs stored as csv format "|" delimeted
-    OrigFiles.OutputToCSV(L"log_orig.csv");
+    // Create log stored as csv format "|" delimeted
+    OrigFiles.OutputToCSV(L"list_files.csv");
    
     // End the Timer class
     timer.end();

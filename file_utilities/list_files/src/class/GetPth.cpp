@@ -4,27 +4,27 @@
 //| EntryPoint   | instantiated from main                                      |
 //| By Name,Date | T.Sciple, 1/18/2025                                         |
 
-#include "../../include/GetPath.hpp"
+#include "../../include/GetPth.hpp"
 
 // Constructor initialization with path as empty strings
-GetPath::GetPath() : list_path(L"") {
+GetPth::GetPth() : list_path(L"") {
 }
 
-GetPath::~GetPath() {
+GetPth::~GetPth() {
     // Standard destructor
 }
 
-int GetPath::GetPathLocsAndValidate() {
+int GetPth::GetPathLocsAndValidate() {
     
-    std::vector<std::wstring> msgs = { L"Orig Files Folder",
-                                      L"Log File Path (Assumed Same as Copy To Path)" };
+    std::vector<std::wstring> msgs = { L"List files folder location",
+                                      L"Log File Path (placed in c/t/list_files.csv)" };
     std::vector<int> results(2);                                    
     
     // print blank lines
     for ( int i=0; i< 25; i++) std::cout << "\n";
 
-    //hard code the new files path
-    this->list_path = L"c:\\t\\orig";
+    std::cout << "Enter folder to list the files: ";
+    std::getline(std::wcin, this->list_path);
 
     results[0] =IsPathValid(list_path);
 
@@ -44,7 +44,7 @@ int GetPath::GetPathLocsAndValidate() {
 }
 
 
-void GetPath::PrintPathInfo(std::wstring& msg, std::wstring& tmp_path) {
+void GetPth::PrintPathInfo(std::wstring& msg, std::wstring& tmp_path) {
     std::wcout << msg
               << L"' in '"
               << tmp_path
@@ -52,7 +52,7 @@ void GetPath::PrintPathInfo(std::wstring& msg, std::wstring& tmp_path) {
 }
 
 
-int GetPath::IsPathValid(const std::wstring& tmp_path) {
+int GetPth::IsPathValid(const std::wstring& tmp_path) {
     // Check if the entered path exists
     if (!std::filesystem::exists(tmp_path)) {
         std::cerr << "Error: The specified path does not exist." << std::endl;
@@ -63,14 +63,14 @@ int GetPath::IsPathValid(const std::wstring& tmp_path) {
 }
 
 
-void GetPath::printFileDataHeaderInfo() {
+void GetPth::printFileDataHeaderInfo() {
     std::cout   << "+-------------------------+---------------+-----------------+\n"
                 << "| Path Location           |  File Counts  |  Folder Counts  |\n"
                 << "+-------------------------+---------------+-----------------+\n";
 }
 
 
-void GetPath::printFileAndFolderInfo(FilePropGatherer& OrigFiles) {
+void GetPth::printFileAndFolderInfo(FilePropGatherer& OrigFiles) {
 
     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
     std::string pathA = converter.to_bytes(list_path);
@@ -83,7 +83,7 @@ void GetPath::printFileAndFolderInfo(FilePropGatherer& OrigFiles) {
 }
 
 
-std::string GetPath::FormatWithCommas(size_t num) {
+std::string GetPth::FormatWithCommas(size_t num) {
     std::string str = std::to_string(num);
     int bkw_cnt = str.length(); // initialize a backward counter to count down from string len to 0
     std::string formated_str;

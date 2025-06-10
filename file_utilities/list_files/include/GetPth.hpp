@@ -1,6 +1,6 @@
 //| Item	     | Class Documentation Notes                                   |
 //|--------------|-------------------------------------------------------------|
-//| Filename/type| GetPath.hpp / Class header file                            |
+//| Filename/type| GetPth.hpp / Class header file                            |
 //| EntryPoint   | instantiated from main                                      |
 //| By Name,Date | T.Sciple, 5/28/2025                                         |
 
@@ -12,14 +12,14 @@
 #include "FilePropGatherer.hpp"
 
 
-class GetPath {
+class GetPth {
 
 public:
     // Default constructor
-    GetPath();
+    GetPth();
 
     // Destructor
-    virtual ~GetPath();
+    virtual ~GetPth();
     
     std::wstring list_path;
     int GetPathLocsAndValidate();
