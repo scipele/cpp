@@ -1,36 +1,32 @@
 //| Item	     | Class Documentation Notes                                   |
 //|--------------|-------------------------------------------------------------|
-//| Filename/type| GetPaths.cpp / Class implementation  file                   |
+//| Filename/type| GetPath.cpp / Class implementation  file                   |
 //| EntryPoint   | instantiated from main                                      |
 //| By Name,Date | T.Sciple, 1/18/2025                                         |
 
-#include "../../include/GetPaths.hpp"
+#include "../../include/GetPth.hpp"
 
-// Constructor initialization with paths as empty strings
-GetPaths::GetPaths()
-    : copy_from_path(L""), copy_to_path(L"") {
+// Constructor initialization with path as empty strings
+GetPth::GetPth() : list_path(L"") {
 }
 
-GetPaths::~GetPaths() {
+GetPth::~GetPth() {
     // Standard destructor
 }
 
-int GetPaths::GetPathLocsAndValidate() {
+int GetPth::GetPathLocsAndValidate() {
     
-    std::vector<std::wstring> msgs = { L"New Files Folder",
-                                      L"Orig Files Folder",
-                                      L"Log File Path (Assumed Same as Copy To Path)" };
+    std::vector<std::wstring> msgs = { L"List files folder location",
+                                      L"Log File Path (placed in c/t/list_files.csv)" };
     std::vector<int> results(2);                                    
     
     // print blank lines
     for ( int i=0; i< 25; i++) std::cout << "\n";
 
-    //hard code the new files path
-    this->copy_from_path = L"c:\\t\\2_latest_download";
-    this->copy_to_path = L"c:\\t\\1_orig";
+    std::cout << "Enter folder to list the files: ";
+    std::getline(std::wcin, this->list_path);
 
-    results[0] =IsPathValid(copy_from_path);
-    results[1] =IsPathValid(copy_to_path);
+    results[0] =IsPathValid(list_path);
 
     bool chk_results = true;    // assume results are good unless reset to false
     for (auto& result : results) {
@@ -38,8 +34,7 @@ int GetPaths::GetPathLocsAndValidate() {
     }
     
     if (chk_results) {  // prints the path info entered if chk_results is true
-        PrintPathInfo(msgs[0], this->copy_from_path);
-        PrintPathInfo(msgs[1], this->copy_to_path);
+        PrintPathInfo(msgs[0], this->list_path);
     } else {
         return -1;
     }
@@ -49,7 +44,7 @@ int GetPaths::GetPathLocsAndValidate() {
 }
 
 
-void GetPaths::PrintPathInfo(std::wstring& msg, std::wstring& tmp_path) {
+void GetPth::PrintPathInfo(std::wstring& msg, std::wstring& tmp_path) {
     std::wcout << msg
               << L"' in '"
               << tmp_path
@@ -57,7 +52,7 @@ void GetPaths::PrintPathInfo(std::wstring& msg, std::wstring& tmp_path) {
 }
 
 
-int GetPaths::IsPathValid(const std::wstring& tmp_path) {
+int GetPth::IsPathValid(const std::wstring& tmp_path) {
     // Check if the entered path exists
     if (!std::filesystem::exists(tmp_path)) {
         std::cerr << "Error: The specified path does not exist." << std::endl;
@@ -68,32 +63,27 @@ int GetPaths::IsPathValid(const std::wstring& tmp_path) {
 }
 
 
-void GetPaths::printFileDataHeaderInfo() {
+void GetPth::printFileDataHeaderInfo() {
     std::cout   << "+-------------------------+---------------+-----------------+\n"
                 << "| Path Location           |  File Counts  |  Folder Counts  |\n"
                 << "+-------------------------+---------------+-----------------+\n";
 }
 
 
-void GetPaths::printFileAndFolderInfo(FilePropGatherer& OrigFiles, FilePropGatherer& NewFiles) {
+void GetPth::printFileAndFolderInfo(FilePropGatherer& OrigFiles) {
 
     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-    std::string pathA = converter.to_bytes(copy_to_path);
-    std::string pathB = converter.to_bytes(copy_from_path);
+    std::string pathA = converter.to_bytes(list_path);
 
     std::cout       << "| " 
                     << std::left << std::setw(24) << pathA << "|"
                     << std::right << std::setw(14) << FormatWithCommas(OrigFiles.fileCount) << " |"
                     << std::setw(16) << FormatWithCommas(OrigFiles.folderCount) << " |\n"
-                << "| " 
-                    << std::left << std::setw(24) << pathB << "|"
-                    << std::right << std::setw(14) << FormatWithCommas(NewFiles.fileCount) << " |"
-                    << std::setw(16) << FormatWithCommas(NewFiles.folderCount) << " |\n"
                 << "+-------------------------+---------------+-----------------+" << std::endl;
 }
 
 
-std::string GetPaths::FormatWithCommas(size_t num) {
+std::string GetPth::FormatWithCommas(size_t num) {
     std::string str = std::to_string(num);
     int bkw_cnt = str.length(); // initialize a backward counter to count down from string len to 0
     std::string formated_str;

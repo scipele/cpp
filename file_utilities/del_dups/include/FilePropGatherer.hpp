@@ -2,7 +2,7 @@
 //|--------------|-------------------------------------------------------------|
 //| Filename/type| FilePropGatherer.hpp / Class header file                    |
 //| EntryPoint   | instantiated from main                                      |
-//| By Name,Date | T.Sciple, 1/11/2025                                         |
+//| By Name,Date | T.Sciple, 6/14/2025                                         |
 
 #pragma once
 #include <filesystem>
@@ -44,7 +44,7 @@ public:
                     }
 
     // Public member function prototypes
-    int getFileProperties();
+    int getFileProperties_del_dups();
     int getFolderParentPath();
     int getFileCount();
     int getFolderCount();

@@ -41,9 +41,9 @@ private:
     void writeHeaderLineToCsv(std::ofstream& file);
     void writeDataLineToCsv(int j, int id, std::ofstream& file, std::string& hash, fileCateg type);
     std::optional<std::ofstream> getFileHandle();
-    std::string getCopySourceFullPath(int i);
-    std::string getCopyDestinationFullPath(int i);
-    std::string getCopyDestinationSeparateFullPath(int i);
+    std::wstring getCopySourceFullPath(int i);
+    std::wstring getCopyDestinationFullPath(int i);
+    std::wstring getCopyDestinationSeparateFullPath(int i);
     int PrepForFileCopy();
     void copyOverNewFile(int i);
     std::wstring get_current_date();

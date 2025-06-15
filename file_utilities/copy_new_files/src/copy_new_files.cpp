@@ -4,11 +4,13 @@
 //| EntryPoint   | main                                                        |
 //| Purpose      | copy over only new files, and document duplicates           |
 //| Inputs       | hard coded paths:                                           |
-//|              |    Place Original Files Here-> c:\t\orig                    |
-//|              |    Place New Files Here-> c:\t\new                          |
+//|              |    Place Original Files Here-> c:\t\1_orig                  |
+//|              |    Place New Files Here-> c:\t\3_new_files                  |
 //| Outputs      | file log to csv                                             |
 //| Dependencies | see classes in #includes here                               |
-//| By Name,Date | T.Sciple, 1/11/2025                                         |
+//| Compile Notes| make sure to compile all files in work directory            |
+//|              | see tasks.json
+//| By Name,Date | T.Sciple, 6/14/2025                                         |
 
 #include <iostream>
 #include <locale>
