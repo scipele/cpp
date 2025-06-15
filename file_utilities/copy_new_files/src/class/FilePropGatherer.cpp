@@ -2,7 +2,7 @@
 //|--------------|-------------------------------------------------------------|
 //| Filename/type| FilePropGatherer.cpp / Class implementation file            |
 //| EntryPoint   | instantiated from main                                      |
-//| By Name,Date | T.Sciple, 1/11/2025                                         |
+//| By Name,Date | T.Sciple, 6/15/2025                                         |
 
 #include "../../include/FilePropGatherer.hpp"
 

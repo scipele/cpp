@@ -2,11 +2,12 @@
 //|--------------|-------------------------------------------------------------|
 //| Filename/type| CompareFiles.cpp / Class implmentation file                 |
 //| EntryPoint   | instantiated from main                                      |
-//| By Name,Date | T.Sciple, 1/19/2025                                         |
+//| By Name,Date | T.Sciple, 6/15/2025                                         |
 
 #include "../../include/CompareFiles.hpp"
 #include <algorithm>
 #include <cctype>
+
 
 void CompareFiles::FindNewFiles() {
     std::cout << "\n\n";
@@ -142,15 +143,6 @@ void CompareFiles::writeDataLineToCsv(int j, int id, std::ofstream& file, std::s
 int CompareFiles::PrepForFileCopy() {
     this->orig_path = origFiles.user_path;
     this->new_path = newFiles.user_path;
-
-    // Create a directory for added files with the current date
-    /* dont do this anymore
-     std::wstring added_files_folder = 
-        orig_path +
-        L"/added_files_"
-        + get_current_date();
-
-    std::filesystem::create_directory(added_files_folder); */
     return 0;
 }
 
@@ -169,6 +161,7 @@ std::optional<std::ofstream> CompareFiles::getFileHandle() {
     return file;
 }
 
+
 void CompareFiles::writeHeaderLineToCsv(std::ofstream& file) {
     file << "id|hash_code|hash_count|file_categ|new_id|new_path|new_file_name|orig_id|orig_path|orig_file_name" << std::endl;
 }
@@ -176,19 +169,12 @@ void CompareFiles::writeHeaderLineToCsv(std::ofstream& file) {
 
 void CompareFiles::copyOverNewFile(int i) {
     std::wstring source_path = getCopySourceFullPath(i);
-    
-    // this is not longer used
-    //std::string dest_path = getCopyDestinationFullPath(i);
     std::wstring dest_path_added = getCopyDestinationSeparateFullPath(i);
 
     // Ensure the destination directories exist
-    // this one is not used
-    // std::filesystem::create_directories(std::filesystem::path(dest_path).parent_path());
     std::filesystem::create_directories(std::filesystem::path(dest_path_added).parent_path());
 
     try {
-        // do copy the new files into the orig path
-        //std::filesystem::copy(source_path, dest_path, std::filesystem::copy_options::overwrite_existing);
         std::filesystem::copy(source_path, dest_path_added, std::filesystem::copy_options::overwrite_existing);
         this->copied_count++;
     } catch (const std::filesystem::filesystem_error& e) { }
@@ -203,31 +189,6 @@ std::wstring CompareFiles::getCopySourceFullPath(int i) {
     return fr_full_filename;
 }
 
-
-std::wstring CompareFiles::getCopyDestinationFullPath(int i) {
-    
-    std::wstring new_par_path = newFiles.vecFileInfo[i].file_parent_path;
-    // strips specified number of chars from the left of the string
-
-    std::wstring dest_path = this->orig_path;
-    if (this->new_path.size() != new_par_path.size()) {
-        dest_path += + L"\\" + new_par_path.substr(this->new_path.size() + 1);
-    }
-
-    std::wstring file_name = newFiles.vecFileInfo[i].file_name;
-    std::wstring file_name_no_ext = stripExtension(newFiles.vecFileInfo[i].file_name);
-    std::wstring file_ext = file_name.substr(file_name_no_ext.size());
-
-    std::wstring dest_full_filename_added = 
-        dest_path +
-        L"\\" +
-        file_name_no_ext +
-        L"_" +
-        get_current_date() +
-        file_ext;
-
-    return dest_full_filename_added;
-}
 
 // Clean the string by removing non-printable characters
 void clean_string(std::wstring& str) {
@@ -246,13 +207,7 @@ void replace_directory(std::wstring& dest_path) {
     const std::wstring old_dir = L"2_latest_download";
     const std::wstring new_dir = L"3_new_files";
 
-    // Search string: '\2_latest_download\'
-
     std::wstring search_str = L"\\" + old_dir;
-
-    // Debug output
-    //std::wcout << L"dest_path: " << dest_path << L"\n";
-    //std::wcout << L"Searching for: " << search_str << L"\n";
 
     size_t pos = dest_path.find(search_str);
     if (pos != std::wstring::npos) {
