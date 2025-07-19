@@ -30,8 +30,12 @@ int main() {
     
     // Get hard coded paths and validate that they exist
     GetPaths pth;
-    pth.GetPathLocsAndValidate();
-
+    if (pth.GetPathLocsAndValidate() != 0) {
+        std::cerr << "Program terminated due to invalid path(s)." << std::endl;
+        system("pause");
+        return -1; // Exit the program with an error code
+    }
+    
     // Initialize FilePropGather class and return file counts for 
     FilePropGatherer OrigFiles(pth.copy_to_path);
     FilePropGatherer NewFiles(pth.copy_from_path);
