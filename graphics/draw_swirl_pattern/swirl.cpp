@@ -131,12 +131,12 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
             p[3] = { 450, 990 };
 
             double len_p, len, a1, b, c, cx, cy, k, xd, yd;
-            double ang = 0.05, ang_delta = 0.05;      // radians
+            double ang = 0.10, ang_delta = 0.10;      // radians
             len_p = p[1].x - p[0].x;    // starting length since its at zero degree angle at start
             k = tan(ang_delta);
 
             // Start Loop Here Later
-            for (int i = 1; i < 120; i++) {
+            for (int i = 1; i < 60; i++) {
 
                 // Solve the new length of the triangle with multiple formulas solution
                 a1 = len_p / (1 + pow(k, 2));
@@ -164,11 +164,11 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
                 line(hdc, p[3].x, p[3].y, p[7].x, p[7].y);
 
                 // draw filled in triangle for odd iterations
-                if (i % 2 == 1) drawFilledTriangle(hdc, p[0].x, p[0].y, p[1].x, p[1].y, p[4].x, p[4].y, RGB(234, 63, 247));
-                if (i % 2 == 1) drawFilledTriangle(hdc, p[1].x, p[1].y, p[5].x, p[5].y, p[2].x, p[2].y, RGB(255, 255, 0));
-                if (i % 2 == 1) drawFilledTriangle(hdc, p[2].x, p[2].y, p[3].x, p[3].y, p[6].x, p[6].y, RGB(234, 63, 247));
-                if (i % 2 == 1) drawFilledTriangle(hdc, p[3].x, p[3].y, p[7].x, p[7].y, p[0].x, p[0].y, RGB(0, 255, 0));
-
+                if (i % 2 == 1) drawFilledTriangle(hdc, p[0].x, p[0].y, p[1].x, p[1].y, p[4].x, p[4].y, RGB(150, 118, 230));
+                if (i % 2 == 1) drawFilledTriangle(hdc, p[1].x, p[1].y, p[5].x, p[5].y, p[2].x, p[2].y, RGB(241, 15, 230));
+                if (i % 2 == 1) drawFilledTriangle(hdc, p[2].x, p[2].y, p[3].x, p[3].y, p[6].x, p[6].y, RGB(150, 118, 230));
+                if (i % 2 == 1) drawFilledTriangle(hdc, p[3].x, p[3].y, p[7].x, p[7].y, p[0].x, p[0].y, RGB(241, 15, 230));
+               
                 // Compute starting length for next iteration
                 xd = p[4].x - p[7].x;
                 yd = p[4].y - p[7].y;
