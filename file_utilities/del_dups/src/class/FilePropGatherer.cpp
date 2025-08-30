@@ -118,7 +118,7 @@ std::string FilePropGatherer::get_current_date() {
 std::string FilePropGatherer::GetHashCode(const std::wstring& filePath) {
     std::string hash;
     try {
-        hash = hashFileWithSHA1(filePath);
+        hash = hasher.hashFile(filePath);
     } catch (const std::exception& e) {
         //std::cerr << "Error: " << e.what() << std::endl;
         hash = "error in creating hash at GetHashCode Member Func";  // indicate an error result
@@ -127,65 +127,6 @@ std::string FilePropGatherer::GetHashCode(const std::wstring& filePath) {
 }
 
 
-std::string FilePropGatherer::hashFileWithSHA1(const std::wstring& filePath) {
-    BCRYPT_ALG_HANDLE hAlgorithm;
-    BCRYPT_HASH_HANDLE hHash;
-    DWORD hashObjectSize, hashSize, bytesRead;
-    std::vector<BYTE> hashObject, hashBuffer;
-    std::ifstream file(filePath.c_str(), std::ios::binary);
-
-    if (!file.is_open()) {
-        throw std::runtime_error("Cannot open file");
-    }
-
-    // Open the algorithm provider for SHA-1
-    if (BCryptOpenAlgorithmProvider(&hAlgorithm, BCRYPT_SHA1_ALGORITHM, NULL, 0) != 0) {
-        throw std::runtime_error("Failed to open SHA-1 algorithm provider");
-    }
-
-    // Get the object size for the hash
-    if (BCryptGetProperty(hAlgorithm, BCRYPT_OBJECT_LENGTH, (PUCHAR)&hashObjectSize, sizeof(DWORD), &bytesRead, 0) != 0) {
-        throw std::runtime_error("Failed to get hash object size");
-    }
-    hashObject.resize(hashObjectSize);
-
-    // Get the hash length
-    if (BCryptGetProperty(hAlgorithm, BCRYPT_HASH_LENGTH, (PUCHAR)&hashSize, sizeof(DWORD), &bytesRead, 0) != 0) {
-        throw std::runtime_error("Failed to get hash length");
-    }
-    hashBuffer.resize(hashSize);
-
-    // Create a hash object
-    if (BCryptCreateHash(hAlgorithm, &hHash, hashObject.data(), hashObjectSize, NULL, 0, 0) != 0) {
-        throw std::runtime_error("Failed to create hash");
-    }
-
-    // Read the file and hash its contents
-    char buffer[4096];
-    while (file.read(buffer, sizeof(buffer)) || file.gcount()) {
-        if (BCryptHashData(hHash, (PUCHAR)buffer, file.gcount(), 0) != 0) {
-            throw std::runtime_error("Failed to hash data");
-        }
-    }
-
-    // Finalize the hash
-    if (BCryptFinishHash(hHash, hashBuffer.data(), hashSize, 0) != 0) {
-        throw std::runtime_error("Failed to finish hash");
-    }
-
-    // Clean up
-    BCryptDestroyHash(hHash);
-    BCryptCloseAlgorithmProvider(hAlgorithm, 0);
-
-    // Convert hash to hex string
-    std::string hashString;
-    for (BYTE byte : hashBuffer) {
-        char hex[3];
-        sprintf_s(hex, "%02x", byte);
-        hashString += hex;
-    }
-    return hashString;
-}
 
 
 // Member function to output file properties to a CSV
@@ -237,4 +178,3 @@ void FilePropGatherer::OutputToCSV(const std::wstring& file_name) {
     std::cout << "\nDeleted " << vec_deleted_cnt << " that had duplicate file hashes of binary content";
 
 }
-
