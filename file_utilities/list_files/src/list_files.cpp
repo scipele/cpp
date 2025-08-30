@@ -3,11 +3,10 @@
 //| Filename     | list_files.cpp                                              |
 //| EntryPoint   | main                                                        |
 //| Purpose      | list file properties                                        |
-//| Inputs       | hard coded path:                                           |
-//|              |    Place Files Here-> c:\t\list                             |
+//| Inputs       | gets path from the user                                     |
 //| Outputs      | file log to csv                                             |
 //| Dependencies | see classes in #includes here                               |
-//| By Name,Date | T.Sciple, 1/11/2025                                         |
+//| By Name,Date | T.Sciple, 8/30/2025                                         |
 
 #include <iostream>
 #include <locale>

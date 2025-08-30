@@ -2,7 +2,7 @@
 //|--------------|-------------------------------------------------------------|
 //| Filename/type| GetPth.hpp / Class header file                            |
 //| EntryPoint   | instantiated from main                                      |
-//| By Name,Date | T.Sciple, 5/28/2025                                         |
+//| By Name,Date | T.Sciple, 8/30/2025                                         |
 
 #pragma once
 #include <filesystem>
