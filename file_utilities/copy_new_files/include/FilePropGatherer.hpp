@@ -2,7 +2,7 @@
 //|--------------|-------------------------------------------------------------|
 //| Filename/type| FilePropGatherer.hpp / Class header file                    |
 //| EntryPoint   | instantiated from main                                      |
-//| By Name,Date | T.Sciple, 1/11/2025                                         |
+//| By Name,Date | T.Sciple, 8/30/2025                                         |
 
 #pragma once
 #include <filesystem>
@@ -15,7 +15,7 @@
 #include <string>
 #pragma comment(lib, "bcrypt.lib")
 #include "../../../misc/Class/ProgressBar.hpp"
-
+#include "FileHasher.hpp"
 
 class FilePropGatherer {
 public:
@@ -32,11 +32,12 @@ public:
     std::unordered_map<std::string, int> hashes;
     
     // Constructor that initializes the user_path member variable
-    FilePropGatherer( const std::wstring& input_user_path)
+    FilePropGatherer(const std::wstring& input_user_path)
                         : user_path(input_user_path),
                           fileCount(0),
                           folderCount(0),
-                          prg(0)  // Temporary initialization since fileCount isn't known yet
+                          prg(0),  // Temporary initialization since fileCount isn't known yet
+                          hasher()  // Initialize FileHasher with default constructor
                     {
                         getFileCount();
                         getFolderCount();
@@ -59,8 +60,7 @@ private:
     std::string get_current_date();
     ProgressBar prg;  // Declare ProgressBar class
     std::string GetHashCode(const std::wstring& filePath);
-    std::string hashFileWithSHA1(const std::wstring& filePath);
     int populate_map_with_hashes();
-
     int number_of_duplicate_files;
+    FileHasher hasher;  // FileHasher instance for computing hashes
 };

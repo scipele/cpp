@@ -2,7 +2,7 @@
 //|--------------|-------------------------------------------------------------|
 //| Filename/type| GetPaths.hpp / Class header file                            |
 //| EntryPoint   | instantiated from main                                      |
-//| By Name,Date | T.Sciple, 1/18/2025                                         |
+//| By Name,Date | T.Sciple, 8/30/2025                                         |
 
 #pragma once
 #include <filesystem>

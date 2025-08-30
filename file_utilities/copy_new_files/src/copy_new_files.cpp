@@ -10,7 +10,7 @@
 //| Dependencies | see classes in #includes here                               |
 //| Compile Notes| make sure to compile all files in work directory            |
 //|              | see tasks.json
-//| By Name,Date | T.Sciple, 6/15/2025                                         |
+//| By Name,Date | T.Sciple, 8/30/2025                                         |
 
 #include <iostream>
 #include <locale>
