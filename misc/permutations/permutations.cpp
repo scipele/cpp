@@ -7,7 +7,7 @@
 //| Inputs       | hard coded const num_system_qty, no_positions               |
 //| Outputs      | getPerms Funct provides vector of permutations by counting  |
 //| Dependencies | none                                                        |
-//| By Name,Date | T.Sciple, 7/20/2025                                         |
+//| By Name,Date | T.Sciple, 8/30/2025                                         |
 
 #include <iostream>
 #include <cmath>
@@ -20,17 +20,21 @@ std::vector<std::vector<int>> getPerms(int rows,
                                        int num_system_qty);
 
 void printPerms(const std::vector<std::vector<int>>& perms,
+                std::vector<std::string>& my_vec,
                 int no_positions);
 
 int main() {
     // Hard-coded parameters for the number system
-    constexpr int num_system_qty = 2; // Base of the number system (e.g., 2 for binary)
-    constexpr int no_positions = 4;   // Number of digits
+    constexpr int num_system_qty = 3; // Base of the number system (e.g., 2 for binary)
+    constexpr int no_positions = 2;   // Number of places
     const int no_of_possibilities = std::pow(num_system_qty, no_positions);
 
-    auto perms = getPerms(no_of_possibilities, no_positions, num_system_qty);
-    printPerms(perms, no_positions);
+    std::vector<std::string> my_vec = {"bam","crak","dot"};
 
+    auto perms = getPerms(no_of_possibilities, no_positions, num_system_qty);
+    printPerms(perms, my_vec, no_positions);
+
+    system("pause");
     return 0;
 }
 
@@ -64,14 +68,19 @@ std::vector<std::vector<int>> getPerms(int rows,
 
 // Print permutations
 void printPerms(const std::vector<std::vector<int>>& perms,
+                std::vector<std::string>& my_vec,
                 int no_positions) {
 
-    std::cout << "All possibilities:\n";
+    std::cout << "All suit possibilities:\n";
+    int indx;
     for (int i = 0; i < perms.size(); ++i) {
-        std::cout << std::setw(3) << std::right << i << ": ";
+        std::cout << std::setw(5) << std::left << i << ": ";
+
         for (int j = no_positions - 1; j >= 0; --j) {
-            std::cout << std::setw(2) << std::right << perms[i][j] << " ";
+            indx = perms[i][j];
+                std::cout << std::setw(5) << std::left << my_vec[indx] << " ";
         }
         std::cout << "\n";
     }
+
 }
