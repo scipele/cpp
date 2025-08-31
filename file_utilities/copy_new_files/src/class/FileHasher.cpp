@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <filesystem>
 #include "../../include/FileHasher.hpp"
-#include "C:/dev_tools/vcpkg/installed/x64-windows-static/include/miniz/miniz.h"
+#include "C:\\dev_tools\\vcpkg\\installed\\x64-windows-static\\include\\miniz\\miniz.h"
 #pragma comment(lib, "bcrypt.lib")
 
 
