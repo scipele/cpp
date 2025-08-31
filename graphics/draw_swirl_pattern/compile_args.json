@@ -1,0 +1,35 @@
+{
+    "tasks": [                                                                      // Defines an array of tasks that VS Code can execute (in this case, a single task for building C++ code).
+        {
+            "type": "cppbuild",                                                     // Indicates the task type, here a custom type for C++ builds, which may be used by extensions or for categorization in VS Code.
+            "label": "Build all cpps",                                              // The name of the task, displayed in VS Code’s task runner (e.g., when selecting tasks via Ctrl+Shift+B).
+            "command": "C:\\msys64\\ucrt64\\bin\\g++.exe",                          // Specifies the path to the g++ compiler executable, used to compile and link C++ code (MinGW UCRT64 environment).
+            "args": [                                                               // An array of arguments passed to the g++ command for compiling and linking the C++ program.
+                "-fdiagnostics-color=always",                                       // Enables colored diagnostic messages (e.g., errors, warnings) in the terminal for better readability.
+                "-std=c++17",                                                       // Specifies the C++ standard to use (C++17), ensuring the compiler uses features and rules from the C++17 standard.
+                "-g",                                                               // Includes debugging information in the compiled output, allowing you to debug the program with tools like gdb.
+                "${file}",                                                          // Refers to the currently active source file (e.g., main.cpp) in VS Code, specifying the file to compile.
+                //"${fileDirname}\\class\\FileHasher.cpp",                            // Additional class implentation source files to compile in the class sub folder in current directory ...
+                //"${fileDirname}\\class\\FilePropGatherer.cpp",                      // Additional class implentation source files to compile in the class sub folder in current directory ...
+                //"${fileDirname}\\class\\GetPth.cpp",                                // Additional class implentation source files to compile in the class sub folder in current directory ...
+                //"-I", "C:\\dev_tools\\vcpkg\\installed\\x64-mingw-static\\include", // Adds the specified directory to the include path, so the compiler can find header files for the miniz library
+                //"-L", "C:\\dev_tools\\vcpkg\\installed\\x64-mingw-static\\lib",     // Adds the specified directory to the library path, so the linker can find the miniz library files.
+                //"-lminiz",                                                          // Links against the miniz library, telling the linker to include the miniz library during the linking process.
+                //"-lbcrypt",                                                         // Links against the bcrypt library, instructing the linker to include the bcrypt library when creating the executable.
+                "-o",                                                               // Specifies that the next argument will be the output file name for the compiled executable.
+                "${fileDirname}\\${fileBasenameNoExtension}.exe",                   // Sets the output executable file name, using the directory of the source file (${fileDirname}) and the source file's name without extension (${fileBasenameNoExtension}), appending .exe.
+                "-mwindows"                                                         // Compile with windows app
+                //"-static"                                                           // Add this line to static compile
+            ],
+        "options": {                                                                // Configures additional options for running the task, such as the working directory.
+                "cwd": "${fileDirname}"                                             // Sets the current working directory to the directory of the active source file, ensuring relative paths in the command resolve correctly.
+            },
+        "problemMatcher": [                                                         // Defines how VS Code parses compiler output to display errors and warnings in the Problems panel.
+                "$gcc"                                                              // Uses the built-in GCC problem matcher to parse g++ error/warning messages, highlighting issues in the VS Code UI.
+            ],
+            "group": "build",                                                       // Assigns the task to the "build" group, making it available as a build task (e.g., via Ctrl+Shift+B) in VS Code.
+            "detail": "compiler: C:\\msys64\\ucrt64\\bin\\g++.exe"                  // Provides a description of the task, shown in the VS Code task selection UI, specifying the compiler used.
+        }
+    ],
+    "version": "2.0.0"                                                              // Specifies the version of the tasks.json schema, ensuring VS Code interprets the file correctly (2.0.0 is the standard for modern VS Code tasks).
+}
