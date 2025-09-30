@@ -119,5 +119,7 @@ int main() {
         return 1;
     }
 
+    system("pause");
+
     return 0;
 }
