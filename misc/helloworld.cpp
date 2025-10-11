@@ -7,5 +7,7 @@ int main(int argc, char const *argv[])
     }
     
     /* code */
+    system("pause");
+    
     return 0;
 }
