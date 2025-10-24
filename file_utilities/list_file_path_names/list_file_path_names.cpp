@@ -31,7 +31,7 @@ int main() {
     std::cout << std::endl;
 
     size_t cnt = file_list(directory, include_subfolders);
-    std::cout << "See file listing in '_file_list.csv'\n";
+    std::cout << "See file listing in path provided named '_file_list.csv'\n";
     std::cout << "File Count: " << cnt << std::endl;
     system("pause");
 
