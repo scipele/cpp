@@ -5,3 +5,5 @@
 *.accdb
 *.bat
 *.dll
+llm/llama.cpp/
+llm/models
