@@ -5,6 +5,7 @@
 #include <cmath>
 #include "../llama.cpp/include/llama.h"
 
+
 struct QAPair {
     std::string question, answer;
     std::vector<float> embedding;
