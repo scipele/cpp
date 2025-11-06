@@ -112,9 +112,9 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
             HPEN hPen, hOldPen;
             //HBRUSH hBrush, hOldBrush;
 
-            HBRUSH hBrush = CreateSolidBrush(RGB(18, 18, 18));
+            HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 255));
             
-            // Fill the entire client area with a dark background
+            // Fill the entire client area with a background
             RECT rect;
             GetClientRect(hWnd, &rect);
             FillRect(hdc, &rect, hBrush);
@@ -182,7 +182,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
                 if (i % 2 == 1) drawFilledTriangle(hdc, p[0].x, p[0].y, p[1].x, p[1].y, p[4].x, p[4].y, RGB(255, 255, 0));
                 if (i % 2 == 1) drawFilledTriangle(hdc, p[1].x, p[1].y, p[5].x, p[5].y, p[2].x, p[2].y, RGB(0, 204, 255));
                 if (i % 2 == 1) drawFilledTriangle(hdc, p[2].x, p[2].y, p[3].x, p[3].y, p[6].x, p[6].y, RGB(187, 134, 252));
-                if (i % 2 == 1) drawFilledTriangle(hdc, p[3].x, p[3].y, p[7].x, p[7].y, p[0].x, p[0].y, RGB(153, 255, 153));
+                if (i % 2 == 1) drawFilledTriangle(hdc, p[3].x, p[3].y, p[7].x, p[7].y, p[0].x, p[0].y, RGB(255, 0, 0));
                 
                 // Compute starting length for next iteration
                 xd = p[4].x - p[7].x;
