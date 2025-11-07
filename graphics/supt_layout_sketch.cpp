@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #define M_PI       3.14159265358979323846   // pi
 
+
 // Forward declaration of the window procedure
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -27,7 +28,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
         // Size and position
         // orig code  -->         CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-        // CW_USEDEFAULT, CW_USEDEFAULT, 800, 600,
         CW_USEDEFAULT, CW_USEDEFAULT, 1920, 1080,
         NULL,       // Parent window
         NULL,       // Menu
@@ -75,7 +75,6 @@ void DrawCircle(HDC hdc, double centerX, double centerY, double dia, double scal
 
 
 void DrawCenterLines(HDC hdc, double centerX, double centerY, double dia, double scale_fact, double overlap) {
-
     // Get the DPI of the system
     UINT dpiX = 96;
     int pixel_overlap = static_cast<int>(overlap * dpiX);
