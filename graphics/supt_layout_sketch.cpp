@@ -2,9 +2,11 @@
 #include <sstream>
 #include <cmath>
 #include <stdlib.h>
+#define M_PI       3.14159265358979323846   // pi
 
 // Forward declaration of the window procedure
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
 
 // Entry point for Windows GUI applications
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow) {
@@ -20,7 +22,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     HWND hWnd = CreateWindowExW(
         0,                              // Optional window styles
         CLASS_NAME,                     // Window class
-        L"My Window",                   // Window title
+        L"My Window - Debug Mode",      // Window title
         WS_OVERLAPPEDWINDOW,            // Window style
 
         // Size and position
@@ -32,6 +34,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         hInstance,  // Instance handle
         NULL        // Additional application data
     );
+
     if (hWnd == NULL) {
         return 0;
     }
@@ -45,7 +48,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
-
     return 0;
 }
 
@@ -61,6 +63,7 @@ void show_variable_value(HDC hdc, std::string str, double dbl_val, double loc_x,
     TextOutW(hdc, loc_x, loc_y, wideText.c_str(), wideText.length());
 }
 
+
 void DrawCircle(HDC hdc, double centerX, double centerY, double dia, double scale_fact) {
     double radius = dia / 2;
     double left = centerX - radius * scale_fact;
@@ -69,6 +72,7 @@ void DrawCircle(HDC hdc, double centerX, double centerY, double dia, double scal
     double bottom = centerY + radius* scale_fact;
     Ellipse(hdc, static_cast<int>(left), static_cast<int>(top), static_cast<int>(right), static_cast<int>(bottom));
 }
+
 
 void DrawCenterLines(HDC hdc, double centerX, double centerY, double dia, double scale_fact, double overlap) {
 
@@ -109,12 +113,13 @@ void DrawCenterLines(HDC hdc, double centerX, double centerY, double dia, double
     LineTo(hdc, centerX, vert_line_top); // Draw a line to the ending point
 }
 
+
 double radians(double ang_deg) {
     return ang_deg * M_PI / 180;
 }
 
+
 void Draw_line_with_arrow_at_angle(HDC hdc, double start_screen_x, double start_screen_y, double angle_deg, double length, double scale_fact) {
-    
     // Get the DPI of the system
     UINT dpiX = 96;
     double arrow_len = 0.0625 * dpiX;
@@ -139,7 +144,6 @@ void Draw_line_with_arrow_at_angle(HDC hdc, double start_screen_x, double start_
 }
 
 
-
 double conv_angle_ref_north_up(double true_angle) {
           // Convert angle into reference from north up
             double tmpAngle;
@@ -149,6 +153,7 @@ double conv_angle_ref_north_up(double true_angle) {
             }
     return tmpAngle;
 }
+
 
 // Window procedure
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -168,19 +173,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
             // hard code input
             const double scale_fact = 2;
-
             const double ves_is_dia_in = 22 * 12;  // Feet to Inches
             const double ves_thk_in = 1;
-
             const double ves_cl_x_coord = -275 * 12;      // East Coordiate - note that west is negative
             const double ves_cl_y_coord = -1762 * 12;     // North Coordiate - note that south is negative
-
             const double pipe_od = 18; 
             const double pipe_cl_x_coord = -(280 * 12 + 8.5);        // East Coordiate - note that west is negative
             const double pipe_cl_y_coord = -(1774 * 12 + 2.8125);       // North Coordiate - note that south is negative
-
-//            const double pipe_cl_x_coord = -(360 * 12 + 9.75);        // East Coordiate - note that west is negative
-//            const double pipe_cl_y_coord = -(1277 * 12 + 8.4375);       // North Coordiate - note that south is negative
             const double staged_rotation_angle_deg = 45; // measured clockwise;
 
             // Calculations
@@ -192,7 +191,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             double ves_to_pipe_x_delta_in = pipe_cl_x_coord - ves_cl_x_coord;
             double ves_to_pipe_y_delta_in = pipe_cl_y_coord - ves_cl_y_coord;
             double ves_to_pipe_hypotenuse_delta_in = sqrt(pow(ves_to_pipe_x_delta_in, 2) + pow(ves_to_pipe_y_delta_in, 2));
-
             double orient_angle_true_deg = 180 / M_PI * std::atan2(ves_to_pipe_y_delta_in, ves_to_pipe_x_delta_in);  // calc angle in true orientation
             double orient_angle_north_up_deg = conv_angle_ref_north_up(orient_angle_true_deg);
             double orient_angle_true_rotated_deg = orient_angle_true_deg - staged_rotation_angle_deg;
@@ -205,30 +203,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             //calculate the screen coordinates of pipe at rotated location
             double ves_to_pipe_x_delta_rotated_in = ves_to_pipe_hypotenuse_delta_in * std::cos(radians(orient_angle_true_rotated_deg));  // calc angle in true orientation
             double ves_to_pipe_y_delta_rotated_in = ves_to_pipe_hypotenuse_delta_in * std::sin(radians(orient_angle_true_rotated_deg));  // calc angle in true orientation
-
             double pipe_rotated_screen_cl_x = wind_cen_x + ves_to_pipe_x_delta_rotated_in * scale_fact;    // Add since screen coordinates are positive left to right
             double pipe_rotated_screen_cl_y = wind_cen_y - ves_to_pipe_y_delta_rotated_in * scale_fact;    // Subtract since screen coordinates are positive going downward
-
             double fact_cosine_radial = std::cos(radians(90 - orient_angle_true_rotated_deg));
             double fact_sine_tangential = std::sin(radians(90 -orient_angle_true_rotated_deg));            
-            
+
             //double pt2_x = start_screen_x + length * scale_fact * std::cos(radians(angle_deg));
-
-
             //print values on screen
             show_variable_value(hdc, "ves_is_dia_in =", ves_is_dia_in, 10, 10);
             show_variable_value(hdc, "ves_os_dia_in =", ves_os_dia_in, 10, 30);
             show_variable_value(hdc, "orient_angle_true_deg =", orient_angle_true_deg, 10, 50);
             show_variable_value(hdc, "orient_angle_north_up_deg =", orient_angle_north_up_deg, 10, 70);
             show_variable_value(hdc, "orient_angle_true_rotated_deg =", orient_angle_true_rotated_deg, 10, 90);
-
             show_variable_value(hdc, "orient_angle_rotated_north_up_deg =", orient_angle_rotated_north_up_deg, 10, 130);
             show_variable_value(hdc, "ves_to_pipe_x_delta_rotated_in =", ves_to_pipe_x_delta_rotated_in, 10, 150);
             show_variable_value(hdc, "ves_to_pipe_y_delta_rotated_in =", ves_to_pipe_y_delta_rotated_in, 10, 170);
             show_variable_value(hdc, "fact_cosine_radial =", fact_cosine_radial, 10, 190);
             show_variable_value(hdc, "fact_sine_tangential =", fact_sine_tangential, 10, 210);
-
-
 
             // draw vessel od, id, pipe od, rotated pipe od
             DrawCircle(hdc, wind_cen_x, wind_cen_y, ves_os_dia_in, scale_fact);
@@ -246,7 +237,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             Draw_line_with_arrow_at_angle(hdc, pipe_rotated_screen_cl_x, pipe_rotated_screen_cl_y, -90, wt_line_len, scale_fact);  //  draw straight down
             Draw_line_with_arrow_at_angle(hdc, pipe_rotated_screen_cl_x, pipe_rotated_screen_cl_y, orient_angle_true_rotated_deg + 180, wt_line_len * fact_cosine_radial, scale_fact);  //radial inward
 
-
             // calculate start point of back component
             double pt2_x = pipe_rotated_screen_cl_x + wt_line_len * fact_cosine_radial * scale_fact * std::cos(radians(orient_angle_true_rotated_deg + 180));
             double pt2_y = pipe_rotated_screen_cl_y - wt_line_len * fact_cosine_radial * scale_fact * std::sin(radians(orient_angle_true_rotated_deg + 180)); //subtract since screen coordinates are top to btm
@@ -258,6 +248,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     }
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
+
 
 // Dummy WinMain function to call wWinMain
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
