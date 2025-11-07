@@ -3,9 +3,11 @@
 #include <vector>
 #include <iomanip>
 
+
 struct sprds {
     std::string sprd_desc;
 };
+
 
 struct sprd_calc {
     double lab;
@@ -13,6 +15,7 @@ struct sprd_calc {
     double sub;
     double eqp;
 };
+
 
 struct estim_data {
     std::string desc;
@@ -78,20 +81,19 @@ int main() {
     std::cout << "\n";
     std::cout << "Illustration of how to access the 3rd element of the main vector including all \n";
     // Test the ability to access elements by index say index [2] or 3rd element
-        std::cout << std::setw(15) << std::left << ed[2].desc
-        << std::setw(6) << ed[2].lab
-        << std::setw(6) << ed[2].mat
-        << std::setw(6) << ed[2].sub
-        << std::setw(6) << ed[2].eqp;
+    std::cout << std::setw(15) << std::left << ed[2].desc
+    << std::setw(6) << ed[2].lab
+    << std::setw(6) << ed[2].mat
+    << std::setw(6) << ed[2].sub
+    << std::setw(6) << ed[2].eqp;
 
-            for (auto& c : ed[2].sc) {
-            std::cout << "|"
-            << std::setw(6) << c.lab
-            << std::setw(6) << c.mat
-            << std::setw(6) << c.sub
-            << std::setw(6) << c.eqp;
-        }
-
+    for (auto& c : ed[2].sc) {
+        std::cout << "|"
+        << std::setw(6) << c.lab
+        << std::setw(6) << c.mat
+        << std::setw(6) << c.sub
+        << std::setw(6) << c.eqp;
+    }
 
    // Pause the console window before exiting
     std::cout << "\n";
