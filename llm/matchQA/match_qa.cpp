@@ -17,7 +17,6 @@
 #include <cmath>
 #include "../llama.cpp/include/llama.h"
 
-
 struct ResultRecord {
     std::string seq_indx_str;
     std::string new_question;
@@ -28,8 +27,8 @@ struct ResultRecord {
 
 
 struct QAPair {
-    std::string question;
-        std::string answer;
+    std::string db_question;
+        std::string db_answer;
     std::vector<float> embedding;
 };
 
@@ -39,12 +38,14 @@ class Matcher {
     const llama_vocab* vocab = nullptr;
     llama_context* ctx   = nullptr;
 
+
     float cos_sim(const std::vector<float>& a, const std::vector<float>& b) const {
         if (a.size() != b.size()) return 0.0f;
         float dot = 0.0f;
         for (size_t i = 0; i < a.size(); ++i) dot += a[i] * b[i];
         return dot;
     }
+
 
     void print_embedding(const std::vector<float>& emb, const std::string& label) {
          std::cout << "Embedding for " << label << ": [";
@@ -190,7 +191,7 @@ public:
         for (const auto& p : db_qa) {
             float s = cos_sim(qe, p.embedding);
             // std::cout << "  to '" << p.question << "': " << s << std::endl;
-            if (s > best) { best = s; ans = p.answer; match_q = p.question; }
+            if (s > best) { best = s; ans = p.db_answer; match_q = p.db_question; }
         }
         return {match_q, ans, best};
     }
@@ -248,12 +249,10 @@ int main(int argc, char** argv) {
             seq_indx++;
         }
 
-
         std::filesystem::path out_path = exe_dir / "results.csv";
 
         std::ofstream out(out_path);
         out << "Seq,New_Question,Matched_Db_Question,Answer,Score\n";
-
 
         for (auto& r : results) {
             out << '"' << r.seq_indx_str << "\","
