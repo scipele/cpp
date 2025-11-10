@@ -250,13 +250,16 @@ int main(int argc, char** argv) {
         std::filesystem::path out_path = exe_dir / "results.csv";
 
         std::ofstream out(out_path);
-        out << "New_Question,Matched_Db_Question,Answer,Score\n";
+        out << "Seq,New_Question,Matched_Db_Question,Answer,Score\n";
 
+        int seq_indx =1;
         for (auto& r : results) {
-            out << '"' << r.new_question << "\","
+            out << '"' << seq_indx << ".\","
+                << '"' << r.new_question << "\","
                 << '"' << r.matched_db_question << "\","
                 << '"' << r.matched_db_answer << "\","
                 << r.score << "\n";
+                seq_indx++;
         }
         out.close();
         
