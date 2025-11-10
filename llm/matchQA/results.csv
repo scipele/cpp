@@ -1,6 +1,6 @@
 New_Question,Matched_Db_Question,Answer,Score
-"What is artificial intelligence","What is AI","Artificial Intelligence is the simulation of human intelligence in machines.",0.904523
-"What's artificial intel. do","What is AI","Artificial Intelligence is the simulation of human intelligence in machines.",0.823363
+"What is artificial intelligence","What is Artificial Intelligence (AI)","Artificial Intelligence is the simulation of human intelligence in machines.",0.977653
+"What's artificial intel. do","What is Artificial Intelligence (AI)","Artificial Intelligence is the simulation of human intelligence in machines.",0.849065
 "Tell me about machine learning","How does machine learning work","Machine learning trains models on data to make predictions or decisions.",0.895716
 "How does a neural network work","What is a neural network","A neural network is a system of interconnected nodes that learns patterns, inspired by the brain.",0.921822
 "How do computers emulate brain neurons","What is a neural network","A neural network is a system of interconnected nodes that learns patterns, inspired by the brain.",0.717951
