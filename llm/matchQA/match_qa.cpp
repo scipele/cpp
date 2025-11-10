@@ -1,3 +1,14 @@
+// ************ MAIN PROGRAM ***************************************************
+//| Item	     | Main Program Documentation Notes                            |
+//|--------------|-------------------------------------------------------------|
+//| Filename     | match_qa.cpp                                                |
+//| EntryPoint   | main                                                        |
+//| Purpose      | Find best match of new_questions with database questions    |
+//| Inputs       | new_questions.csv, qa_database.csv                          |
+//| Outputs      | results.csv                                                 |
+//| Dependencies | llama.cpp                                                   |
+//| By Name,Date | T.Sciple, 11/10/2025                                        |
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -6,7 +17,9 @@
 #include <cmath>
 #include "../llama.cpp/include/llama.h"
 
-struct ResultRow {
+
+struct ResultRecord {
+    std::string seq_indx_str;
     std::string new_question;
     std::string matched_db_question;
     std::string matched_db_answer;
@@ -63,7 +76,6 @@ public:
 
         ctx = llama_init_from_model(model, cparams);
         if (!ctx) throw std::runtime_error("Context init failed");
-
         // std::cout << "Model loaded. Embedding dimension: " << llama_model_n_embd(model) << "\n";
     }
 
@@ -72,6 +84,7 @@ public:
         if (model) llama_model_free(model);
         llama_backend_free();
     }
+
 
     std::vector<float> embed(const std::string &text) {
         llama_context_params cparams = llama_context_default_params();
@@ -112,7 +125,7 @@ public:
         }
 
         int dim = llama_model_n_embd(model);
-
+        
         std::vector<float> mean_emb(dim, 0.0f);
         for (int32_t i = 0; i < n_tokens; ++i) {
             const float* emb = llama_get_embeddings_ith(temp_ctx, i);
@@ -163,11 +176,11 @@ public:
         return db_qa;
     }
 
+
     std::tuple<std::string, std::string, float> find(const std::string& q,
                                        const std::vector<QAPair>& db_qa) {
         auto qe = embed(q);
         if (qe.empty() || db_qa.empty()) return {"No match", "No match", 0.0f};
-
         // print_embedding(qe, "New: " + q);
 
         float best = -1.0f;
@@ -207,54 +220,43 @@ std::vector<std::string> load_questions_from_csv(const std::string &filename) {
 int main(int argc, char** argv) {
     try {
 
+        // Read current executable path used with building two paths below
         std::filesystem::path exe_dir = std::filesystem::path(argv[0]).parent_path();
+
+        // Pass the gguf file to the Matcher class.  Note that this particulate model
+        // is used for sentence matching
+        Matcher m("C:/dev/cpp/llm/models/all-minilm-l6-v2-q4_0.gguf");
+
+        // Read in qa_database using the load function in the Matcher Class
         std::filesystem::path db_file_path = exe_dir / "qa_database.csv";
         std::string db_file_path_str = db_file_path.string();
-
-
-        Matcher m("C:/dev/cpp/llm/models/all-minilm-l6-v2-q4_0.gguf");
-        //auto db = m.load("C:/dev/cpp/llm/matchQA/qa_database.csv");
         auto db = m.load(db_file_path_str);
 
+        // Set path to current executable path and read in new questions from csv file
         std::filesystem::path new_questions_filepath = exe_dir / "new_questions.csv";
         std::string new_questions_filepath_str = new_questions_filepath.string();
-
         std::vector<std::string> new_questions = load_questions_from_csv(new_questions_filepath_str);
-
         
-        // std::cout << "\nDatabase Questions and Answers Read in:\n";
-
-        // // Confirm the qa items are read correctly
-        // for (auto& item : db) {
-        //     std::cout << "db question: " << item.question
-        //               << "\ndb answer: " << item.answer << "\n\n";
-        // }
-        
-        // std::cout << "\n\n";
-
+        std::vector<ResultRecord> results;
+        int seq_indx =1;
+        std::string seq_indx_str;
         for (const auto& new_q : new_questions) {
-            auto [mq, a, s] = m.find(new_q, db);
-            std::cout << "New Q: " << new_q << "\n"
-                      << "Match DB Q: " << mq << "\n"
-                      << "A: " << a << "\n"
-                      << "Score: " << s << "\n\n";
+            // Get the matched question (mq), answer (a), and score (sc)
+            auto [mq, ans, scr] = m.find(new_q, db);
+            seq_indx_str = std::to_string(seq_indx) + ".";
+            results.push_back({seq_indx_str, new_q, mq, ans, scr});
+            seq_indx++;
         }
-        
-        std::vector<ResultRow> results;
 
-        for (const auto& new_q : new_questions) {
-            auto [mq, a, s] = m.find(new_q, db);
-            results.push_back({new_q, mq, a, s});
-        }
 
         std::filesystem::path out_path = exe_dir / "results.csv";
 
         std::ofstream out(out_path);
         out << "Seq,New_Question,Matched_Db_Question,Answer,Score\n";
 
-        int seq_indx =1;
+
         for (auto& r : results) {
-            out << '"' << seq_indx << ".\","
+            out << '"' << r.seq_indx_str << "\","
                 << '"' << r.new_question << "\","
                 << '"' << r.matched_db_question << "\","
                 << '"' << r.matched_db_answer << "\","
@@ -268,8 +270,6 @@ int main(int argc, char** argv) {
     catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << "\n";
     }
-
-
     
     return 0;
 }                                                                                                                                                         
