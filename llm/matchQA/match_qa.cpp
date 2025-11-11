@@ -4,7 +4,7 @@
 //| Filename     | match_qa.cpp                                                |
 //| EntryPoint   | main                                                        |
 //| Purpose      | Find best match of new_questions with database questions    |
-//| Inputs       | new_questions.csv, qa_database.csv                          |
+//| Inputs       | new_questions.csv, database_questions_answers.csv                          |
 //| Outputs      | results.csv                                                 |
 //| Dependencies | llama.cpp                                                   |
 //| By Name,Date | T.Sciple, 11/10/2025                                        |
@@ -17,6 +17,7 @@
 #include <cmath>
 #include "../llama.cpp/include/llama.h"
 
+
 struct ResultRecord {
     std::string seq_indx_str;
     std::string new_question;
@@ -28,7 +29,7 @@ struct ResultRecord {
 
 struct QAPair {
     std::string db_question;
-        std::string db_answer;
+    std::string db_answer;
     std::vector<float> embedding;
 };
 
@@ -38,11 +39,17 @@ class Matcher {
     const llama_vocab* vocab = nullptr;
     llama_context* ctx   = nullptr;
 
-    // This function is called 
+    // This function takes in two differect normalized vector embeddings and computes the
+    // dot product for each dimension - see 'find_closest_match' function for a simplified example
+    // of this.  Note that the vectors computed for this model have 384 dimensions
     float dot_product(const std::vector<float>& a, const std::vector<float>& b) const {
         if (a.size() != b.size()) return 0.0f;
         float dot = 0.0f;
-        for (size_t i = 0; i < a.size(); ++i) dot += a[i] * b[i];
+
+        // Loop thru each dimension and compute the dot product 
+        for (size_t i = 0; i < a.size(); ++i) {
+            dot += a[i] * b[i];
+        }
         return dot;
     }
 
@@ -237,8 +244,8 @@ int main(int argc, char** argv) {
         // is used for sentence matching
         Matcher m("C:/dev/cpp/llm/models/all-minilm-l6-v2-q4_0.gguf");
 
-        // Read in qa_database using the load function in the Matcher Class
-        std::filesystem::path db_file_path = exe_dir / "qa_database.csv";
+        // Read in database_questions_answers using the load function in the Matcher Class
+        std::filesystem::path db_file_path = exe_dir / "database_questions_answers.csv";
         std::string db_file_path_str = db_file_path.string();
         auto db = m.load(db_file_path_str);
 
@@ -261,13 +268,13 @@ int main(int argc, char** argv) {
         std::filesystem::path out_path = exe_dir / "results.csv";
 
         std::ofstream out(out_path);
-        out << "Seq,New_Question,Matched_Db_Question,Answer,Score\n";
+        out << "Seq|New_Question|Matched_Db_Question|Db_Answer|Score\n";
 
         for (auto& r : results) {
-            out << '"' << r.seq_indx_str << "\","
-                << '"' << r.new_question << "\","
-                << '"' << r.matched_db_question << "\","
-                << '"' << r.matched_db_answer << "\","
+            out << '"' << r.seq_indx_str << "\"|"
+                << '"' << r.new_question << "\"|"
+                << '"' << r.matched_db_question << "\"|"
+                << '"' << r.matched_db_answer << "\"|"
                 << r.score << "\n";
                 seq_indx++;
         }
