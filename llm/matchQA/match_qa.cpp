@@ -38,8 +38,8 @@ class Matcher {
     const llama_vocab* vocab = nullptr;
     llama_context* ctx   = nullptr;
 
-
-    float cos_sim(const std::vector<float>& a, const std::vector<float>& b) const {
+    // This function is called 
+    float dot_product(const std::vector<float>& a, const std::vector<float>& b) const {
         if (a.size() != b.size()) return 0.0f;
         float dot = 0.0f;
         for (size_t i = 0; i < a.size(); ++i) dot += a[i] * b[i];
@@ -171,27 +171,35 @@ public:
             auto e = embed(db_q);
             if (!e.empty()) {
                 db_qa.push_back({db_q, db_a, std::move(e)});
-                // print_embedding(db_qa.back().embedding, "DB: " + db_q);
+                print_embedding(db_qa.back().embedding, "DB: " + db_q);
             }
         }
         return db_qa;
     }
 
 
-    std::tuple<std::string, std::string, float> find(const std::string& q,
+    std::tuple<std::string, std::string, float> find_closest_match(const std::string& new_q,
                                        const std::vector<QAPair>& db_qa) {
-        auto qe = embed(q);
-        if (qe.empty() || db_qa.empty()) return {"No match", "No match", 0.0f};
-        // print_embedding(qe, "New: " + q);
+        auto new_q_embed = embed(new_q);
+        if (new_q_embed.empty() || db_qa.empty()) return {"No match", "No match", 0.0f};
+        print_embedding(new_q_embed, "New: " + new_q);
 
         float best = -1.0f;
         std::string ans;
         std::string match_q;
-        // std::cout << "Similarities for new question '" << q << "':" << std::endl;
-        for (const auto& p : db_qa) {
-            float s = cos_sim(qe, p.embedding);
-            // std::cout << "  to '" << p.question << "': " << s << std::endl;
-            if (s > best) { best = s; ans = p.db_answer; match_q = p.db_question; }
+        std::cout << "Similarities for new question '" << new_q << "':" << std::endl;
+        
+        // the following loop iterates thru each database question called item and computes
+        // the dot product with each of the normalized vectors databased question and the new question
+        // the dot product that is closest to 1 will be the vector that has the closest matching
+        // dimensional values.
+        // vector a     [ 0.20, 0.25, 0.947364766 ]
+        // vector b     [ 0.25, 0.30, 0.920597632 ]
+        // dot product  [ 0.050 + 0.075 + 0.87214176 ] = 0.9971  '<  very close match
+        for (const auto& item : db_qa) {
+            float s = dot_product(new_q_embed, item.embedding);
+            std::cout << "  to '" << item.db_question << "': " << s << std::endl;
+            if (s > best) { best = s; ans = item.db_answer; match_q = item.db_question; }
         }
         return {match_q, ans, best};
     }
@@ -214,11 +222,12 @@ std::vector<std::string> load_questions_from_csv(const std::string &filename) {
         }
     }
 
-    return questions;
+    return questions; 
 }
 
 
 int main(int argc, char** argv) {
+    (void)argc;  // Suppresses the warning without side effects
     try {
 
         // Read current executable path used with building two paths below
@@ -243,7 +252,7 @@ int main(int argc, char** argv) {
         std::string seq_indx_str;
         for (const auto& new_q : new_questions) {
             // Get the matched question (mq), answer (a), and score (sc)
-            auto [mq, ans, scr] = m.find(new_q, db);
+            auto [mq, ans, scr] = m.find_closest_match(new_q, db);
             seq_indx_str = std::to_string(seq_indx) + ".";
             results.push_back({seq_indx_str, new_q, mq, ans, scr});
             seq_indx++;
@@ -270,5 +279,6 @@ int main(int argc, char** argv) {
         std::cerr << "Error: " << e.what() << "\n";
     }
     
+    system ("pause");
     return 0;
 }                                                                                                                                                         
