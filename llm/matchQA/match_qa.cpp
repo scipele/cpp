@@ -4,7 +4,7 @@
 //| Filename     | match_qa.cpp                                                |
 //| EntryPoint   | main                                                        |
 //| Purpose      | Find best match of new_questions with database questions    |
-//| Inputs       | new_questions.csv, database_questions_answers.csv                          |
+//| Inputs       | new_questions.csv, database_questions_answers.csv           |
 //| Outputs      | results.csv                                                 |
 //| Dependencies | llama.cpp                                                   |
 //| By Name,Date | T.Sciple, 11/10/2025                                        |
