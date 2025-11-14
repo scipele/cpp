@@ -36,5 +36,10 @@ int main() {
     std::cout << "Readable: " << getLastModifiedReadable(filePath) << std::endl;
     std::cout << "Numeric: " << getLastModifiedNumeric(filePath) << std::endl;
     
+    std::ofstream outFile("last_write_time.dat", std::ios::binary);
+    long timestamp = getLastModifiedNumeric(filePath);
+    outFile.write(reinterpret_cast<const char*>(&timestamp), sizeof(long));
+    outFile.close();
+
     return 0;
 }
