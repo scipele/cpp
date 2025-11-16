@@ -12,6 +12,7 @@ static size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdat
 std::string strip_tags(const std::string& input, bool keep_verse_num = false, bool keep_footnotes = true);
 std::string fetch_verse(const std::string& ref);
 std::string get_executable_directory();
+static void remove_crossrefs(std::string& text);
 
 int main() {
     std::string current_path = get_executable_directory();
@@ -209,6 +210,9 @@ std::string fetch_verse(const std::string& ref) {
 
     // Extract clean text
     std::string verse_text = strip_tags(std_text, false, true);
+    
+    // Remove cross-references within the text
+    remove_crossrefs(verse_text);
 
     // Trim
     size_t start = verse_text.find_first_not_of(" \n\r\t");
@@ -232,4 +236,30 @@ std::string get_executable_directory() {
 #else
     return ".";
 #endif
+}
+
+
+// -----------------------------------------------------
+// Helper: remove cross-reference markers like (A), (B), etc.
+// -----------------------------------------------------
+static void remove_crossrefs(std::string& text) {
+    size_t pos = 0;
+    while ((pos = text.find("(", pos)) != std::string::npos) {
+        size_t end = text.find(")", pos + 1);
+        if (end == std::string::npos) break;
+
+        // Check that the content between ( ) is only letters
+        bool only_letters = true;
+        for (size_t i = pos + 1; i < end; ++i) {
+            if (!isalpha(static_cast<unsigned char>(text[i]))) {
+                only_letters = false;
+                break;
+            }
+        }
+        if (only_letters && end > pos + 1) {
+            text.erase(pos, end - pos + 1);   // erase "(X)"
+            continue;                         // start search again at same pos
+        }
+        pos = end + 1;                        // not a cross-ref, keep looking
+    }
 }
