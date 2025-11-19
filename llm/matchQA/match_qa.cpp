@@ -152,7 +152,7 @@ public:
 
         float norm = 0.0f;
         for (float v : mean_emb) norm += v*v;
-        norm = std::sqrtf(norm);
+        norm = std::sqrt(norm);
         if (norm > 0.0f)
             for (auto &v : mean_emb) v /= norm;
 
