@@ -15,7 +15,7 @@
 #include <filesystem>
 #include <fstream>
 #include <cmath>
-#include "../llama.cpp/include/llama.h"
+#include "c:/dev/cpp/llm/llama.cpp/include/llama.h"
 
 
 struct ResultRecord {
