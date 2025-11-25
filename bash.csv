@@ -1,0 +1,19 @@
+,Command to list all files in the current directory and its subdirectories,displaying their last modification date, size, and name.  
+find . -type f -exec stat --printf='%y %12s %n\n' {} +
+,Explanation of the command components:
+,find . -type f,        This recursively finds all regular files (excluding directories) starting from the current directory (.).
+,-exec ... {} +,        This executes the specified stat command for the found files. Using + is more efficient than ; as it passes multiple file names at once.
+,stat --printf='...',   The GNU stat command's --printf option allows for highly customizable output using format specifiers.
+,%Y-%m-%d %H:%M:%S,     Formats the file's modification date and time into YYYY-MM-DD HH:MM:SS format.
+,%12s,                  Prints the file size in bytes, right-aligned with a minimum width of 12 characters.
+,%n,                    Prints the file name.
+,\n,                    Inserts a newline character at the end of each line for proper formatting. 
+
+,Command to save the output to a file named 
+> 'out.txt'
+
+,list bare file names only (without paths) in the current directory and its subdirectories:
+find . -type f -printf "%f\n"
+,find .,                Searches recursively starting from the current directory (.).
+,-type f,               Restricts the results to only files (excluding directories).
+,-printf "%f\n",        Prints only the bare filename (%f) followed by a newline character (\n) for each result. 
