@@ -63,6 +63,35 @@ class Matcher {
         std::cout << "]" << std::endl;
     }
 
+    // Add this new static helper function here:
+    static std::vector<std::string> split_pipe_csv_line(const std::string& line) {
+        std::vector<std::string> result;
+        std::string field;
+        bool in_quotes = false;
+
+        for (size_t i = 0; i < line.size(); ++i) {
+            char c = line[i];
+
+            if (c == '"') {
+                if (i + 1 < line.size() && line[i + 1] == '"') {
+                    field += '"';
+                    ++i;  // skip the second quote
+                } else {
+                    in_quotes = !in_quotes;
+                }
+            }
+            else if (c == '|' && !in_quotes) {
+                result.push_back(field);
+                field.clear();
+            }
+            else {
+                field += c;
+            }
+        }
+        result.push_back(field);  // last field
+        return result;
+    }
+
 public:
     Matcher(const std::string& path) {
         llama_backend_init();
@@ -160,25 +189,35 @@ public:
         return mean_emb;
     }
 
+
     std::vector<QAPair> load(const std::string& csv_path) {
         std::vector<QAPair> db_qa;
         std::ifstream f(csv_path);
+        if (!f.is_open()) {
+            std::cerr << "Error: Could not open " << csv_path << "\n";
+            return db_qa;
+        }
+
         std::string line;
+        if (!std::getline(f, line)) return db_qa; // skip header
+
         while (std::getline(f, line)) {
             if (line.empty()) continue;
-            size_t p = line.find(',');
-            if (p == std::string::npos) continue;
 
-            std::string db_q = line.substr(0, p);
-            std::string db_a = line.substr(p + 1);
+            auto fields = split_pipe_csv_line(line);
 
-            if (!db_q.empty() && db_q.front() == '"') { db_q.erase(0,1); db_q.pop_back(); }
-            if (!db_a.empty() && db_a.front() == '"') { db_a.erase(0,1); db_a.pop_back(); }
+            // Expect at least 2 fields: question | answer
+            if (fields.size() < 2) {
+                std::cerr << "Warning: Skipping malformed line: " << line << "\n";
+                continue;
+            }
+
+            std::string db_q = fields[0];
+            std::string db_a = fields[1];
 
             auto e = embed(db_q);
             if (!e.empty()) {
                 db_qa.push_back({db_q, db_a, std::move(e)});
-                print_embedding(db_qa.back().embedding, "DB: " + db_q);
             }
         }
         return db_qa;
@@ -223,6 +262,8 @@ std::vector<std::string> load_questions_from_csv(const std::string &filename) {
     }
 
     std::string line;
+    if (!std::getline(file, line)) return questions; // skip header
+    
     while (std::getline(file, line)) {
         if (!line.empty()) {
             questions.push_back(line);
@@ -238,19 +279,20 @@ int main(int argc, char** argv) {
     try {
 
         // Read current executable path used with building two paths below
-        std::filesystem::path exe_dir = std::filesystem::path(argv[0]).parent_path();
+        std::filesystem::path exe_dir_par = std::filesystem::path(argv[0]).parent_path();
+        exe_dir_par = exe_dir_par.parent_path();
 
         // Pass the gguf file to the Matcher class.  Note that this particulate model
         // is used for sentence matching
         Matcher m("C:/dev/cpp/llm/models/all-minilm-l6-v2-q4_0.gguf");
 
         // Read in database_questions_answers using the load function in the Matcher Class
-        std::filesystem::path db_file_path = exe_dir / "database_questions_answers.csv";
+        std::filesystem::path db_file_path = exe_dir_par / "data/database_questions_answers.csv";
         std::string db_file_path_str = db_file_path.string();
         auto db = m.load(db_file_path_str);
 
         // Set path to current executable path and read in new questions from csv file
-        std::filesystem::path new_questions_filepath = exe_dir / "new_questions.csv";
+        std::filesystem::path new_questions_filepath = exe_dir_par / "data/new_questions.csv";
         std::string new_questions_filepath_str = new_questions_filepath.string();
         std::vector<std::string> new_questions = load_questions_from_csv(new_questions_filepath_str);
         
@@ -265,7 +307,7 @@ int main(int argc, char** argv) {
             seq_indx++;
         }
 
-        std::filesystem::path out_path = exe_dir / "results.csv";
+        std::filesystem::path out_path = exe_dir_par / "results/results.csv";
 
         std::ofstream out(out_path);
         out << "Seq|New_Question|Matched_Db_Question|Db_Answer|Score\n";
