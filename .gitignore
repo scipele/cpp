@@ -5,5 +5,8 @@
 *.accdb
 *.bat
 *.dll
+*.7z
+*.zip
+*.gguf
 llm/llama.cpp/
 llm/models
