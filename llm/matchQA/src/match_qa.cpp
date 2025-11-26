@@ -7,7 +7,7 @@
 //| Inputs       | new_questions.csv, database_questions_answers.csv           |
 //| Outputs      | results.csv                                                 |
 //| Dependencies | llama.cpp                                                   |
-//| By Name,Date | T.Sciple, 11/10/2025                                        |
+//| By Name,Date | T.Sciple, 11/26/2025                                        |
 
 #include <iostream>
 #include <vector>
@@ -15,8 +15,7 @@
 #include <filesystem>
 #include <fstream>
 #include <cmath>
-#include "c:/dev/cpp/llm/llama.cpp/include/llama.h"
-
+#include "../../llama.cpp/include/llama.h"
 
 struct ResultRecord {
     std::string seq_indx_str;
@@ -27,7 +26,7 @@ struct ResultRecord {
 };
 
 
-struct QAPair {
+struct QAEmbed {
     std::string db_question;
     std::string db_answer;
     std::vector<float> embedding;
@@ -55,7 +54,7 @@ class Matcher {
 
 
     void print_embedding(const std::vector<float>& emb, const std::string& label) {
-         std::cout << "Embedding for " << label << ": [";
+        std::cout << "Embedding for " << label << ": [";
         size_t n = emb.size();
         for(size_t i = 0; i < 10 && i < n; ++i) std::cout << emb[i] << " ";
         if (n > 20) std::cout << "... ";
@@ -190,8 +189,8 @@ public:
     }
 
 
-    std::vector<QAPair> load(const std::string& csv_path) {
-        std::vector<QAPair> db_qa;
+    std::vector<QAEmbed> load(const std::string& csv_path) {
+        std::vector<QAEmbed> db_qa;
         std::ifstream f(csv_path);
         if (!f.is_open()) {
             std::cerr << "Error: Could not open " << csv_path << "\n";
@@ -225,15 +224,17 @@ public:
 
 
     std::tuple<std::string, std::string, float> find_closest_match(const std::string& new_q,
-                                       const std::vector<QAPair>& db_qa) {
+                                       const std::vector<QAEmbed>& db_qa) {
+        
+        // Get embedding for the new question
         auto new_q_embed = embed(new_q);
         if (new_q_embed.empty() || db_qa.empty()) return {"No match", "No match", 0.0f};
-        print_embedding(new_q_embed, "New: " + new_q);
+        // print_embedding(new_q_embed, "New: " + new_q);
 
         float best = -1.0f;
         std::string ans;
         std::string match_q;
-        std::cout << "Similarities for new question '" << new_q << "':" << std::endl;
+        // std::cout << "Similarities for new question '" << new_q << "':" << std::endl;
         
         // the following loop iterates thru each database question called item and computes
         // the dot product with each of the normalized vectors databased question and the new question
@@ -244,7 +245,7 @@ public:
         // dot product  [ 0.050 + 0.075 + 0.87214176 ] = 0.9971  '<  very close match
         for (const auto& item : db_qa) {
             float s = dot_product(new_q_embed, item.embedding);
-            std::cout << "  to '" << item.db_question << "': " << s << std::endl;
+            // std::cout << "  to '" << item.db_question << "': " << s << std::endl;
             if (s > best) { best = s; ans = item.db_answer; match_q = item.db_question; }
         }
         return {match_q, ans, best};
@@ -274,6 +275,76 @@ std::vector<std::string> load_questions_from_csv(const std::string &filename) {
 }
 
 
+int write_vec_db_to_binary_file(std::filesystem::file_time_type last_csv_write_time, const std::string &filename, const std::vector<QAEmbed> &db) {
+
+    std::ofstream vec_db (filename, std::ios::binary);
+    if (!vec_db.is_open()) {
+        std::cerr << "Error: Could not open " << filename << " for writing\n";
+        return -1;
+    } 
+
+    // write the date/time stamp to the binary file
+    vec_db.write(reinterpret_cast<const char*>(&last_csv_write_time), sizeof(std::time_t));
+    
+    for (const auto &item : db) {
+        size_t q_size = item.db_question.size();
+        size_t a_size = item.db_answer.size();
+        size_t emb_size = item.embedding.size();
+
+        vec_db.write(reinterpret_cast<const char*>(&q_size), sizeof(size_t));
+        vec_db.write(item.db_question.c_str(), q_size);
+
+        vec_db.write(reinterpret_cast<const char*>(&a_size), sizeof(size_t));
+        vec_db.write(item.db_answer.c_str(), a_size);
+
+        vec_db.write(reinterpret_cast<const char*>(&emb_size), sizeof(size_t));
+        vec_db.write(reinterpret_cast<const char*>(item.embedding.data()), emb_size * sizeof(float));
+    }
+    vec_db.close();
+    return 0;
+}
+
+
+int read_vec_db_from_binary_file(std::filesystem::file_time_type , const std::string &filename, std::vector<QAEmbed> &db) {
+    std::ifstream vec_db(filename, std::ios::binary);
+    if (!vec_db.is_open()) {
+        std::cerr << "Error: Could not open " << filename << " for reading\n";
+        return -1;
+    }
+
+    // discard timestamp
+    std::time_t ts = 0;
+    if (!vec_db.read(reinterpret_cast<char*>(&ts), sizeof(std::time_t))) {
+        std::cerr << "Error: Failed to read timestamp from " << filename << "\n";
+        return -1;
+    }
+
+    while (true) {
+        size_t q_size = 0;
+        if (!vec_db.read(reinterpret_cast<char*>(&q_size), sizeof(size_t))) break; // EOF reached cleanly
+
+        std::string q;
+        q.resize(q_size);
+        if (q_size > 0 && !vec_db.read(&q[0], q_size)) { std::cerr << "Error reading question\n"; return -1; }
+
+        size_t a_size = 0;
+        if (!vec_db.read(reinterpret_cast<char*>(&a_size), sizeof(size_t))) { std::cerr << "Unexpected EOF reading answer size\n"; return -1; }
+        std::string a;
+        a.resize(a_size);
+        if (a_size > 0 && !vec_db.read(&a[0], a_size)) { std::cerr << "Error reading answer\n"; return -1; }
+
+        size_t emb_size = 0;
+        if (!vec_db.read(reinterpret_cast<char*>(&emb_size), sizeof(size_t))) { std::cerr << "Unexpected EOF reading embedding size\n"; return -1; }
+        std::vector<float> emb(emb_size);
+        if (emb_size > 0 && !vec_db.read(reinterpret_cast<char*>(emb.data()), emb_size * sizeof(float))) { std::cerr << "Error reading embedding\n"; return -1; }
+
+        db.push_back({ std::move(q), std::move(a), std::move(emb) });
+    }
+
+    return 0;
+}
+
+
 int main(int argc, char** argv) {
     (void)argc;  // Suppresses the warning without side effects
     try {
@@ -285,11 +356,45 @@ int main(int argc, char** argv) {
         // Pass the gguf file to the Matcher class.  Note that this particulate model
         // is used for sentence matching
         Matcher m("C:/dev/cpp/llm/models/all-minilm-l6-v2-q4_0.gguf");
+        
+        // Check to see if the binary vector database file exists and is up to date
+        std::filesystem::path vec_db_path = exe_dir_par / "data/vec_dase.bin";
+        std::string vec_db_path_str = vec_db_path.string();
+        std::filesystem::path db_csv_path = exe_dir_par / "data/database_questions_answers.csv";
+        std::string db_csv_path_str = db_csv_path.string();
+        bool load_from_binary = false;
 
-        // Read in database_questions_answers using the load function in the Matcher Class
-        std::filesystem::path db_file_path = exe_dir_par / "data/database_questions_answers.csv";
-        std::string db_file_path_str = db_file_path.string();
-        auto db = m.load(db_file_path_str);
+        auto db_csv_time = std::filesystem::last_write_time(db_csv_path);
+        if (std::filesystem::exists(vec_db_path)) {
+            auto vec_db_time = std::filesystem::last_write_time(vec_db_path);
+            if (vec_db_time >= db_csv_time) {
+                load_from_binary = true;
+            }
+        }
+
+        // Either load the vector database from the binary file or from the csv file
+
+        std::vector<QAEmbed> db;
+        // 1. Binary Option:
+        if (load_from_binary) {
+            int status = read_vec_db_from_binary_file(db_csv_time, vec_db_path_str, db);
+            if (status != 0) {
+                std::cerr << "Warning: Failed to read vector database from binary file. Loading from CSV instead.\n";
+                load_from_binary = false;
+            } 
+        // 2. CSV and Re-Embedding Option:
+        } else {
+            // Load the questions and answers from the csv file and create the vector database
+            db = m.load(db_csv_path_str);
+            
+            // write the vector database to a binary file for faster loading next time
+            std::filesystem::path vec_db_path = exe_dir_par / "data/vec_dase.bin";
+            std::string vec_db_path_str = vec_db_path.string();
+            int status = write_vec_db_to_binary_file(db_csv_time, vec_db_path_str, db);
+            if (status != 0) {
+                std::cerr << "Warning: Failed to write vector database to binary file.\n";
+            }
+        }
 
         // Set path to current executable path and read in new questions from csv file
         std::filesystem::path new_questions_filepath = exe_dir_par / "data/new_questions.csv";
@@ -321,8 +426,14 @@ int main(int argc, char** argv) {
                 seq_indx++;
         }
         out.close();
-        
-        std::cout << "Results written to: " << out_path << "\n";
+        // wait until the end to indicate message are printed
+        if (load_from_binary) {
+            std::cout << "Loaded vector database from binary file.\n";
+        } else {
+            std::cout << "Loaded vector database from CSV file\n"
+                        << "Vector database written to binary file\n";
+        }
+        std::wcout << L"Results written to: " << out_path.wstring() << "\n";
     }
     catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << "\n";
