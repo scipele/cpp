@@ -356,7 +356,7 @@ int main(int argc, char** argv) {
 
         // Pass the gguf file to the Matcher class.  Note that this particulate model
         // is used for sentence matching
-        Matcher m("C:/dev/cpp/llm/models/all-minilm-l6-v2-q4_0.gguf");
+        Matcher m("../model/all-minilm-l6-v2-q4_0.gguf");
         
         // Check to see if the binary vector database file exists and is up to date
         std::filesystem::path vec_db_path = exe_dir_par / "data/vec_dase.bin";
