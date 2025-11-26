@@ -240,9 +240,10 @@ public:
         // the dot product with each of the normalized vectors databased question and the new question
         // the dot product that is closest to 1 will be the vector that has the closest matching
         // dimensional values.
+        // Simplified example of vectors and dot product with 3 dimensions, actual model uses 384 dimensions
         // vector a     [ 0.20, 0.25, 0.947364766 ]
         // vector b     [ 0.25, 0.30, 0.920597632 ]
-        // dot product  [ 0.050 + 0.075 + 0.87214176 ] = 0.9971  '<  very close match
+        // dot product  [ 0.050 + 0.075 + 0.87214176 ] = 0.9971  '<  would be a close match
         for (const auto& item : db_qa) {
             float s = dot_product(new_q_embed, item.embedding);
             // std::cout << "  to '" << item.db_question << "': " << s << std::endl;
@@ -367,13 +368,15 @@ int main(int argc, char** argv) {
         auto db_csv_time = std::filesystem::last_write_time(db_csv_path);
         if (std::filesystem::exists(vec_db_path)) {
             auto vec_db_time = std::filesystem::last_write_time(vec_db_path);
+            std::cout << "Vector DB time: " << std::chrono::duration_cast<std::chrono::seconds>(vec_db_time.time_since_epoch()).count() << "\n";
+            std::cout << "CSV DB time:    " << std::chrono::duration_cast<std::chrono::seconds>(db_csv_time.time_since_epoch()).count() << "\n";
+            
             if (vec_db_time >= db_csv_time) {
                 load_from_binary = true;
             }
         }
 
         // Either load the vector database from the binary file or from the csv file
-
         std::vector<QAEmbed> db;
         // 1. Binary Option:
         if (load_from_binary) {
