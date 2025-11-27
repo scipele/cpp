@@ -17,3 +17,6 @@ find . -type f -printf "%f\n"
 ,find .,                Searches recursively starting from the current directory (.).
 ,-type f,               Restricts the results to only files (excluding directories).
 ,-printf "%f\n",        Prints only the bare filename (%f) followed by a newline character (\n) for each result. 
+
+,search for a file named 'my_file.txt' in the current directory and its subdirectories:
+find . -name "my_file.txt"
