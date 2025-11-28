@@ -1,0 +1,55 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "cpp_build",
+            "type": "shell",
+            "command": "C:\\msys64\\ucrt64\\bin\\g++.exe",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-std=c++20",
+                "-O3",
+                "-march=native",
+                "-Wall",
+                "-Wextra",
+
+                // Include paths – two levels up then into llama.cpp
+                "-I../../llama.cpp/include",
+                "-I../../llama.cpp/ggml/include",
+
+                // ---------- source file ----------
+                "${file}",
+
+                // Static libraries – two levels up then into the build folders
+                "../../llama.cpp/build/src/libllama.a",
+                "../../llama.cpp/build/ggml/src/ggml-base.a",
+                "../../llama.cpp/build/ggml/src/ggml.a",
+                "../../llama.cpp/build/ggml/src/ggml-cpu.a",
+
+                // Static linking flags (same as your working command)
+                "-static",
+                "-static-libgcc",
+                "-static-libstdc++",
+                "-lgomp",
+                "-lm",
+
+                // ---------- output ----------
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            }
+        }
+    ]
+}

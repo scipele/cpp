@@ -52,7 +52,7 @@ auto getLastModifiedNumericRaw(const std::string& filePath) {
 }
 
 
-void writeFileTimes(auto timestampA, auto timestampB) {
+void writeFileTimes(std::time_t timestampA, std::time_t timestampB) {
     std::ofstream outFile("last_write_time.dat", std::ios::binary);
     outFile.write(reinterpret_cast<const char*>(&timestampA), sizeof(timestampA));
     outFile.write(reinterpret_cast<const char*>(&timestampB), sizeof(timestampB));
@@ -68,7 +68,7 @@ void getFileDates(const std::string filePath) {
 }
 
 
-void compareFileDates(auto& timestampA, auto& timestampB) {
+void compareFileDates(std::time_t& timestampA, std::time_t& timestampB) {
     std::cout << "File Date Comparison: ";
     if(timestampB > timestampA) {
         std::cout << timestampB << " > " << timestampA << "\n";
@@ -83,7 +83,7 @@ void compareFileDates(auto& timestampA, auto& timestampB) {
 } 
 
 
-void readFileTimes(auto& timestampA, auto& timestampB) {
+void readFileTimes(std::time_t& timestampA, std::time_t& timestampB) {
     std::ifstream inpFile("last_write_time.dat", std::ios::binary);
     inpFile.read(reinterpret_cast<char*>(&timestampA), sizeof timestampA);
     inpFile.read(reinterpret_cast<char*>(&timestampB), sizeof timestampB);
@@ -102,21 +102,21 @@ int main() {
     getFileDates(filePathB);
 
     // Local numeric timestamp comparison
-    auto timestamp_csv_A_local = getLastModifiedNumericLocal(filePathA);
-    auto timestamp_csv_B_local = getLastModifiedNumericLocal(filePathB);
+    std::time_t timestamp_csv_A_local = getLastModifiedNumericLocal(filePathA);
+    std::time_t timestamp_csv_B_local = getLastModifiedNumericLocal(filePathB);
     std::cout << "Compare the csv file timestamps local format (A vs B):\n";
     compareFileDates(timestamp_csv_A_local, timestamp_csv_B_local);
 
     // Raw numeric timestamp comparison
-    auto timestamp_csv_A_raw = getLastModifiedNumericRaw(filePathA);
-    auto timestamp_csv_B_raw = getLastModifiedNumericRaw(filePathB); 
+    std::time_t timestamp_csv_A_raw = getLastModifiedNumericRaw(filePathA);
+    std::time_t timestamp_csv_B_raw = getLastModifiedNumericRaw(filePathB); 
     std::cout << "Compare the csv file timestamps raw format (A vs B):\n";
     compareFileDates(timestamp_csv_A_raw, timestamp_csv_B_raw);
 
     // temporarily set the file timestamps to current csv values so that function will read 
     // consistent type from file determined by auto keyword
-    auto timestamp_bin_A_raw_prev = timestamp_csv_A_raw;
-    auto timestamp_bin_B_raw_prev = timestamp_csv_A_raw;
+    std::time_t timestamp_bin_A_raw_prev = timestamp_csv_A_raw;
+    std::time_t timestamp_bin_B_raw_prev = timestamp_csv_A_raw;
 
     // read the file times back from binary file with arguments passed by reference
     readFileTimes(timestamp_bin_A_raw_prev, timestamp_bin_B_raw_prev);
