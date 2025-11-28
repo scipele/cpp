@@ -8,6 +8,8 @@
 *.dll
 *.7z
 *.zip
+*.bin
+*.lnk
 *.gguf
 llm/llama.cpp/
 llm/models

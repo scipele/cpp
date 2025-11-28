@@ -279,7 +279,7 @@ std::vector<std::string> load_questions_from_csv(const std::string &filename) {
 }
 
 
-int write_vec_db_to_binary_file(auto last_csv_write_time, const std::string &filename, const std::vector<QAEmbed> &db) {
+int write_vec_db_to_binary_file(std::int64_t last_csv_write_time, const std::string &filename, const std::vector<QAEmbed> &db) {
 
     std::ofstream vec_db (filename, std::ios::binary);
     if (!vec_db.is_open()) {
@@ -309,7 +309,7 @@ int write_vec_db_to_binary_file(auto last_csv_write_time, const std::string &fil
 }
 
 
-int read_vec_db_from_binary_file(auto timestamp, const std::string &filename, std::vector<QAEmbed> &db) {
+int read_vec_db_from_binary_file(std::int64_t timestamp, const std::string &filename, std::vector<QAEmbed> &db) {
     std::ifstream vec_db(filename, std::ios::binary);
     if (!vec_db.is_open()) {
         std::cerr << "Error: Could not open " << filename << " for reading\n";
@@ -317,7 +317,6 @@ int read_vec_db_from_binary_file(auto timestamp, const std::string &filename, st
     }
 
     // read timestamp then discard it
-    std::time_t ts = 0;
     if (!vec_db.read(reinterpret_cast<char*>(&timestamp), sizeof(timestamp))) {
         std::cerr << "Error: Failed to read timestamp from " << filename << "\n";
         return -1;
@@ -350,17 +349,32 @@ int read_vec_db_from_binary_file(auto timestamp, const std::string &filename, st
 
 // Returns last modified time as a raw numeric timestamp (underlying count since epoch)
 //  Example: date/timestamp is converted to how file_time_type internally represents time points    
-auto getLastModifiedNumericRaw(const std::string& filePath) {
+std::int64_t getLastModifiedNumericRaw(const std::string& filePath) {
+    // std::filesystem::last_write_time returns a file_time_type
+    // file_time_type is a time_point<system_clock, some-duration>
+    // On Windows + GCC/Clang/MSVC that duration is always 100-nanosecond intervals
     auto lastWriteTime = std::filesystem::last_write_time(filePath);
-    return static_cast<std::filesystem::file_time_type::duration::rep>(lastWriteTime.time_since_epoch().count());
+
+    // .time_since_epoch() gives the duration from the epoch
+    // .count() gives the raw tick count (signed)
+    // We cast to unsigned 64-bit because Windows file times are always positive
+    return static_cast<std::int64_t>
+        (lastWriteTime.time_since_epoch().count()
+    );
 }
 
 
-void readFileTimePrevWrittenToBinaryVecDbase(auto& timestamp) {
-    std::ifstream inpFile("last_write_time.dat", std::ios::binary);
-    inpFile.read(reinterpret_cast<char*>(&timestamp), sizeof timestamp);
+std::int64_t readFileTimePrevWrittenToBinaryVecDbase(const std::string& filePath) {
+    std::ifstream inpFile(filePath, std::ios::binary);
+    std::int64_t timestamp = 0;
+    inpFile.read(reinterpret_cast<char*>(&timestamp), sizeof(std::int64_t));
+    if (!inpFile) {
+        std::cerr << "Error: Failed to read timestamp from file.\n";
+        return 0;
+    }
     inpFile.close();
-}   
+    return timestamp;
+}
 
 
 int main(int argc, char** argv) {
@@ -382,12 +396,10 @@ int main(int argc, char** argv) {
         const std::string db_csv_path_str = db_csv_path.string();
 
         // Get last modified time of the csv file, and then the last csv time stamp that was written to the binary file
-        auto file_csv_time_stamp = getLastModifiedNumericRaw(db_csv_path_str);
-        // temporary set this so the time stamp type can be determined based on the system time type
-        auto file_csv_time_stamp_previous_written_to_bin = file_csv_time_stamp;  // fix value next line
-        readFileTimePrevWrittenToBinaryVecDbase(file_csv_time_stamp_previous_written_to_bin);
+        std::int64_t file_csv_time_stamp = getLastModifiedNumericRaw(db_csv_path_str);
+        std::int64_t file_csv_time_stamp_previous_written_to_bin = readFileTimePrevWrittenToBinaryVecDbase(vec_db_path_str);
 
-        bool load_from_binary = (file_csv_time_stamp > file_csv_time_stamp_previous_written_to_bin) ? true : false;
+        bool load_from_binary = (file_csv_time_stamp > file_csv_time_stamp_previous_written_to_bin) ? false : true;
 
         // Either load the vector database from the binary file or from the csv file
         std::vector<QAEmbed> db;
@@ -449,7 +461,7 @@ int main(int argc, char** argv) {
         if (load_from_binary) {
             std::cout << "Loaded vector database from binary file since timestamp: "
                       << file_csv_time_stamp_previous_written_to_bin
-                      << " > "
+                      << " is not > "
                       << file_csv_time_stamp << "\n";
         } else {
             std::cout << "Loaded vector database from CSV and recomputed embeddings since timestamp\n"
