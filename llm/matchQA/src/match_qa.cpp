@@ -15,7 +15,10 @@
 #include <filesystem>
 #include <fstream>
 #include <cmath>
+#include <chrono>
+#include <iomanip>
 #include "../../llama.cpp/include/llama.h"
+
 
 struct ResultRecord {
     std::string seq_indx_str;
@@ -276,7 +279,7 @@ std::vector<std::string> load_questions_from_csv(const std::string &filename) {
 }
 
 
-int write_vec_db_to_binary_file(std::filesystem::file_time_type last_csv_write_time, const std::string &filename, const std::vector<QAEmbed> &db) {
+int write_vec_db_to_binary_file(auto last_csv_write_time, const std::string &filename, const std::vector<QAEmbed> &db) {
 
     std::ofstream vec_db (filename, std::ios::binary);
     if (!vec_db.is_open()) {
@@ -285,7 +288,7 @@ int write_vec_db_to_binary_file(std::filesystem::file_time_type last_csv_write_t
     } 
 
     // write the date/time stamp to the binary file
-    vec_db.write(reinterpret_cast<const char*>(&last_csv_write_time), sizeof(std::time_t));
+    vec_db.write(reinterpret_cast<const char*>(&last_csv_write_time), sizeof(last_csv_write_time));
     
     for (const auto &item : db) {
         size_t q_size = item.db_question.size();
@@ -306,20 +309,20 @@ int write_vec_db_to_binary_file(std::filesystem::file_time_type last_csv_write_t
 }
 
 
-int read_vec_db_from_binary_file(std::filesystem::file_time_type , const std::string &filename, std::vector<QAEmbed> &db) {
+int read_vec_db_from_binary_file(auto timestamp, const std::string &filename, std::vector<QAEmbed> &db) {
     std::ifstream vec_db(filename, std::ios::binary);
     if (!vec_db.is_open()) {
         std::cerr << "Error: Could not open " << filename << " for reading\n";
         return -1;
     }
 
-    // discard timestamp
+    // read timestamp then discard it
     std::time_t ts = 0;
-    if (!vec_db.read(reinterpret_cast<char*>(&ts), sizeof(std::time_t))) {
+    if (!vec_db.read(reinterpret_cast<char*>(&timestamp), sizeof(timestamp))) {
         std::cerr << "Error: Failed to read timestamp from " << filename << "\n";
         return -1;
     }
-
+    
     while (true) {
         size_t q_size = 0;
         if (!vec_db.read(reinterpret_cast<char*>(&q_size), sizeof(size_t))) break; // EOF reached cleanly
@@ -341,9 +344,23 @@ int read_vec_db_from_binary_file(std::filesystem::file_time_type , const std::st
 
         db.push_back({ std::move(q), std::move(a), std::move(emb) });
     }
-
     return 0;
 }
+
+
+// Returns last modified time as a raw numeric timestamp (underlying count since epoch)
+//  Example: date/timestamp is converted to how file_time_type internally represents time points    
+auto getLastModifiedNumericRaw(const std::string& filePath) {
+    auto lastWriteTime = std::filesystem::last_write_time(filePath);
+    return static_cast<std::filesystem::file_time_type::duration::rep>(lastWriteTime.time_since_epoch().count());
+}
+
+
+void readFileTimePrevWrittenToBinaryVecDbase(auto& timestamp) {
+    std::ifstream inpFile("last_write_time.dat", std::ios::binary);
+    inpFile.read(reinterpret_cast<char*>(&timestamp), sizeof timestamp);
+    inpFile.close();
+}   
 
 
 int main(int argc, char** argv) {
@@ -360,27 +377,23 @@ int main(int argc, char** argv) {
         
         // Check to see if the binary vector database file exists and is up to date
         std::filesystem::path vec_db_path = exe_dir_par / "data/vec_dase.bin";
-        std::string vec_db_path_str = vec_db_path.string();
+        const std::string vec_db_path_str = vec_db_path.string();
         std::filesystem::path db_csv_path = exe_dir_par / "data/database_questions_answers.csv";
-        std::string db_csv_path_str = db_csv_path.string();
-        bool load_from_binary = false;
+        const std::string db_csv_path_str = db_csv_path.string();
 
-        auto db_csv_time = std::filesystem::last_write_time(db_csv_path);
-        if (std::filesystem::exists(vec_db_path)) {
-            auto vec_db_time = std::filesystem::last_write_time(vec_db_path);
-            std::cout << "Vector DB time: " << std::chrono::duration_cast<std::chrono::seconds>(vec_db_time.time_since_epoch()).count() << "\n";
-            std::cout << "CSV DB time:    " << std::chrono::duration_cast<std::chrono::seconds>(db_csv_time.time_since_epoch()).count() << "\n";
-            
-            if (vec_db_time >= db_csv_time) {
-                load_from_binary = true;
-            }
-        }
+        // Get last modified time of the csv file, and then the last csv time stamp that was written to the binary file
+        auto file_csv_time_stamp = getLastModifiedNumericRaw(db_csv_path_str);
+        // temporary set this so the time stamp type can be determined based on the system time type
+        auto file_csv_time_stamp_previous_written_to_bin = file_csv_time_stamp;  // fix value next line
+        readFileTimePrevWrittenToBinaryVecDbase(file_csv_time_stamp_previous_written_to_bin);
+
+        bool load_from_binary = (file_csv_time_stamp > file_csv_time_stamp_previous_written_to_bin) ? true : false;
 
         // Either load the vector database from the binary file or from the csv file
         std::vector<QAEmbed> db;
         // 1. Binary Option:
         if (load_from_binary) {
-            int status = read_vec_db_from_binary_file(db_csv_time, vec_db_path_str, db);
+            int status = read_vec_db_from_binary_file(file_csv_time_stamp, vec_db_path_str, db);
             if (status != 0) {
                 std::cerr << "Warning: Failed to read vector database from binary file. Loading from CSV instead.\n";
                 load_from_binary = false;
@@ -392,8 +405,7 @@ int main(int argc, char** argv) {
             
             // write the vector database to a binary file for faster loading next time
             std::filesystem::path vec_db_path = exe_dir_par / "data/vec_dase.bin";
-            std::string vec_db_path_str = vec_db_path.string();
-            int status = write_vec_db_to_binary_file(db_csv_time, vec_db_path_str, db);
+            int status = write_vec_db_to_binary_file(file_csv_time_stamp, vec_db_path_str, db);
             if (status != 0) {
                 std::cerr << "Warning: Failed to write vector database to binary file.\n";
             }
@@ -405,14 +417,14 @@ int main(int argc, char** argv) {
         std::vector<std::string> new_questions = load_questions_from_csv(new_questions_filepath_str);
         
         std::vector<ResultRecord> results;
-        int seq_indx =1;
+        int seq_indx =0;
         std::string seq_indx_str;
         for (const auto& new_q : new_questions) {
             // Get the matched question (mq), answer (a), and score (sc)
+            seq_indx++;
             auto [mq, ans, scr] = m.find_closest_match(new_q, db);
             seq_indx_str = std::to_string(seq_indx) + ".";
             results.push_back({seq_indx_str, new_q, mq, ans, scr});
-            seq_indx++;
         }
 
         std::filesystem::path out_path = exe_dir_par / "results/results.csv";
@@ -421,20 +433,30 @@ int main(int argc, char** argv) {
         out << "Seq|New_Question|Matched_Db_Question|Db_Answer|Score\n";
 
         for (auto& r : results) {
+            seq_indx++;
             out << '"' << r.seq_indx_str << "\"|"
                 << '"' << r.new_question << "\"|"
                 << '"' << r.matched_db_question << "\"|"
                 << '"' << r.matched_db_answer << "\"|"
                 << r.score << "\n";
-                seq_indx++;
         }
         out.close();
+
         // wait until the end to indicate message are printed
+        std::cout << "Time stamp from current database_questions_answers.csv: " << file_csv_time_stamp << "\n";
+        std::cout << "Time stamp previously written to binary vector database: " << file_csv_time_stamp_previous_written_to_bin << "\n";
+
         if (load_from_binary) {
-            std::cout << "Loaded vector database from binary file.\n";
+            std::cout << "Loaded vector database from binary file since timestamp: "
+                      << file_csv_time_stamp_previous_written_to_bin
+                      << " > "
+                      << file_csv_time_stamp << "\n";
         } else {
-            std::cout << "Loaded vector database from CSV file\n"
-                        << "Vector database written to binary file\n";
+            std::cout << "Loaded vector database from CSV and recomputed embeddings since timestamp\n"
+                      << file_csv_time_stamp
+                      << " > "
+                      << file_csv_time_stamp_previous_written_to_bin << "\n"
+                      << "Vector database written to binary file\n";
         }
         std::wcout << L"Results written to: " << out_path.wstring() << "\n";
     }

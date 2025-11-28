@@ -4,6 +4,7 @@
 *.txt
 *.accdb
 *.bat
+*.dat
 *.dll
 *.7z
 *.zip
