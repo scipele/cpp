@@ -13,3 +13,38 @@ g++ -std=c++20 -O3 -march=native -Wall -Wextra \
 -Wl,--whole-archive -lwinpthread -Wl,--no-whole-archive \
 -lgomp -lm \
 -o ../build/match_qa.exe
+
+
+# Args in tasks.json
+"args": [
+    "-fdiagnostics-color=always",
+    "-std=c++17",
+    "-O3",
+    "-march=native",
+    "-Wall",
+    "-Wextra",
+
+    // Include paths – two levels up then into llama.cpp
+    "-I${workspaceFolder}/cpp/llm/llama.cpp/include",
+    "-I${workspaceFolder}/cpp/llm/llama.cpp/ggml/include",
+
+    // ---------- source file ----------
+    "${file}",
+
+    // Static libraries – two levels up then into the build folders
+    "${workspaceFolder}/cpp/llm/llama.cpp/build/src/libllama.a",
+    "${workspaceFolder}/cpp/llm/llama.cpp/build/ggml/src/ggml-base.a",
+    "${workspaceFolder}/cpp/llm/llama.cpp/build/ggml/src/ggml.a",
+    "${workspaceFolder}/cpp/llm/llama.cpp/build/ggml/src/ggml-cpu.a",
+
+    // Static linking flags (same as your working command)
+    "-static",
+    "-static-libgcc",
+    "-static-libstdc++",
+    "-lgomp",
+    "-lm",
+
+    // ---------- output ----------
+    "-o",
+    "${fileDirname}/${fileBasenameNoExtension}.exe"
+],
