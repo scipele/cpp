@@ -94,10 +94,20 @@ void readFileTimes(std::time_t& timestampA, std::time_t& timestampB) {
 }   
 
 
-int main() {
+int main(int argc, char** argv) {
+    (void)argc;  // Suppresses the warning without side effects
+
+    // get executable directory parent path
+    std::filesystem::path exe_dir_par = std::filesystem::path(argv[0]).parent_path();
+    exe_dir_par = exe_dir_par.parent_path();
+
     // get file date/times
-    std::string filePathA = "../llm/matchQA/data/database_questions_answers.csv";
-    std::string filePathB = "../llm/matchQA/results/results.csv";
+    std::filesystem::path fs_filePathA = exe_dir_par / "llm/matchQA/data/database_questions_answers.csv";
+    std::filesystem::path fs_filePathB = exe_dir_par / "llm/matchQA/results/results.csv";
+    //  Alternatively, use relative paths
+
+    std::string filePathA = fs_filePathA.string();
+    std::string filePathB = fs_filePathB.string();
     getFileDates(filePathA);
     getFileDates(filePathB);
 
