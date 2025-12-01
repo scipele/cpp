@@ -13,10 +13,15 @@ find . -type f -exec stat --printf='%y %12s %n\n' {} +
 > 'out.txt'
 
 ,list bare file names only (without paths) in the current directory and its subdirectories:
-find . -type f -printf "%f\n"
+find . -type f -printf "%f\n" > list.txt
+,Explanation of the command components:
 ,find .,                Searches recursively starting from the current directory (.).
 ,-type f,               Restricts the results to only files (excluding directories).
 ,-printf "%f\n",        Prints only the bare filename (%f) followed by a newline character (\n) for each result. 
+,> list.txt,            Redirects the output to a file named 'list.txt'.
 
 ,search for a file named 'my_file.txt' in the current directory and its subdirectories:
 find . -name "my_file.txt"
+
+,Edit a text file
+nano filename.txt
