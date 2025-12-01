@@ -46,5 +46,5 @@ g++ -std=c++20 -O3 -march=native -Wall -Wextra \
 
     // ---------- output ----------
     "-o",
-    "${fileDirname}/${fileBasenameNoExtension}.exe"
+    "${workspaceFolder}/cpp/llm/matchQA/build/${fileBasenameNoExtension}.exe"
 ],
