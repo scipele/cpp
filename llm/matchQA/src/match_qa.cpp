@@ -226,33 +226,33 @@ public:
     }
 
 
-    std::tuple<std::string, std::string, float> find_closest_match(const std::string& new_q,
-                                       const std::vector<QAEmbed>& db_qa) {
+    void find_closest_match(const std::string& new_q,
+                            const std::vector<QAEmbed>& db_qa,
+                            int seq_indx,
+                            std::vector<ResultRecord>& results) {
         
-        // Get embedding for the new question
-        auto new_q_embed = embed(new_q);
-        if (new_q_embed.empty() || db_qa.empty()) return {"No match", "No match", 0.0f};
-        // print_embedding(new_q_embed, "New: " + new_q);
+        const auto query_embed = embed(new_q);
 
-        float best = -1.0f;
-        std::string ans;
-        std::string match_q;
-        // std::cout << "Similarities for new question '" << new_q << "':" << std::endl;
-        
-        // the following loop iterates thru each database question called item and computes
-        // the dot product with each of the normalized vectors databased question and the new question
-        // the dot product that is closest to 1 will be the vector that has the closest matching
-        // dimensional values.
-        // Simplified example of vectors and dot product with 3 dimensions, actual model uses 384 dimensions
-        // vector a     [ 0.20, 0.25, 0.947364766 ]
-        // vector b     [ 0.25, 0.30, 0.920597632 ]
-        // dot product  [ 0.050 + 0.075 + 0.87214176 ] = 0.9971  '<  would be a close match
-        for (const auto& item : db_qa) {
-            float s = dot_product(new_q_embed, item.embedding);
-            // std::cout << "  to '" << item.db_question << "': " << s << std::endl;
-            if (s > best) { best = s; ans = item.db_answer; match_q = item.db_question; }
+        float best_score = -1.0f;
+        const QAEmbed* best = nullptr;
+
+        if (!query_embed.empty() && !db_qa.empty()) {
+            for (const auto& item : db_qa) {
+                const float score = dot_product(query_embed, item.embedding);
+                if (score > best_score) {
+                    best_score = score;
+                    best = &item;
+                }
+            }
         }
-        return {match_q, ans, best};
+
+        results.emplace_back(ResultRecord{
+            .seq_indx_str        = std::to_string(seq_indx) + ".",
+            .new_question        = new_q,
+            .matched_db_question = best ? best->db_question : "No match",
+            .matched_db_answer   = best ? best->db_answer   : "No match",
+            .score               = best ? best_score : 0.0f
+        });
     }
 };
 
@@ -436,10 +436,8 @@ int main(int argc, char** argv) {
         std::string seq_indx_str;
         for (const auto& new_q : new_questions) {
             // Get the matched question (mq), answer (a), and score (sc)
-            seq_indx++;
-            auto [mq, ans, scr] = m.find_closest_match(new_q, db);
-            seq_indx_str = std::to_string(seq_indx) + ".";
-            results.push_back({seq_indx_str, new_q, mq, ans, scr});
+            ++seq_indx;
+            m.find_closest_match(new_q, db, seq_indx, results);
         }
 
         std::filesystem::path out_path = exe_dir_par / "results/results.csv";
