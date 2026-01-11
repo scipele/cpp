@@ -1,3 +1,9 @@
+# Ignore everything
+*
+# Unignore all directories (so Git can search them)
+!*/
+# Unignore all files that have a dot (an extension)
+!*.*
 *.7z
 *.accdb
 *.bat

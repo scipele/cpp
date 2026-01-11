@@ -5,18 +5,23 @@
 #include <curl/curl.h>
 #ifdef _WIN32
 #include <windows.h>
+#else
+#include <unistd.h>
 #endif
 
 // Function Prototypes
 static size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata);
 std::string strip_tags(const std::string& input, bool keep_verse_num = false, bool keep_footnotes = true);
 std::string fetch_verse(const std::string& ref);
-std::string get_executable_directory();
+std::string get_executable_directory_parent();
 static void remove_crossrefs(std::string& text);
 
 int main() {
-    std::string current_path = get_executable_directory();
-    std::string input_path = current_path + "\\lookup_verses.txt";
+    std::string current_path = get_executable_directory_parent();
+    std::cout << "Current Path: " << current_path << "\n";
+
+    std::string input_path = current_path + "/input/lookup_verses.txt";
+    std::cout << "Current Path: " << input_path << "\n";
     
     std::vector<std::string> refs;
     std::ifstream file(input_path);
@@ -30,7 +35,8 @@ int main() {
     }
     file.close();
 
-    std::string output_path = current_path + "\\lookup_verses_output.txt";
+    std::string output_path = current_path + "/output/lookup_verses_output.txt";
+    std::cout << "Output Path: " << output_path << "\n";
     
     std::ofstream output_file(output_path);
     if (!output_file) {
@@ -59,8 +65,6 @@ int main() {
 
     output_file.close();
     std::cout << "\nResults saved to " << output_path << "\n";
-
-    system("pause");
 
     return 0;
 }
@@ -162,6 +166,8 @@ std::string fetch_verse(const std::string& ref) {
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, 15L);
 #ifdef _WIN32
     Sleep(1000); // Prevent rate limiting
+#else
+    sleep(1); // Prevent rate limiting
 #endif
     CURLcode res = curl_easy_perform(curl);
     curl_easy_cleanup(curl);
@@ -226,15 +232,20 @@ std::string fetch_verse(const std::string& ref) {
 // =====================================================
 // Get Executable Directory
 // =====================================================
-std::string get_executable_directory() {
+std::string get_executable_directory_parent() {
 #ifdef _WIN32
     char path[MAX_PATH];
     GetModuleFileNameA(NULL, path, MAX_PATH);
     std::string exe_path = path;
     size_t last_slash = exe_path.find_last_of("\\");
-    return (last_slash != std::string::npos) ? exe_path.substr(0, last_slash) : ".";
-#else
+    if (last_slash != std::string::npos) {
+        exe_path = exe_path.substr(0, last_slash);
+        last_slash = exe_path.find_last_of("\\");
+        return (last_slash != std::string::npos) ? exe_path.substr(0, last_slash) : ".";
+    }
     return ".";
+#else
+    return "..";
 #endif
 }
 
