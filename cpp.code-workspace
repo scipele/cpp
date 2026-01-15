@@ -98,6 +98,9 @@
             "cerrno": "cpp",
             "cfloat": "cpp",
             "climits": "cpp"
-        }
+        },
+        "C_Cpp.default.compilerPath": "C:/msys64/ucrt64/bin/g++.exe",
+        "C_Cpp.default.cppStandard": "c++17",
+        "C_Cpp.default.intelliSenseEngine": "default"
     }
 }
