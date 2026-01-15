@@ -105,13 +105,15 @@ int main() {
 
     // 8. Show hash values for keys
     std::cout << "8. Show hash values for keys (using manual GCC hash):\n";
+    
+    std::hash<std::string> hasher;
     for (const auto& pair : ages) {
-        size_t hash = gcc_string_hash(pair.first); 
-        size_t calc_bucket = hash % bucket_count;
+        size_t std_hash = hasher(pair.first);
+        size_t calc_bucket = std_hash % bucket_count;
         std::cout << "\tHash of '"
         << std::setw(10) << std::left
         << pair.first + "'" << "= "
-        << std::setw(20) << std::right << hash
+        << std::setw(20) << std::right << std_hash
         << " % "
         << bucket_count << " = " << calc_bucket << "\n";
     }
@@ -126,7 +128,6 @@ int main() {
     std::cout << "\tWhere _Hash_impl::hash calls _Hash_bytes(s.data(), s.length(), 0xc70f6907UL)\n";
     std::cout << "\t_Hash_bytes implements: hash = seed; for each byte: hash = hash * 131 + byte\n";
     std::cout << "\tManual calculation:\n";
-    std::hash<std::string> hasher;
     for (const auto& pair : ages) {
         size_t manual_hash = gcc_string_hash(pair.first);
         size_t std_hash = hasher(pair.first);
