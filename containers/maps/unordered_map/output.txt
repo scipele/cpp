@@ -1,0 +1,111 @@
+This is an example showing how to use an unordered map:
+0. Initial Bucket Count before reserve is used = 1
+
+1. Access Elements by the key:
+        Hailey's age: 22
+
+2. Check if key exists:
+        Mary's age: 48
+
+3. Print all key value pairs:
+        Mary: 48
+        Josh: 24
+        Bob: 55
+        Nathan: 51
+        William: 55
+        Chad: 55
+        Bill: 51
+        Tony: 51
+        Hailey: 22
+
+4. the number of elements inserted into the map:
+        unordered_map no of elements: 9
+
+5. Count member functon:
+        Count of 'Mary' Key inserted: 1
+        Note that the count is only 1 because duplicate keys are not allowed
+        Count of 'Bob' Key inserted: 1 because 'Bob' was erased
+
+6. Size following insertion:
+        Charlie was added, age: 45
+        Size is now 10
+
+7. Bucket information:
+        Bucket count: 17
+        Load factor: 0.588235
+
+8. Show hash values for keys (using std::hash):
+        Hash of 'Mary'     = 16720713634376812077 % 17 = 16
+        Hash of 'Charlie'  = 11231302656547082352 % 17 = 11
+        Hash of 'Josh'     =  3524771735181747746 % 17 = 11
+        Hash of 'Bob'      =  1753070528460067080 % 17 = 13
+        Hash of 'Nathan'   =  1702179723462861539 % 17 = 6
+        Hash of 'William'  = 15136578069821761454 % 17 = 12
+        Hash of 'Chad'     =  6432704768884887680 % 17 = 5
+        Hash of 'Bill'     =  8293430086267816438 % 17 = 4
+        Hash of 'Tony'     =  4273820741900736191 % 17 = 4
+        Hash of 'Hailey'   = 10547347800112089393 % 17 = 7
+
+8b. GCC std::hash<std::string> implementation:
+        From libstdc++ source code (/usr/include/c++/13/bits/basic_string.h):
+          size_t operator()(const string& s) const noexcept {
+            return _Hash_impl::hash(s.data(), s.length());
+          }
+        Where _Hash_impl::hash calls _Hash_bytes(s.data(), s.length(), 0xc70f6907UL)
+        _Hash_bytes implements: hash = seed; for each byte: hash = hash * 131 + byte
+
+        Manual calculation:
+        Manual hash of 'Mary'     =   983534292129885710, std::hash: 16720713634376812077 (match: NO)
+        Manual hash of 'Charlie'  = 10952115318524499315, std::hash: 11231302656547082352 (match: NO)
+        Manual hash of 'Josh'     =   983534292123381805, std::hash:  3524771735181747746 (match: NO)
+        Manual hash of 'Bob'      =     7507895359583166, std::hash:  1753070528460067080 (match: NO)
+        Manual hash of 'Nathan'   = 18107903909022199199, std::hash:  1702179723462861539 (match: NO)
+        Manual hash of 'William'  = 10952216438592832648, std::hash: 15136578069821761454 (match: NO)
+        Manual hash of 'Chad'     =   983534292107522679, std::hash:  6432704768884887680 (match: NO)
+        Manual hash of 'Bill'     =   983534292105293198, std::hash:  8293430086267816438 (match: NO)
+        Manual hash of 'Tony'     =   983534292145862077, std::hash:  4273820741900736191 (match: NO)
+        Manual hash of 'Hailey'   = 18107903677520601471, std::hash: 10547347800112089393 (match: NO)
+
+9. Memory addresses and bucket indices of elements:
+        Mem Addr=0x555555574958, Key='Mary'     Bucket index 16
+        Mem Addr=0x555555574998, Key='Charlie'  Bucket index 11
+        Mem Addr=0x555555574918, Key='Josh'     Bucket index 11
+        Mem Addr=0x5555555748d8, Key='Bob'      Bucket index 13
+        Mem Addr=0x555555574898, Key='Nathan'   Bucket index 6
+        Mem Addr=0x555555574858, Key='William'  Bucket index 12
+        Mem Addr=0x5555555747d8, Key='Chad'     Bucket index 5
+        Mem Addr=0x555555574818, Key='Bill'     Bucket index 4
+        Mem Addr=0x555555574798, Key='Tony'     Bucket index 4
+        Mem Addr=0x555555574758, Key='Hailey'   Bucket index 7
+
+10. Bucket contents (showing how collisions are handled):
+        Bucket 0: (empty)
+        Bucket 1: (empty)
+        Bucket 2: (empty)
+        Bucket 3: (empty)
+        Bucket 4: (addr: 0x555555574818)'Bill',    paired value = 51, (addr: 0x555555574798)'Tony',    paired value = 51
+        Bucket 5: (addr: 0x5555555747d8)'Chad',    paired value = 55
+        Bucket 6: (addr: 0x555555574898)'Nathan',  paired value = 51
+        Bucket 7: (addr: 0x555555574758)'Hailey',  paired value = 22
+        Bucket 8: (empty)
+        Bucket 9: (empty)
+        Bucket 10: (empty)
+        Bucket 11: (addr: 0x555555574998)'Charlie', paired value = 45, (addr: 0x555555574918)'Josh',    paired value = 24
+        Bucket 12: (addr: 0x555555574858)'William', paired value = 55
+        Bucket 13: (addr: 0x5555555748d8)'Bob',     paired value = 55
+        Bucket 14: (empty)
+        Bucket 15: (empty)
+        Bucket 16: (addr: 0x555555574958)'Mary',    paired value = 48
+
+11. Reprint to see if element 'Bob' was erased:
+        Mary: 48
+        Charlie: 45
+        Josh: 24
+        Nathan: 51
+        William: 55
+        Chad: 55
+        Bill: 51
+        Tony: 51
+        Hailey: 22
+
+        Size is now: 9

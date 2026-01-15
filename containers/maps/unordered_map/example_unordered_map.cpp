@@ -104,7 +104,7 @@ int main() {
     std::cout << std::endl;
 
     // 8. Show hash values for keys
-    std::cout << "8. Show hash values for keys (using manual GCC hash):\n";
+    std::cout << "8. Show hash values for keys (using std::hash):\n";
     
     std::hash<std::string> hasher;
     for (const auto& pair : ages) {
@@ -119,14 +119,14 @@ int main() {
     }
     std::cout << std::endl;
 
-    // 8b. Exact GCC std::hash<std::string> implementation:
-    std::cout << "8b. Exact GCC std::hash<std::string> implementation:\n";
+    // 8b. Similar std::hash<std::string> implementation:
+    std::cout << "8b. GCC std::hash<std::string> implementation:\n";
     std::cout << "\tFrom libstdc++ source code (/usr/include/c++/13/bits/basic_string.h):\n";
     std::cout << "\t  size_t operator()(const string& s) const noexcept {\n";
     std::cout << "\t    return _Hash_impl::hash(s.data(), s.length());\n";
     std::cout << "\t  }\n";
     std::cout << "\tWhere _Hash_impl::hash calls _Hash_bytes(s.data(), s.length(), 0xc70f6907UL)\n";
-    std::cout << "\t_Hash_bytes implements: hash = seed; for each byte: hash = hash * 131 + byte\n";
+    std::cout << "\t_Hash_bytes implements: hash = seed; for each byte: hash = hash * 131 + byte\n" << std::endl;
     std::cout << "\tManual calculation:\n";
     for (const auto& pair : ages) {
         size_t manual_hash = gcc_string_hash(pair.first);

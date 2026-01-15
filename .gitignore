@@ -13,7 +13,6 @@
 *.exe
 *.gguf
 *.lnk
-*.txt
 *.xlsm
 *.xlsx
 *.zip
