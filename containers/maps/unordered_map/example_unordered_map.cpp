@@ -13,6 +13,24 @@
 #include <string>
 #include <iomanip>
 
+// Simple hash function matching GCC's _Hash_bytes
+size_t gcc_hash_bytes(const void* ptr, size_t len, size_t seed) {
+    const unsigned char* data = static_cast<const unsigned char*>(ptr);
+    size_t hash = seed;
+    for (size_t i = 0; i < len; ++i) {
+        hash = hash * 131 + data[i];
+    // For "Mary" with seed = 0xc70f6907UL
+    // M = 77, a = 97, r = 114, y = 121
+    // hash = ((((0xc70f6907 * 131 + 77) * 131 + 97) * 131 + 114) * 131 + 121)
+    // hash = xx)
+    }
+    return hash;
+}
+
+size_t gcc_string_hash(const std::string& str) {
+    return gcc_hash_bytes(str.data(), str.length(), 0xc70f6907UL);
+}
+
 int main() {
     std::unordered_map<std::string, int> ages;
 
@@ -80,10 +98,9 @@ int main() {
     std::cout << std::endl;
 
     // 8. Show hash values for keys
-    std::cout << "8. Hash values for keys:\n";
-    std::hash<std::string> hasher;
+    std::cout << "8. Show hash values for keys (using manual GCC hash):\n";
     for (const auto& pair : ages) {
-        size_t hash = hasher(pair.first); 
+        size_t hash = gcc_string_hash(pair.first); 
         size_t calc_bucket = hash % bucket_count;
         std::cout << "\tHash of '"
         << std::setw(10) << std::left
@@ -91,6 +108,31 @@ int main() {
         << std::setw(20) << std::right << hash
         << " % "
         << bucket_count << " = " << calc_bucket << "\n";
+    }
+    std::cout << std::endl;
+
+    // 8b. Exact GCC std::hash<std::string> implementation:
+    std::cout << "8b. Exact GCC std::hash<std::string> implementation:\n";
+    std::cout << "\tFrom libstdc++ source code (/usr/include/c++/13/bits/basic_string.h):\n";
+    std::cout << "\t  size_t operator()(const string& s) const noexcept {\n";
+    std::cout << "\t    return _Hash_impl::hash(s.data(), s.length());\n";
+    std::cout << "\t  }\n";
+    std::cout << "\tWhere _Hash_impl::hash calls _Hash_bytes(s.data(), s.length(), 0xc70f6907UL)\n";
+    std::cout << "\t_Hash_bytes implements: hash = seed; for each byte: hash = hash * 131 + byte\n";
+    std::cout << "\tManual calculation:\n";
+    std::hash<std::string> hasher;
+    for (const auto& pair : ages) {
+        size_t manual_hash = gcc_string_hash(pair.first);
+        size_t std_hash = hasher(pair.first);
+        std::cout   << "\tManual hash of '"
+                    << std::setw(10) << std::left
+                    << pair.first + "'" << "= "
+                    << std::setw(20) << std::right
+                    << manual_hash
+                    << ", std::hash: "
+                    << std::setw(20) << std::right
+                    << std_hash
+                    << " (match: " << (manual_hash == std_hash ? "YES" : "NO") << ")\n";
     }
     std::cout << std::endl;
 
@@ -132,7 +174,7 @@ int main() {
     std::cout   << "\n\tSize is now: " << ages.size();
     std::cout << "\n" << std::endl;
 
-
     system("pause");
+
     return 0;
 }
