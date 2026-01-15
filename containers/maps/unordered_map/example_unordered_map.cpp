@@ -34,8 +34,15 @@ size_t gcc_string_hash(const std::string& str) {
 int main() {
     std::unordered_map<std::string, int> ages;
 
+    std::cout   << "This is an example showing how to use an unordered map:" << std::endl;
+
+    // 0. Initial bucket count 
+    std::cout << "0. Initial Bucket Count before reserve is used = " << ages.bucket_count() << "\n" << std::endl;
+
+    // reserves space for elements
+    ages.reserve(14);
+
     // Inserting elements
-    ages.reserve(14);    // reserves space for elements
     ages = {
             {"Hailey", 22},
             {"Tony", 51},
@@ -48,7 +55,6 @@ int main() {
             {"Mary", 48}
     };
 
-    std::cout   << "This is an example showing how to use an unordered map:" << std::endl;
 
     // 1. Accessing elements
     std::cout   << "1. Access Elements by the key:\n"
