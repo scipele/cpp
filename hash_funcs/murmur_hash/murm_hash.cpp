@@ -27,9 +27,12 @@ int main() {
     size_t std_hash = hasher(str);
     print_hash(str, "Std Hash", std::to_string(std_hash));
     
+
+    // starting seed used for various MurmurHash functions
+    size_t seed = static_cast<size_t>(0xc70f6907UL);
+
     // 2. MurmurHash2
     // Use the same seed from functional_hash.h
-    size_t seed = static_cast<size_t>(0xc70f6907UL);
     uint32_t murm2h = MurmurHash2(str.data(), str.length(), seed);
     print_hash(str, "MurmurHash2", std::to_string(murm2h));
 
