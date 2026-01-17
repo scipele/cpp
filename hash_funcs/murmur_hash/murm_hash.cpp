@@ -1,9 +1,20 @@
+// ************ MAIN PROGRAM ***************************************************
+//| Item	     | Main Program Documentation Notes                            |
+//|--------------|-------------------------------------------------------------|
+//| Filename     | murm_hash.cpp                                               |
+//| EntryPoint   | main                                                        |
+//| Purpose      | illustrate varius Hash algorithms and how they work         |
+//| Inputs       | hard keyed                                                  |
+//| Outputs      | screen print of results                                     |
+//| Dependencies | Indicate if any libraries are used or none                  |
+//| By Name,Date | T.Sciple, MM/DD/YYYY                                        |
+
+
 #include <iostream>
 #include <string>
 #include <iomanip>
-#include "std_lib/MurmurHash2.h"
-#include "std_lib/MurmurHash3.h"
-
+#include "../std_lib/MurmurHash2.h"
+#include "../std_lib/MurmurHash3.h"
 
 // Function prototypes
 void print_hash(const std::string& hash_algo,std::string h);
@@ -60,7 +71,7 @@ void print_hash(const std::string& hash_algo,
 }
 
 
-
+// Added detailed MurmurHash2 computation with debug output
 //-----------------------------------------------------------------------------
 // MurmurHash2, 64-bit versions, by Austin Appleby
 
@@ -111,63 +122,102 @@ uint64_t MurmurHash64A_detailed ( const void * key, int len, uint64_t seed )
     k *= m; 
     std::cout << std::setw(40) << std::left << "k (dec)" << "= " << k << "\n";
     std::cout << std::setw(40) << std::left << "k (bin)" << "= " << uInt64ToBinaryWithSpaces(k) << "\n";
-    std::cout << std::setw(40) << std::left << "right shift by r=47 positions" << "= " << uInt64ToBinaryWithSpaces(k >> r) << "\n"; 
+    std::cout << std::setw(40) << std::left << "right shift by r=47 positions (k >> r)" << "= " << uInt64ToBinaryWithSpaces(k >> r) << "\n"; 
+    std::cout << std::setw(40) << std::left << "now xor with orig k" << "= " << uInt64ToBinaryWithSpaces(k ^ (k >> r)) << "\n"; 
 
     k ^= k >> r; 
+    std::cout << std::setw(40) << std::left << "m (bin)" << "= " << uInt64ToBinaryWithSpaces(m) << "\n"; 
+    std::cout << std::setw(40) << std::left << "now k is set to k * m" << "= " << uInt64ToBinaryWithSpaces(k * m) << "\n"; 
     k *= m; 
-
+    std::cout << std::setw(40) << std::left << "now k is" << "= " << uInt64ToBinaryWithSpaces(k) << "\n"; 
+    std::cout << std::setw(40) << std::left << "h is currently" << "= " << uInt64ToBinaryWithSpaces(h) << "\n"; 
+    std::cout << std::setw(40) << std::left << "h is set to h xor k" << "= " << uInt64ToBinaryWithSpaces(h ^ k) << "\n"; 
     h ^= k;
+    std::cout << std::setw(40) << std::left << "h is set to h * m" << "= " << uInt64ToBinaryWithSpaces(h * m) << "\n"; 
     h *= m; 
+    std::cout << std::setw(40) << std::left << "h (bin)" << "= " << uInt64ToBinaryWithSpaces(h) << "\n"; 
     step++; 
     }
 
     const unsigned char * data2 = (const unsigned char*)data;
 
+    std::cout << "\nFinal Chunck Processing:" << (int)step << ":\n";
     switch(len & 7)
     {
     case 7: h ^= uint64_t(data2[6]) << 48;
+            std::cout << std::setw(40) << std::left << "remaining data2" << "= " << uInt64ToBinaryWithSpaces(uint64_t(data2[6])) << "\n"; 
+            std::cout << std::setw(40) << std::left << "right shift data by 48 positions " << "= "  << uInt64ToBinaryWithSpaces(uint64_t(data2[6]) << 48) << "\n"; 
+            std::cout << std::setw(40) << std::left << "h is set to h xor with above " << "= " << uInt64ToBinaryWithSpaces(h ^ (uint64_t(data2[6]) << 48)) << "\n"; 
     case 6: h ^= uint64_t(data2[5]) << 40;
+            std::cout << std::setw(40) << std::left << "remaining data2" << "= " << uInt64ToBinaryWithSpaces(uint64_t(data2[5])) << "\n"; 
+            std::cout << std::setw(40) << std::left << "right shift data by 40 positions " << "= "  << uInt64ToBinaryWithSpaces(uint64_t(data2[5]) << 40) << "\n"; 
+            std::cout << std::setw(40) << std::left << "h is set to h xor with above " << "= " << uInt64ToBinaryWithSpaces(h ^ (uint64_t(data2[5]) << 40)) << "\n"; 
     case 5: h ^= uint64_t(data2[4]) << 32;
+            std::cout << std::setw(40) << std::left << "remaining data2" << "= " << uInt64ToBinaryWithSpaces(uint64_t(data2[4])) << "\n"; 
+            std::cout << std::setw(40) << std::left << "right shift data by 32 positions " << "= "  << uInt64ToBinaryWithSpaces(uint64_t(data2[4]) << 32) << "\n"; 
+            std::cout << std::setw(40) << std::left << "h is set to h xor with above " << "= " << uInt64ToBinaryWithSpaces(h ^ (uint64_t(data2[4]) << 32)) << "\n"; 
     case 4: h ^= uint64_t(data2[3]) << 24;
+            std::cout << std::setw(40) << std::left << "remaining data2" << "= " << uInt64ToBinaryWithSpaces(uint64_t(data2[3])) << "\n"; 
+            std::cout << std::setw(40) << std::left << "right shift data by 24 positions " << "= "  << uInt64ToBinaryWithSpaces(uint64_t(data2[3]) << 24) << "\n"; 
+            std::cout << std::setw(40) << std::left << "h is set to h xor with above " << "= " << uInt64ToBinaryWithSpaces(h ^ (uint64_t(data2[3]) << 24)) << "\n"; 
     case 3: h ^= uint64_t(data2[2]) << 16;
+            std::cout << std::setw(40) << std::left << "remaining data2" << "= " << uInt64ToBinaryWithSpaces(uint64_t(data2[2])) << "\n"; 
+            std::cout << std::setw(40) << std::left << "right shift data by 16 positions " <<  "= " << uInt64ToBinaryWithSpaces(uint64_t(data2[2]) << 16) << "\n"; 
+            std::cout << std::setw(40) << std::left << "h is set to h xor with above " << "= " << uInt64ToBinaryWithSpaces(h ^ (uint64_t(data2[2]) << 16)) << "\n"; 
     case 2: h ^= uint64_t(data2[1]) << 8;
+            std::cout << std::setw(40) << std::left << "remaining data2" << "= " << uInt64ToBinaryWithSpaces(uint64_t(data2[1])) << "\n"; 
+            std::cout << std::setw(40) << std::left << "right shift data by 8 positions " << "= "  << uInt64ToBinaryWithSpaces(uint64_t(data2[1]) << 8) << "\n"; 
+            std::cout << std::setw(40) << std::left << "h is set to h xor with above " << "= " << uInt64ToBinaryWithSpaces(h ^ (uint64_t(data2[1]) << 8)) << "\n"; 
     case 1: h ^= uint64_t(data2[0]);
+            std::cout << std::setw(40) << std::left << "remaining data2" << "= " << uInt64ToBinaryWithSpaces(uint64_t(data2[0])) << "\n"; 
+            std::cout << std::setw(40) << std::left << "h is set to h xor with above " << "= " << uInt64ToBinaryWithSpaces(h ^ (uint64_t(data2[0]) << 40)) << "\n"; 
+            std::cout << std::setw(40) << std::left << "h (bin)" << "= " << uInt64ToBinaryWithSpaces(m) << "\n"; 
+            std::cout << std::setw(40) << std::left << "now h is set to h * m" << "= " << uInt64ToBinaryWithSpaces(h * m) << "\n"; 
             h *= m;
     };
 
+    // Final mixing of the hash to ensure avalanche
+    std::cout << "\nFinal mixing steps:\n";
+    std::cout << std::setw(40) << std::left << "h before final mix" << "= " <<  uInt64ToBinaryWithSpaces(h) << "\n";
+    std::cout << std::setw(40) << std::left << "h >> r" << "= " << uInt64ToBinaryWithSpaces(h >> r) << "\n";
+    std::cout << std::setw(40) << std::left << "h ^= h >> r" << "= " << uInt64ToBinaryWithSpaces(h ^ (h >> r)) << "\n";     
     h ^= h >> r;
+    std::cout << std::setw(40) << std::left << "h (bin)" << "= " << uInt64ToBinaryWithSpaces(h) << "\n"; 
+    std::cout << std::setw(40) << std::left << "h *= m" << "= " << uInt64ToBinaryWithSpaces(h * m) << "\n";
     h *= m;
+    std::cout << std::setw(40) << std::left << "h (bin)" << "= " << uInt64ToBinaryWithSpaces(h) << "\n"; 
+    std::cout << std::setw(40) << std::left << "h >> r" << "= " <<  uInt64ToBinaryWithSpaces(h >> r) << "\n";
+    std::cout << std::setw(40) << std::left << "h ^= h >> r" << "= " <<  uInt64ToBinaryWithSpaces(h ^ (h >> r)) << "\n";
     h ^= h >> r;
+    std::cout << std::setw(40) << std::left << "Final hash value (h)" << "= " <<  uInt64ToBinaryWithSpaces(h) << "\n";
+    std::cout << std::setw(40) << std::left << "Final hash value (h dec)" << "= " <<  h << "\n";
+    // check against std::hash
+    std::hash<std::string> hasher;
+    size_t std_hash = hasher(static_cast<const char*>(key));
+    std::cout << std::setw(40) << std::left << "check vs std::hash (h dec)" << "= " << std_hash << "\n";
+    std::string msg = (std_hash == h) ? "MATCHES" : "DOES NOT MATCH";
+    std::cout << std::setw(40) << std::left << "Result check: " << "= calculated h " << msg + " std::hash\n";
 
-    std::cout << std::setw(40) << std::left << "Final hash value (h)" << "= " << h << "\n";
     std::cout << std::endl;
-
     return h;
-
 } 
 
 
 std::string uInt64ToBinaryWithSpaces(uint64_t value) {
     std::string binaryString = "";
-    int bitsToProcess = 64;
-
-    while (bitsToProcess > 0) {
-        // Process a byte (8 bits)
-        for (int i = 7; i >= 0; --i) {
-            // Check the i-th bit of the most significant byte to be processed
-            if ((value >> (bitsToProcess - 1 - i)) & 1) {
-                binaryString += '1';
-            } else {
-                binaryString += '0';
-            }
+    
+    // Iterate from bit 63 down to 0
+    for (int i = 63; i >= 0; --i) {
+        // Shift the specific bit we want to the 0-th position and mask it
+        if ((value >> i) & 1) {
+            binaryString += '1';
+        } else {
+            binaryString += '0';
         }
-        bitsToProcess -= 8;
-        
-        // Add a space after each byte, unless it's the last one
-        if (bitsToProcess > 0) {
+        // Add a space after every 8 bits, but not after the very last bit
+        if (i > 0 && i % 8 == 0) {
             binaryString += ' ';
         }
     }
-
     return binaryString;
 }

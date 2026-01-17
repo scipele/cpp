@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <string>
 #include <iomanip>
+#include "../../../hash_funcs/std_lib/MurmurHash2.h"   // for comparison only
 
 // Simple hash function matching GCC's _Hash_bytes
 size_t gcc_hash_bytes(const void* ptr, size_t len, size_t seed) {
@@ -54,7 +55,6 @@ int main() {
             {"Josh", 24},
             {"Mary", 48}
     };
-
 
     // 1. Accessing elements
     std::cout   << "1. Access Elements by the key:\n"
@@ -129,7 +129,10 @@ int main() {
     std::cout << "\t_Hash_bytes implements: hash = seed; for each byte: hash = hash * 131 + byte\n" << std::endl;
     std::cout << "\tManual calculation:\n";
     for (const auto& pair : ages) {
-        size_t manual_hash = gcc_string_hash(pair.first);
+        std::string str = pair.first;
+        size_t seed = 0xc70f6907UL;
+        uint64_t manual_hash = MurmurHash64A(str.data(), str.length(), seed);
+
         size_t std_hash = hasher(pair.first);
         std::cout   << "\tManual hash of '"
                     << std::setw(10) << std::left
