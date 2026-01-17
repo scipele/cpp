@@ -24,7 +24,7 @@ void out_pad(const std::string& label, auto&& value);
 
 int main() {
     // Test String
-    std::string str = "Computer";
+    std::string str = "Mary";
 
     std::cout << "Hash values for string using various methods, str = '" << str << "'\n\n";
     
@@ -188,7 +188,7 @@ uint64_t MurmurHash64A_detailed ( const void * key, int len, uint64_t seed )
     size_t std_hash = hasher(static_cast<const char*>(key));
     out_pad("check vs std::hash (h dec)" , std_hash);
     std::string msg = (std_hash == h) ? "MATCHES" : "DOES NOT MATCH";
-    out_pad("Result check: ", "= calculated h " + msg + " std::hash");
+    out_pad("Result check: ", "calculated h " + msg + " std::hash");
 
     std::cout << std::endl;
     return h;
