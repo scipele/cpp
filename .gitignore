@@ -16,9 +16,8 @@
 *.xlsm
 *.xlsx
 *.zip
-./llm/llama.cpp/
-./llm/models
-./llm/matchQA/data/vec_dase.bin
-./webscrape/get_bible_verses/output/lookup_verses_output.txt
-./webscrape/get_bible_verses/input/lookup_verses.txt
+llm/llama.cpp/
+llm/models
+llm/matchQA/data/vec_dase.bin
+webscrape/get_bible_verses/output/
 webscrape/get_bible_verses/input/lookup_verses.txt
