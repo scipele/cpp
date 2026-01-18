@@ -239,9 +239,11 @@ size_t ContactMgr::importFromYahooCSV(const std::string& filename) {
     std::string line;
     // Skip the header row
     std::getline(file, line);
-
+    
+    int importedCount = 0;
     while (std::getline(file, line)) {
         if (line.empty()) continue;
+        importedCount++;
         
         std::stringstream ss(line);
         Contact c;
@@ -310,7 +312,7 @@ size_t ContactMgr::importFromYahooCSV(const std::string& filename) {
 
         contacts.push_back(c);
     }
-    return true;
+    return importedCount;
 }
 
 bool ContactMgr::cleanAllPhoneNos() {

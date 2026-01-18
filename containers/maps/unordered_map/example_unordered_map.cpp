@@ -41,14 +41,14 @@ int main() {
     std::cout << "0. Initial Bucket Count before reserve is used = " << ages.bucket_count() << "\n" << std::endl;
 
     // reserves space for elements
-    ages.reserve(14);
+    ages.reserve(61);
 
     // Inserting elements
     ages = {
             {"Hailey", 22},
-            {"Tony", 51},
+            {"Tony", 52},
             {"Chad", 55},
-            {"Bill", 51},
+            {"Bill", 72},
             {"William", 55},
             {"Nathan", 51},
             {"Bob", 55},
