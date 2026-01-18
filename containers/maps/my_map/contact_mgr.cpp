@@ -14,12 +14,14 @@
 #include <iomanip>
 #include <vector>
 #include <fstream>
-
+#include <limits>
 
 enum class PhoneType {
     Home,
     Cell,
-    Work
+    Work,
+    School,
+    Icloud
 };
 
 
@@ -30,33 +32,48 @@ struct PhoneNumberAndType {
 
 
 struct Contact {
+    int contact_id;
     std::string firstName;
+    std::string middleName;
     std::string lastName;
+    std::string company;
+    std::string jobTitle; 
     std::vector<PhoneNumberAndType> phoneNumbers;
     std::string email;
+    std::string home_address, home_city, home_state, home_zip, home_country;
+    std::string work_address, work_city, work_state, work_zip, work_country;
+    std::string other_street, other_city, other_state, other_zip, other_country;
+    std::string birthday;
+    std::string anniversary;
+    std::string notes;
+    std::string website;
 };
 
 
 class ContactMgr {
 private:
     std::vector<Contact> contacts;
+    std::string getNextField(std::stringstream& ss);
 
 public:
     void add(const Contact& newContact);
     void viewAllContacts() const;
-    void searchFirstName(const std::string& firstName) const;
-    void importFromVCF(const std::string& filename);
-    void cleanAllPhoneNos();
+    void searchName(const std::string& firstName) const;
+    size_t importFromVCF(const std::string& filename);
+    size_t importFromYahooCSV(const std::string& filename);
+    bool cleanAllPhoneNos();
     void exportToPipeCSV(const std::string& filename); 
     std::string show_phone_mask(const std::string& str) const;
     void display(const Contact& cn) const;
     void out_pad(const std::string& strA,
                  const std::string& strB,
                  int wid) const;
+    std::string getPhoneTypeStr(const PhoneType& type) const;
+    int getNextId() const;
 };
 
 
-// Class Inmplementation Functions:
+// Class Implementation Functions:
 
 // Method to add a new contact
 void ContactMgr::add(const Contact& newContact) {
@@ -109,7 +126,19 @@ void ContactMgr::out_pad(const std::string& strA,
 }
 
 
+std::string ContactMgr::getPhoneTypeStr(const PhoneType& type) const{
+    switch (type) {
+        case PhoneType::Home:   return "Home";
+        case PhoneType::Cell:   return "Cell";
+        case PhoneType::Work:   return "Work";
+        case PhoneType::School: return "School";
+    }
+    return "Unknown";
+}
+
 void ContactMgr::display(const Contact& cn) const {
+    
+    out_pad("contact_id:", std::to_string(cn.contact_id), 15);
     if (!cn.firstName.empty()) out_pad("First_Name:", cn.firstName, 15);
     if (!cn.lastName.empty()) out_pad("Last_Name:", cn.lastName, 15);   
     
@@ -120,9 +149,7 @@ void ContactMgr::display(const Contact& cn) const {
             std::string indent = " "; // Initial indent for the first number
             for (auto& pEntry : cn.phoneNumbers) {
                 if (count++ > 0) indent = "               "; // Indent for subsequent numbers
-                std::string type_str =  (pEntry.type == PhoneType::Home) ? "Home" :
-                                        (pEntry.type == PhoneType::Cell) ? "Cell" :
-                                        (pEntry.type == PhoneType::Work) ? "Work" : "Unknown";
+                std::string type_str = getPhoneTypeStr(pEntry.type);
                 out_pad(indent + type_str, show_phone_mask(pEntry.number), indent.length() + 8);
             }
         }
@@ -132,37 +159,43 @@ void ContactMgr::display(const Contact& cn) const {
 
 
 // Method to search for a contact by first name
-void ContactMgr::searchFirstName(const std::string& firstName) const {
+void ContactMgr::searchName(const std::string& last_comma_first_name) const {
     bool found = false;
+    std::string first_name = last_comma_first_name.substr(last_comma_first_name.find(",") + 1);
+    std::string last_name = last_comma_first_name.substr(last_comma_first_name.find(",") + 1);
+
     for (const auto& contact : contacts) {
-        if (contact.firstName == firstName) {
+        if (contact.firstName == first_name && contact.lastName == last_name) {
             display(contact);
             found = true;
         }
-    }
+    }    
     if (!found) {
-        std::cout << "No contact found with first name: " << firstName << std::endl;
+        std::cout << "No contact found with name: " << last_comma_first_name << std::endl;
     }
 }
 
 
-void ContactMgr::importFromVCF(const std::string& filename) {
+size_t ContactMgr::importFromVCF(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Error: Could not open file " << filename << std::endl;
-        return;
+        return -1;
     }
 
     std::string line;
     Contact tempContact; // Use the name you declared
     bool inCard = false;
+    int importedCount = 0;
 
     while (std::getline(file, line)) {
         if (!line.empty() && line.back() == '\r') line.pop_back();
 
         if (line == "BEGIN:VCARD") {
+            importedCount++;
             inCard = true;
             tempContact = Contact(); // Reset tempContact
+            tempContact.contact_id = getNextId();
         } else if (line == "END:VCARD") {
             if (inCard) {
                 contacts.push_back(tempContact); // Successfully access private vector
@@ -195,12 +228,95 @@ void ContactMgr::importFromVCF(const std::string& filename) {
         }
     }
     file.close();
-    std::cout << "Import complete." << std::endl;
+    return importedCount;
 }
 
 
-void ContactMgr::cleanAllPhoneNos() {
+size_t ContactMgr::importFromYahooCSV(const std::string& filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) return -1;
+
+    std::string line;
+    // Skip the header row
+    std::getline(file, line);
+
+    while (std::getline(file, line)) {
+        if (line.empty()) continue;
+        
+        std::stringstream ss(line);
+        Contact c;
+
+        // 1-5: Basic Info
+        // Assign ID based on current vector size + 1
+        c.contact_id = getNextId();
+
+        c.firstName  = getNextField(ss);
+        c.middleName = getNextField(ss);
+        c.lastName   = getNextField(ss);
+        c.company    = getNextField(ss);
+        c.jobTitle   = getNextField(ss);
+
+        // 6-8: Emails
+        std::string emailMain = getNextField(ss);
+        std::string emailHome = getNextField(ss);
+        std::string emailWork = getNextField(ss);
+        
+        // TODO: Map these to your Contact struct's email storage LATER
+        c.email = emailMain; // For simplicity, just take the main email
+        //if (!emailMain.empty()) c.emails.push_back({emailMain, EmailType::Other});
+        //if (!emailHome.empty()) c.emails.push_back({emailHome, EmailType::Home});
+        //if (!emailWork.empty()) c.emails.push_back({emailWork, EmailType::Work});
+//
+        // 9-15: Phone Numbers (Mapping Yahoo columns to your PhoneType)
+        std::string pGen    = getNextField(ss); // General Phone
+        std::string pHome   = getNextField(ss);
+        std::string pWork   = getNextField(ss);
+        std::string pPager  = getNextField(ss);
+        std::string pFax    = getNextField(ss);
+        std::string pMobile = getNextField(ss);
+        std::string pOther  = getNextField(ss);
+
+        if (!pHome.empty())   c.phoneNumbers.push_back({pHome,   PhoneType::Home});
+        if (!pMobile.empty()) c.phoneNumbers.push_back({pMobile, PhoneType::Cell});
+        if (!pWork.empty())   c.phoneNumbers.push_back({pWork,   PhoneType::Work});
+        if (!pGen.empty())    c.phoneNumbers.push_back({pGen,    PhoneType::Cell});
+
+        // 16-20: Home Address
+        c.home_address = getNextField(ss);
+        c.home_city    = getNextField(ss);
+        c.home_state   = getNextField(ss);
+        c.home_zip     = getNextField(ss);
+        c.home_country = getNextField(ss);
+
+        // 21-25: Work Address
+        c.work_address = getNextField(ss);
+        c.work_city    = getNextField(ss);
+        c.work_state   = getNextField(ss);
+        c.work_zip     = getNextField(ss);
+        c.work_country = getNextField(ss);
+
+        // 26-30: Other Address
+        c.other_street  = getNextField(ss);
+        c.other_city    = getNextField(ss);
+        c.other_state   = getNextField(ss);
+        c.other_zip     = getNextField(ss);
+        c.other_country = getNextField(ss);
+
+        // 31-34: Remaining fields
+        c.birthday    = getNextField(ss);
+        c.anniversary = getNextField(ss);
+        c.notes       = getNextField(ss);
+        c.website     = getNextField(ss);
+
+        contacts.push_back(c);
+    }
+    return true;
+}
+
+bool ContactMgr::cleanAllPhoneNos() {
     // Outer loop: Iterate through every contact in the manager
+    if(contacts.empty()) return false;
+    
     for (auto& contact : contacts) {
         
         // Inner loop: Iterate through every PhoneNumber struct in the contact's vector
@@ -225,6 +341,7 @@ void ContactMgr::cleanAllPhoneNos() {
             pEntry.number = cleaned;
         }
     }
+    return true;
 }
 
 
@@ -261,23 +378,135 @@ std::cout << "Data successfully exported to " << filename << std::endl;
 }
 
 
+// Helper to safely extract CSV fields
+std::string ContactMgr::getNextField(std::stringstream& ss) {
+    std::string field;
+    if (!std::getline(ss, field, ',')) return "";
+    // Optional: Remove quotes if Yahoo exports them (e.g., "John")
+    // if (!field.empty() && field.front() == '"') {
+    //     field = field.substr(1, field.size() - 2);
+    // }
+    return field;
+}
+
+
+int ContactMgr::getNextId() const {
+    int maxId = 0;
+    for (const auto& c : contacts) {
+        if (c.contact_id > maxId) {
+            maxId = c.contact_id;
+        }
+    }
+    return maxId + 1;
+}
+
+
+// Function to clear the screen
+void clearScreen() {
+#ifdef _WIN32
+    std::system("cls");
+#else
+    std::system("clear");
+#endif
+}
+
+// Function to wait for user before repainting menu
+void pause() {
+    std::cout << "\nPress Enter to continue...";
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cin.get();
+}
+
 int main(int argc, char const *argv[])
 {
+
     ContactMgr cm;
+    
+    int user_entry = 0;
 
-    // Add some initial contacts
-    cm.importFromVCF("/home/ts/Downloads/All Contacts.vcf");
+    do
+    {
+        clearScreen();
+        std::cout << "Contact Manager\n" 
+            << "=================================================\n" 
+            << "Enter from the following options:\n"
+            << "1. Import contacts from VCF file\n"
+            << "2. Import contacts from Yahoo CSV file\n"
+            << "3. Clean phone numbers, remove hard formatting\n"
+            << "4. View all contacts\n"
+            << "5. Export contacts to pipe-delimited CSV file\n"
+            << "6. Search contact by first name\n"
+            << "7. Exit\n"
+            << "=================================================\n"
+            << "Choice: "; 
 
-    // Cleanup phone numbers
-    cm.cleanAllPhoneNos();
+            if (!(std::cin >> user_entry)) {
+                std::cout << "Invalid input. Please enter a number.\n";
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                pause();
+                continue;
+            }
 
-    // View all contacts
-    cm.viewAllContacts();
+        size_t number_imported =0;
+        std::string full_path;
+        switch (user_entry) {
+            case 1:
+                number_imported = cm.importFromVCF("/home/ts/Downloads/All Contacts.vcf");
+                std::cout << "Imported " << number_imported << " contacts from VCF." << std::endl;
+                number_imported =0;
+                pause();
+                break;
+            case 2:
+                number_imported = 0;
+                number_imported= cm.importFromYahooCSV("/home/ts/Downloads/contacts.csv");
+                std::cout << "Imported " << number_imported << " contacts from yahoo." << std::endl;
+                pause();
+                break;
+            case 3:
+                // Cleanup phone numbers
+                cm.cleanAllPhoneNos();
+                std::cout << "All phone numbers cleaned." << std::endl;
+                pause();
+                break;
+            case 4:
+                // View all contacts
+                cm.viewAllContacts();
+                pause();
+                break;
+            case 5:
+                std::cout << "Enter full path for export file or\n"
+                          << "press Enter for default\n"
+                          << "/home/user/contacts_export.csv): ";
+                getline(std::cin, full_path); // Clear newline from previous input
+                if (!full_path.empty()) {
+                    cm.exportToPipeCSV(full_path);
+                } else {
+                    cm.exportToPipeCSV("/home/ts/Downloads/contacts_export.csv");
+                }
+                // Export contacts to pipe-delimited CSV
+                cm.exportToPipeCSV(full_path);
+                pause();
+                break;
 
-    cm.exportToPipeCSV("/home/ts/Downloads/contacts_export.csv");
+            case 6:
+                // Search for a specific contact
+                cm.searchName("John");
+                cm.searchName("Alice"); // Should show "Not found"
+                pause();
+                break;
+            case 7:
+                std::cout << "Exiting program." << std::endl;
+                break;
+            
+            default:
+                std::cout << "Invalid option.\n";
+                pause();
+                break;
+        }
 
-    // Search for a specific contact
-    cm.searchFirstName("John");
-    cm.searchFirstName("Alice"); // Should show "Not found"
+    } while (user_entry !=7);
+
+    pause();
     return 0;
 }
