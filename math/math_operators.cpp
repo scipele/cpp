@@ -14,7 +14,7 @@ int main() {
     TrigFunctionExample();
 
     // Pause the console window before exiting
-    system("pause");
+    std::cin.get();
     return 0;
 }
 

@@ -6,30 +6,55 @@
 //| Inputs       | n/a                                                         |
 //| Outputs      | print examples to the screen                                |
 //| Dependencies | see standard includes                                       |
-//| By Name,Date | T.Sciple, 01/17/2025                                        |
+//| By Name,Date | T.Sciple, 01/14/2025                                        |
 
 #include <iostream>
 #include <unordered_map>
 #include <string>
+#include <iomanip>
+#include "../../../hash_funcs/std_lib/MurmurHash2.h"   // for comparison only
+
+// Simple hash function matching GCC's _Hash_bytes
+size_t gcc_hash_bytes(const void* ptr, size_t len, size_t seed) {
+    const unsigned char* data = static_cast<const unsigned char*>(ptr);
+    size_t hash = seed;
+    for (size_t i = 0; i < len; ++i) {
+        hash = hash * 131 + data[i];
+    // For "Mary" with seed = 0xc70f6907UL
+    // M = 77, a = 97, r = 114, y = 121
+    // hash = ((((0xc70f6907 * 131 + 77) * 131 + 97) * 131 + 114) * 131 + 121)
+    // hash = xx)
+    }
+    return hash;
+}
+
+size_t gcc_string_hash(const std::string& str) {
+    return gcc_hash_bytes(str.data(), str.length(), 0xc70f6907UL);
+}
 
 int main() {
     std::unordered_map<std::string, int> ages;
 
+    std::cout   << "This is an example showing how to use an unordered map:" << std::endl;
+
+    // 0. Initial bucket count 
+    std::cout << "0. Initial Bucket Count before reserve is used = " << ages.bucket_count() << "\n" << std::endl;
+
+    // reserves space for elements
+    ages.reserve(61);
+
     // Inserting elements
-    ages.reserve(6);    // reserves space for 4 elements
     ages = {
             {"Hailey", 22},
-            {"Tony", 51},
+            {"Tony", 52},
+            {"Chad", 55},
+            {"Bill", 72},
+            {"William", 55},
+            {"Nathan", 51},
             {"Bob", 55},
-            {"Joshua", 24},
+            {"Josh", 24},
             {"Mary", 48}
     };
-
-    // Note that the item is overwrtten if another element inserted with
-    // the same key
-    ages["Mary"] = 49; 
-
-    std::cout   << "This is an example showing how to use an unordered map:" << std::endl;
 
     // 1. Accessing elements
     std::cout   << "1. Access Elements by the key:\n"
@@ -57,29 +82,109 @@ int main() {
                 << "\tunordered_map no of elements: " << ages.size() << "\n";
     std::cout << std::endl;
 
-    // 5. Erase one of the elements by key
+   // 5. show the count of a specific key
+    std::cout << "5. Count member functon:\n";
+    std::cout << "\tCount of 'Mary' Key inserted: " <<  ages.count("Mary") << "\n";
+    std::cout << "\tNote that the count is only 1 because duplicate keys are not allowed\n";
+    std::cout << "\tCount of 'Bob' Key inserted: " <<  ages.count("Bob") << " because 'Bob' was erased\n\n";
+
+    // 6. insert another element
+    ages["Charlie"] = 45;
+    std::cout << "6. Size following insertion:\n";
+    if (ages.count("Charlie") > 0) {
+        std::cout << "\tCharlie was added, age: " << ages["Charlie"] << "\n";
+    }
+    std::cout << "\tSize is now " << ages.size() << "\n" << std::endl;
+
+    // 7. Bucket information
+    int bucket_count = ages.bucket_count();
+    std::cout << "7. Bucket information:\n";
+    std::cout << "\tBucket count: " << bucket_count << "\n";
+    std::cout << "\tLoad factor: " << ages.load_factor() << "\n";
+    std::cout << std::endl;
+
+    // 8. Show hash values for keys
+    std::cout << "8. Show hash values for keys (using std::hash):\n";
+    
+    std::hash<std::string> hasher;
+    for (const auto& pair : ages) {
+        size_t std_hash = hasher(pair.first);
+        size_t calc_bucket = std_hash % bucket_count;
+        std::cout << "\tHash of '"
+        << std::setw(10) << std::left
+        << pair.first + "'" << "= "
+        << std::setw(20) << std::right << std_hash
+        << " % "
+        << bucket_count << " = " << calc_bucket << "\n";
+    }
+    std::cout << std::endl;
+
+    // 8b. Similar std::hash<std::string> implementation:
+    std::cout << "8b. GCC std::hash<std::string> implementation:\n";
+    std::cout << "\tFrom libstdc++ source code (/usr/include/c++/13/bits/basic_string.h):\n";
+    std::cout << "\t  size_t operator()(const string& s) const noexcept {\n";
+    std::cout << "\t    return _Hash_impl::hash(s.data(), s.length());\n";
+    std::cout << "\t  }\n";
+    std::cout << "\tWhere _Hash_impl::hash calls _Hash_bytes(s.data(), s.length(), 0xc70f6907UL)\n";
+    std::cout << "\t_Hash_bytes implements: hash = seed; for each byte: hash = hash * 131 + byte\n" << std::endl;
+    std::cout << "\tManual calculation:\n";
+    for (const auto& pair : ages) {
+        std::string str = pair.first;
+        size_t seed = 0xc70f6907UL;
+        uint64_t manual_hash = MurmurHash64A(str.data(), str.length(), seed);
+
+        size_t std_hash = hasher(pair.first);
+        std::cout   << "\tManual hash of '"
+                    << std::setw(10) << std::left
+                    << pair.first + "'" << "= "
+                    << std::setw(20) << std::right
+                    << manual_hash
+                    << ", std::hash: "
+                    << std::setw(20) << std::right
+                    << std_hash
+                    << " (match: " << (manual_hash == std_hash ? "YES" : "NO") << ")\n";
+    }
+    std::cout << std::endl;
+
+    // 9. Memory addresses and bucket indices
+    std::cout << "9. Memory addresses and bucket indices of elements:\n";
+    for (const auto& pair : ages) {
+        std::cout   << "\tMem Addr=" << &pair << ", Key='" 
+                    << std::setw(10) << std::left << pair.first + "'"
+                    << "Bucket index " << ages.bucket(pair.first) << "\n";
+    }
+    std::cout << std::endl;
+
+    // 10. Show bucket contents to demonstrate collision handling
+    std::cout << "10. Bucket contents (showing how collisions are handled):\n";
+    for (size_t i = 0; i < ages.bucket_count(); ++i) {
+        std::cout << "\tBucket " << i << ": ";
+        bool first = true;
+        for (auto it = ages.begin(i); it != ages.end(i); ++it) {
+            if (!first) std::cout << ", ";
+            std::cout << "(addr: "
+                    << std::setw(3) << std::left << &(*it)
+                    << ")" << "'"
+                    << std::setw(10) << std::left
+                    << it->first + "', "
+                    << "paired value = " << it->second;
+            first = false;
+        }
+        if (first) std::cout << "(empty)";
+        std::cout << "\n";
+    }
+    std::cout << std::endl;
+
+    // 11. Erase one of the elements by key
     ages.erase("Bob");
-    std::cout   << "5. Reprint to see if element 'Bob' was erased:\n";
+    std::cout   << "11. Reprint to see if element 'Bob' was erased:\n";
     for (const auto& pair : ages) {
         std::cout << "\t" << pair.first << ": " << pair.second << "\n";
     }
     std::cout   << "\n\tSize is now: " << ages.size();
     std::cout << "\n" << std::endl;
 
-   // 6. show the count of a specific key
-    std::cout << "6. Count member functon:\n";
-    std::cout << "\tCount of 'Mary' Key inserted: " <<  ages.count("Mary") << "\n";
-    std::cout << "\tNote that the count is only 1 because duplicate keys are not allowed\n";
-    std::cout << "\tCount of 'Bob' Key inserted: " <<  ages.count("Bob") << " because 'Bob' was erased\n\n";
-
-    // 7. insert another element
-    ages["Jimmy"] = 45;
-    std::cout << "7. Size following insertion:\n";
-    if (ages.count("Jimmy") > 0) {
-        std::cout << "\tJimmy was added, age: " << ages["Jimmy"] << "\n";
-    }
-    std::cout << "\tSize is now " << ages.size() << "\n";
- 
     system("pause");
+
     return 0;
 }

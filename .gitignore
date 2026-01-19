@@ -1,3 +1,9 @@
+# Ignore everything
+*
+# Unignore all directories (so Git can search them)
+!*/
+# Unignore all files that have a dot (an extension)
+!*.*
 *.7z
 *.accdb
 *.bat
@@ -7,11 +13,11 @@
 *.exe
 *.gguf
 *.lnk
-*.txt
 *.xlsm
 *.xlsx
 *.zip
 llm/llama.cpp/
 llm/models
 llm/matchQA/data/vec_dase.bin
-llm/matchQA/data/vec_dase.bin
+webscrape/get_bible_verses/output/
+webscrape/get_bible_verses/input/lookup_verses.txt
