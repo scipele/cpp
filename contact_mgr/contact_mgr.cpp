@@ -2417,7 +2417,7 @@ size_t ContactMgr::interactiveMergeDuplicates() {
         
         displaySideBySide(*left, *right);
         
-        std::cout << "\n[\033[1;33m← LEFT\033[0m] [\033[1;33m→ RIGHT\033[0m] [\033[1;33m↑ SKIP\033[0m] [\033[1;33mQ QUIT\033[0m]: ";
+        std::cout << "\n[\033[1;33mL LEFT\033[0m] [\033[1;33mR RIGHT\033[0m] [\033[1;33mS SKIP\033[0m] [\033[1;33mQ QUIT\033[0m]: ";
         std::cout.flush();
         
         char choice = readKey();
@@ -2437,14 +2437,14 @@ size_t ContactMgr::interactiveMergeDuplicates() {
             // Keep left, merge right into left
             autoMergeInto(*left, *right);
             removeContactById(id2);
-            std::cout << "\033[1;32m✓ Kept LEFT\033[0m (merged into ID " << id1 << ")\n";
+            std::cout << "\033[1;32m* Kept LEFT\033[0m (merged into ID " << id1 << ")\n";
             mergedCount++;
         }
         else if (choice == 'R') {
             // Keep right, merge left into right
             autoMergeInto(*right, *left);
             removeContactById(id1);
-            std::cout << "\033[1;32m✓ Kept RIGHT\033[0m (merged into ID " << id2 << ")\n";
+            std::cout << "\033[1;32m* Kept RIGHT\033[0m (merged into ID " << id2 << ")\n";
             mergedCount++;
         }
     }
@@ -2555,7 +2555,7 @@ size_t ContactMgr::interactiveBrowseDelete() {
         std::cout << "\n\033[1;36mControls:\033[0m\n";
         std::cout << "  [1-10] Toggle mark contact   |  [N]ext  [P]rev page\n";
         std::cout << "  [D] Delete marked            |  [Q]uit\n";
-        std::cout << "  [← →] Prev/Next page         |  [J]ump to page\n";
+        std::cout << "  [< >] Prev/Next page         |  [J]ump to page\n";
         std::cout << "\nChoice: ";
         std::cout.flush();
         
@@ -2754,35 +2754,24 @@ int main(int argc, char const *argv[])
     {
         clearScreen();
         std::cout << "Contact Manager (" << cm.getContactCount() << " contacts loaded)\n" 
-            << "=================================================\n"
-            << "\n--- IMPORT ---\n"
-            << "1.  Import from VCF file\n"
-            << "2.  Import from Yahoo CSV file\n"
-            << "\n--- EXPORT ---\n"
-            << "3.  Export to pipe-delimited CSV\n"
-            << "4.  Export to VCF (iPhone/iCloud)\n"
-            << "5.  Export to text file (printable)\n"
-            << "\n--- VIEW & SEARCH ---\n"
-            << "6.  View all contacts\n"
-            << "7.  Search by name (exact)\n"
-            << "8.  Search by partial name\n"
-            << "9.  Search by phone\n"
-            << "10. Search by email\n"
-            << "\n--- ADD & EDIT ---\n"
-            << "11. Add new contact\n"
-            << "12. Edit contact\n"
-            << "13. Browse & delete contacts\n"
-            << "\n--- CLEANUP & MAINTENANCE ---\n"
-            << "14. Clean phone numbers (remove formatting)\n"
-            << "15. Remove duplicate phones within contacts\n"
-            << "16. Find & merge duplicate contacts\n"
-            << "17. Extract names from email-only contacts\n"
-            << "18. Bulk update email domain\n"
-            << "19. Renumber contact IDs\n"
-            << "\n--- SYSTEM ---\n"
-            << "20. Save contacts\n"
-            << "21. Exit\n"
-            << "=================================================\n"
+            << "============================================================\n"
+            << " IMPORT                         | VIEW & SEARCH\n"
+            << "  1. Import from VCF            |  6. View all contacts\n"
+            << "  2. Import from Yahoo CSV      |  7. Search by name (exact)\n"
+            << "                                |  8. Search by partial name\n"
+            << " EXPORT                         |  9. Search by phone\n"
+            << "  3. Export to CSV              | 10. Search by email\n"
+            << "  4. Export to VCF              |-------------------------------\n"
+            << "  5. Export to text             | ADD & EDIT\n"
+            << "                                | 11. Add new contact\n"
+            << " CLEANUP & MAINTENANCE          | 12. Edit contact\n"
+            << " 14. Clean phone numbers        | 13. Browse & delete\n"
+            << " 15. Remove dup phones          |-------------------------------\n"
+            << " 16. Find & merge duplicates    | SYSTEM\n"
+            << " 17. Extract names from emails  | 20. Save contacts\n"
+            << " 18. Bulk update email domain   | 21. Exit\n"
+            << " 19. Renumber contact IDs       |\n"
+            << "============================================================\n"
             << "Choice: "; 
 
             if (!(std::cin >> user_entry)) {
