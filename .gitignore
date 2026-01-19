@@ -21,3 +21,5 @@ llm/models
 llm/matchQA/data/vec_dase.bin
 webscrape/get_bible_verses/output/
 webscrape/get_bible_verses/input/lookup_verses.txt
+temp.txt
+file_utilities/list_files_by_date/search_results.txt
