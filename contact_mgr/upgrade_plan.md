@@ -25,31 +25,41 @@ This document outlines the planned upgrades for the contact manager application 
 - [x] Text file export (printable format, same as View All)
 - [x] Alphabetical sorting with letter separators (--A-- format)
 - [x] Interactive browse & delete contacts (paginated)
+- [x] Partial name search
+- [x] Add new contact manually
+- [x] Edit contact (add/edit phone, email, address, etc.)
+- [x] Renumber contact IDs
 
-### Menu Options Implemented
+### Menu Options Implemented (Current v2.0)
 - [x] 1. Import from VCF file
 - [x] 2. Import from Yahoo CSV file
-- [x] 3. Clean phone numbers
-- [x] 4. View all contacts (sorted with --A-- separators)
-- [x] 5. Export to pipe-delimited CSV
-- [x] 6. Search by name
-- [x] 7. Search by phone
-- [x] 8. Search by email
-- [x] 9. Extract names from email-only contacts
-- [x] 10. Bulk update email domain
-- [x] 11. Find & merge duplicate contacts
-- [x] 12. Remove duplicate phones within contacts
-- [x] 13. Export to VCF (iPhone/iCloud)
-- [x] 14. Export to text file (printable)
-- [x] 15. Browse & delete contacts
-- [x] 16. Save contacts
-- [x] 17. Exit (with auto-save)
+- [x] 3. Export to pipe-delimited CSV
+- [x] 4. Export to VCF (iPhone/iCloud)
+- [x] 5. Export to text file (printable)
+- [x] 6. View all contacts (sorted with --A-- separators)
+- [x] 7. Search by name (exact)
+- [x] 8. Search by partial name
+- [x] 9. Search by phone
+- [x] 10. Search by email
+- [x] 11. Add new contact
+- [x] 12. Edit contact
+- [x] 13. Browse & delete contacts
+- [x] 14. Clean phone numbers (remove formatting)
+- [x] 15. Remove duplicate phones within contacts
+- [x] 16. Find & merge duplicate contacts
+- [x] 17. Extract names from email-only contacts
+- [x] 18. Bulk update email domain
+- [x] 19. Renumber contact IDs
+- [x] 20. Save contacts
+- [x] 21. Exit (with auto-save)
 
 ### Remaining Tasks
-- [ ] Partial name search (search any part of first/last name)
-- [ ] Manual contact editing (add/edit phone, email, address, etc.)
-- [ ] Renumber contact_ids alphabetically (cleanup/compact IDs)
-- [ ] Add new contact manually (not just import)
+- [x] Partial name search (search any part of first/last name)
+- [x] Manual contact editing (add/edit phone, email, address, etc.)
+- [x] Renumber contact_ids alphabetically (cleanup/compact IDs)
+- [x] Add new contact manually (not just import)
+
+**All planned features have been implemented! 🎉**
 
 ---
 

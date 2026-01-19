@@ -20,10 +20,16 @@
 #include <fstream>
 #include <limits>
 #include <climits>    // Phase 14: for INT_MAX
+#include <cstdint>    // for int8_t, etc.
 #include <algorithm>  // Phase 2: for transform (lowercase)
 #include <set>        // Phase 8: for duplicate detection
+
+#ifdef _WIN32
+#include <conio.h>    // Phase 8: for _getch() on Windows
+#else
 #include <termios.h>  // Phase 8: for raw keyboard input (arrow keys)
 #include <unistd.h>   // Phase 8: for read()
+#endif
 
 // Forward declarations
 void clearScreen();
@@ -1375,7 +1381,7 @@ bool ContactMgr::exportToVCF(const std::string& filename) const {
 std::string ContactMgr::getNextField(std::stringstream& ss) {
     std::string field;
     if (!std::getline(ss, field, ',')) return "";
-    // Optional: Remove quotes if Yahoo exports them (e.g., "John")
+    // Optional: Remove quotes if ` exports them (e.g., "John")
     // if (!field.empty() && field.front() == '"') {
     //     field = field.substr(1, field.size() - 2);
     // }
@@ -2205,6 +2211,25 @@ void ContactMgr::displaySideBySide(const Contact& left, const Contact& right) co
 // Returns: 'L' for left arrow, 'R' for right arrow, 'U' for up, 'D' for down,
 //          'S' for skip, 'Q' for quit, or the uppercase letter pressed
 char readKey() {
+#ifdef _WIN32
+    // Windows implementation using conio.h
+    int ch = _getch();
+    
+    // Check for special keys (arrow keys return 0 or 224 first)
+    if (ch == 0 || ch == 224) {
+        ch = _getch();  // Get the actual key code
+        switch (ch) {
+            case 75: return 'L';  // Left arrow
+            case 77: return 'R';  // Right arrow
+            case 72: return 'U';  // Up arrow
+            case 80: return 'D';  // Down arrow
+            default: return (char)std::toupper(ch);
+        }
+    }
+    
+    return (char)std::toupper(ch);
+#else
+    // Unix/Linux implementation using termios
     struct termios oldt, newt;
     char ch;
     
@@ -2236,6 +2261,7 @@ char readKey() {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     
     return std::toupper(ch);
+#endif
 }
 
 // Interactive merge with side-by-side comparison - with auto-merge for non-conflicts
@@ -2322,16 +2348,16 @@ size_t ContactMgr::interactiveMergeDuplicates() {
     
     if (autoMerge || conflictsOnly) {
         std::cout << "\n\033[1;36mControls for conflicts:\033[0m\n";
-        std::cout << "  \033[1;33m← Left Arrow\033[0m  = Keep LEFT contact\n";
-        std::cout << "  \033[1;33m→ Right Arrow\033[0m = Keep RIGHT contact\n";
-        std::cout << "  \033[1;33m↑ Up Arrow\033[0m    = Skip this pair\n";
-        std::cout << "  \033[1;33mQ\033[0m             = Quit\n\n";
+        std::cout << "  \033[1;33m<- Left Arrow\033[0m  = Keep LEFT contact\n";
+        std::cout << "  \033[1;33m-> Right Arrow\033[0m = Keep RIGHT contact\n";
+        std::cout << "  \033[1;33m^  Up Arrow\033[0m    = Skip this pair\n";
+        std::cout << "  \033[1;33mQ\033[0m              = Quit\n\n";
     } else {
         std::cout << "\n\033[1;36mControls:\033[0m\n";
-        std::cout << "  \033[1;33m← Left Arrow\033[0m  = Keep LEFT contact\n";
-        std::cout << "  \033[1;33m→ Right Arrow\033[0m = Keep RIGHT contact\n";
-        std::cout << "  \033[1;33m↑ Up Arrow\033[0m    = Skip this pair\n";
-        std::cout << "  \033[1;33mQ\033[0m             = Quit\n\n";
+        std::cout << "  \033[1;33m<- Left Arrow\033[0m  = Keep LEFT contact\n";
+        std::cout << "  \033[1;33m-> Right Arrow\033[0m = Keep RIGHT contact\n";
+        std::cout << "  \033[1;33m^  Up Arrow\033[0m    = Skip this pair\n";
+        std::cout << "  \033[1;33mQ\033[0m              = Quit\n\n";
     }
     
     std::cout << "Press Enter to start...";
@@ -2683,7 +2709,9 @@ size_t ContactMgr::interactiveBrowseDelete() {
 // Function to clear the screen
 void clearScreen() {
 #ifdef _WIN32
-    std::system("cls");
+    // Use ANSI escape codes - works better in VS Code terminal
+    std::cout << "\033[2J\033[1;1H";
+    std::cout.flush();
 #else
     std::system("clear");
 #endif
@@ -2700,8 +2728,14 @@ void waitForEnter() {
 // Main Program
 // ============================================================================
 
-// Default save file path
-const std::string DEFAULT_SAVE_FILE = "/home/ts/.contact_mgr_data.txt";
+// Platform-dependent default paths
+#ifdef _WIN32
+    const std::string DEFAULT_SAVE_FILE = "C:\\Users\\tsciple\\.contact_mgr_data.txt";
+    const std::string DEFAULT_DOWNLOADS = "C:\\Users\\tsciple\\Downloads\\";
+#else
+    const std::string DEFAULT_SAVE_FILE = "/home/ts/.contact_mgr_data.txt";
+    const std::string DEFAULT_DOWNLOADS = "/home/ts/Downloads/";
+#endif
 
 int main(int argc, char const *argv[])
 {
@@ -2720,27 +2754,32 @@ int main(int argc, char const *argv[])
     {
         clearScreen();
         std::cout << "Contact Manager (" << cm.getContactCount() << " contacts loaded)\n" 
-            << "=================================================\n" 
-            << "Enter from the following options:\n"
-            << "1.  Import contacts from VCF file\n"
-            << "2.  Import contacts from Yahoo CSV file\n"
-            << "3.  Clean phone numbers, remove hard formatting\n"
-            << "4.  View all contacts\n"
-            << "5.  Export contacts to pipe-delimited CSV file\n"
-            << "6.  Search contact by name (exact)\n"
-            << "7.  Search contact by phone\n"
-            << "8.  Search contact by email\n"
-            << "9.  Extract names from email-only contacts\n"
-            << "10. Bulk update email domain\n"
-            << "11. Find & merge duplicate contacts\n"
-            << "12. Remove duplicate phones within contacts\n"
-            << "13. Export to VCF (iPhone/iCloud)\n"
-            << "14. Export to text file (printable)\n"
-            << "15. Browse & delete contacts\n"
-            << "16. Search by partial name\n"
-            << "17. Add new contact\n"
-            << "18. Edit contact\n"
+            << "=================================================\n"
+            << "\n--- IMPORT ---\n"
+            << "1.  Import from VCF file\n"
+            << "2.  Import from Yahoo CSV file\n"
+            << "\n--- EXPORT ---\n"
+            << "3.  Export to pipe-delimited CSV\n"
+            << "4.  Export to VCF (iPhone/iCloud)\n"
+            << "5.  Export to text file (printable)\n"
+            << "\n--- VIEW & SEARCH ---\n"
+            << "6.  View all contacts\n"
+            << "7.  Search by name (exact)\n"
+            << "8.  Search by partial name\n"
+            << "9.  Search by phone\n"
+            << "10. Search by email\n"
+            << "\n--- ADD & EDIT ---\n"
+            << "11. Add new contact\n"
+            << "12. Edit contact\n"
+            << "13. Browse & delete contacts\n"
+            << "\n--- CLEANUP & MAINTENANCE ---\n"
+            << "14. Clean phone numbers (remove formatting)\n"
+            << "15. Remove duplicate phones within contacts\n"
+            << "16. Find & merge duplicate contacts\n"
+            << "17. Extract names from email-only contacts\n"
+            << "18. Bulk update email domain\n"
             << "19. Renumber contact IDs\n"
+            << "\n--- SYSTEM ---\n"
             << "20. Save contacts\n"
             << "21. Exit\n"
             << "=================================================\n"
@@ -2757,136 +2796,53 @@ int main(int argc, char const *argv[])
         size_t number_imported =0;
         std::string full_path;
         switch (user_entry) {
-            case 1:
-                number_imported = cm.importFromVCF("/home/ts/Downloads/All Contacts.vcf");
+            // --- IMPORT ---
+            case 1:  // Import from VCF file
+                number_imported = cm.importFromVCF(DEFAULT_DOWNLOADS + "All Contacts.vcf");
                 std::cout << "Imported " << number_imported << " contacts from VCF." << std::endl;
                 number_imported =0;
                 waitForEnter();
                 break;
-            case 2:
+            case 2:  // Import from Yahoo CSV
                 number_imported = 0;
-                number_imported= cm.importFromYahooCSV("/home/ts/Downloads/contacts.csv");
+                full_path = "";
+                std::cout << "Enter full path for import file or\n"
+                          << "press Enter for default\n"
+                          << "(" << DEFAULT_DOWNLOADS << "yahoo_contacts.csv): ";
+                std::cin.ignore();  // Clear newline from menu input
+                getline(std::cin, full_path);
+                if (!full_path.empty()) {
+                    number_imported=cm.importFromYahooCSV(full_path);
+                } else {
+                    number_imported=cm.importFromYahooCSV(DEFAULT_DOWNLOADS + "yahoo_contacts.csv");
+                }
                 std::cout << "Imported " << number_imported << " contacts from yahoo." << std::endl;
                 waitForEnter();
                 break;
-            case 3:
-                // Cleanup phone numbers
-                cm.cleanAllPhoneNos();
-                std::cout << "All phone numbers cleaned." << std::endl;
-                waitForEnter();
-                break;
-            case 4:
-                // View all contacts
-                cm.viewAllContacts();
-                waitForEnter();
-                break;
-            case 5:
+
+            // --- EXPORT ---
+            case 3:  // Export to pipe-delimited CSV
                 std::cout << "Enter full path for export file or\n"
                           << "press Enter for default\n"
-                          << "/home/user/contacts_export.csv): ";
-                getline(std::cin, full_path); // Clear newline from previous input
-                if (!full_path.empty()) {
-                    cm.exportToPipeCSV(full_path);
-                } else {
-                    cm.exportToPipeCSV("/home/ts/Downloads/contacts_export.csv");
+                          << "(" << DEFAULT_DOWNLOADS << "contacts_export.csv): ";
+                std::cin.ignore();
+                getline(std::cin, full_path);
+                if (full_path.empty()) {
+                    full_path = DEFAULT_DOWNLOADS + "contacts_export.csv";
                 }
-                // Export contacts to pipe-delimited CSV
                 cm.exportToPipeCSV(full_path);
                 waitForEnter();
                 break;
-
-            case 6:
-                // Search for a contact by name
-                {
-                    std::string searchName;
-                    std::cout << "Enter name to search (Last,First or just Last): ";
-                    std::cin.ignore();
-                    std::getline(std::cin, searchName);
-                    cm.searchName(searchName);
-                }
-                waitForEnter();
-                break;
-            case 7:
-                // Search by phone number
-                {
-                    std::string searchPhone;
-                    std::cout << "Enter phone number to search: ";
-                    std::cin.ignore();
-                    std::getline(std::cin, searchPhone);
-                    cm.searchByPhone(searchPhone);
-                }
-                waitForEnter();
-                break;
-            case 8:
-                // Search by email
-                {
-                    std::string searchEmail;
-                    std::cout << "Enter email to search: ";
-                    std::cin.ignore();
-                    std::getline(std::cin, searchEmail);
-                    cm.searchByEmail(searchEmail);
-                }
-                waitForEnter();
-                break;
-            case 9:
-                // Extract names from email-only contacts
-                {
-                    size_t extracted = cm.extractNamesFromEmails();
-                    std::cout << "\nExtracted names for " << extracted << " contact(s)." << std::endl;
-                }
-                waitForEnter();
-                break;
-            case 10:
-                // Bulk update email domain
-                {
-                    std::string oldDomain, newDomain;
-                    std::cout << "Enter OLD email domain (e.g., rig-rds.com): ";
-                    std::cin.ignore();
-                    std::getline(std::cin, oldDomain);
-                    std::cout << "Enter NEW email domain (e.g., richardepc.com): ";
-                    std::getline(std::cin, newDomain);
-                    
-                    if (!oldDomain.empty() && !newDomain.empty()) {
-                        size_t updated = cm.bulkUpdateEmailDomain(oldDomain, newDomain);
-                        std::cout << "\nUpdated " << updated << " email(s) from @" << oldDomain 
-                                  << " to @" << newDomain << std::endl;
-                    } else {
-                        std::cout << "Both old and new domains are required." << std::endl;
-                    }
-                }
-                waitForEnter();
-                break;
-            case 11:
-                // Find & merge duplicate contacts
-                {
-                    size_t merged = cm.interactiveMergeDuplicates();
-                    if (merged > 0) {
-                        std::cout << "\nMerged " << merged << " duplicate pair(s)." << std::endl;
-                    }
-                }
-                waitForEnter();
-                break;
-            case 12:
-                // Remove duplicate phones within contacts
-                {
-                    size_t removed = cm.removeDuplicatePhones();
-                    if (removed == 0) {
-                        std::cout << "No duplicate phone numbers found within contacts." << std::endl;
-                    }
-                }
-                waitForEnter();
-                break;
-            case 13:
-                // Export to VCF for iPhone/iCloud
+            case 4:  // Export to VCF (iPhone/iCloud)
                 {
                     std::string vcfPath;
                     std::cout << "Enter full path for VCF export file\n"
-                              << "(or press Enter for default ~/Downloads/contacts.vcf): ";
+                              << "(or press Enter for default " << DEFAULT_DOWNLOADS << "contacts_export.vcf): ";
                     std::cin.ignore();
                     std::getline(std::cin, vcfPath);
                     
                     if (vcfPath.empty()) {
-                        vcfPath = "/home/ts/Downloads/contacts_export.vcf";
+                        vcfPath = DEFAULT_DOWNLOADS + "contacts_export.vcf";
                     }
                     
                     if (cm.exportToVCF(vcfPath)) {
@@ -2900,35 +2856,39 @@ int main(int argc, char const *argv[])
                 }
                 waitForEnter();
                 break;
-            case 14:
-                // Export to text file (printable format)
+            case 5:  // Export to text file (printable)
                 {
                     std::string txtPath;
                     std::cout << "Enter full path for text export file\n"
-                              << "(or press Enter for default ~/Downloads/contacts.txt): ";
+                              << "(or press Enter for default " << DEFAULT_DOWNLOADS << "contacts_export.txt): ";
                     std::cin.ignore();
                     std::getline(std::cin, txtPath);
                     
                     if (txtPath.empty()) {
-                        txtPath = "/home/ts/Downloads/contacts_export.txt";
+                        txtPath = DEFAULT_DOWNLOADS + "contacts_export.txt";
                     }
                     
                     cm.exportToTextFile(txtPath);
                 }
                 waitForEnter();
                 break;
-            case 15:
-                // Browse & delete contacts
+
+            // --- VIEW & SEARCH ---
+            case 6:  // View all contacts
+                cm.viewAllContacts();
+                waitForEnter();
+                break;
+            case 7:  // Search by name (exact)
                 {
-                    size_t deleted = cm.interactiveBrowseDelete();
-                    if (deleted > 0) {
-                        std::cout << "\nDeleted " << deleted << " contact(s)." << std::endl;
-                    }
+                    std::string searchName;
+                    std::cout << "Enter name to search (Last,First or just Last): ";
+                    std::cin.ignore();
+                    std::getline(std::cin, searchName);
+                    cm.searchName(searchName);
                 }
                 waitForEnter();
                 break;
-            case 16:
-                // Search by partial name
+            case 8:  // Search by partial name
                 {
                     std::string searchPartial;
                     std::cout << "Enter partial name to search: ";
@@ -2938,13 +2898,33 @@ int main(int argc, char const *argv[])
                 }
                 waitForEnter();
                 break;
-            case 17:
-                // Add new contact
+            case 9:  // Search by phone
+                {
+                    std::string searchPhone;
+                    std::cout << "Enter phone number to search: ";
+                    std::cin.ignore();
+                    std::getline(std::cin, searchPhone);
+                    cm.searchByPhone(searchPhone);
+                }
+                waitForEnter();
+                break;
+            case 10:  // Search by email
+                {
+                    std::string searchEmail;
+                    std::cout << "Enter email to search: ";
+                    std::cin.ignore();
+                    std::getline(std::cin, searchEmail);
+                    cm.searchByEmail(searchEmail);
+                }
+                waitForEnter();
+                break;
+
+            // --- ADD & EDIT ---
+            case 11:  // Add new contact
                 cm.addNewContact();
                 waitForEnter();
                 break;
-            case 18:
-                // Edit contact
+            case 12:  // Edit contact
                 {
                     std::string searchTerm;
                     std::cout << "Search for contact to edit (name, phone, or email): ";
@@ -2965,13 +2945,73 @@ int main(int argc, char const *argv[])
                 }
                 waitForEnter();
                 break;
-            case 19:
-                // Renumber contact IDs
+            case 13:  // Browse & delete contacts
+                {
+                    size_t deleted = cm.interactiveBrowseDelete();
+                    if (deleted > 0) {
+                        std::cout << "\nDeleted " << deleted << " contact(s)." << std::endl;
+                    }
+                }
+                waitForEnter();
+                break;
+
+            // --- CLEANUP & MAINTENANCE ---
+            case 14:  // Clean phone numbers
+                cm.cleanAllPhoneNos();
+                std::cout << "All phone numbers cleaned." << std::endl;
+                waitForEnter();
+                break;
+            case 15:  // Remove duplicate phones within contacts
+                {
+                    size_t removed = cm.removeDuplicatePhones();
+                    if (removed == 0) {
+                        std::cout << "No duplicate phone numbers found within contacts." << std::endl;
+                    }
+                }
+                waitForEnter();
+                break;
+            case 16:  // Find & merge duplicate contacts
+                {
+                    size_t merged = cm.interactiveMergeDuplicates();
+                    if (merged > 0) {
+                        std::cout << "\nMerged " << merged << " duplicate pair(s)." << std::endl;
+                    }
+                }
+                waitForEnter();
+                break;
+            case 17:  // Extract names from email-only contacts
+                {
+                    size_t extracted = cm.extractNamesFromEmails();
+                    std::cout << "\nExtracted names for " << extracted << " contact(s)." << std::endl;
+                }
+                waitForEnter();
+                break;
+            case 18:  // Bulk update email domain
+                {
+                    std::string oldDomain, newDomain;
+                    std::cout << "Enter OLD email domain (e.g., rig-rds.com): ";
+                    std::cin.ignore();
+                    std::getline(std::cin, oldDomain);
+                    std::cout << "Enter NEW email domain (e.g., richardepc.com): ";
+                    std::getline(std::cin, newDomain);
+                    
+                    if (!oldDomain.empty() && !newDomain.empty()) {
+                        size_t updated = cm.bulkUpdateEmailDomain(oldDomain, newDomain);
+                        std::cout << "\nUpdated " << updated << " email(s) from @" << oldDomain 
+                                  << " to @" << newDomain << std::endl;
+                    } else {
+                        std::cout << "Both old and new domains are required." << std::endl;
+                    }
+                }
+                waitForEnter();
+                break;
+            case 19:  // Renumber contact IDs
                 cm.renumberContactIds();
                 waitForEnter();
                 break;
-            case 20:
-                // Save contacts to file
+
+            // --- SYSTEM ---
+            case 20:  // Save contacts
                 if (cm.saveToFile(DEFAULT_SAVE_FILE)) {
                     std::cout << "Contacts saved successfully to " << DEFAULT_SAVE_FILE << std::endl;
                 } else {
@@ -2979,8 +3019,7 @@ int main(int argc, char const *argv[])
                 }
                 waitForEnter();
                 break;
-            case 21:
-                // Auto-save before exit
+            case 21:  // Exit
                 cm.saveToFile(DEFAULT_SAVE_FILE);
                 std::cout << "Contacts saved. Exiting program." << std::endl;
                 break;
