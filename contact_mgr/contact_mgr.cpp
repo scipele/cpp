@@ -1,12 +1,12 @@
 //| Item	     | Documentation Notes                                         |
 //|--------------|-------------------------------------------------------------|
-//| Filename     | example_unordered_map.cpp                                   |
+//| Filename     | contact_manager.cpp                                         |
 //| EntryPoint   | main                                                        |
-//| Purpose      | example showing how to use an unordered map                 |
-//| Inputs       | n/a                                                         |
-//| Outputs      | print examples to the screen                                |
+//| Purpose      | merge and cleanup contacts from various sources             |
+//| Inputs       | import from files                                           |
+//| Outputs      | varies                                                      |
 //| Dependencies | see standard includes                                       |
-//| By Name,Date | T.Sciple, 01/17/2025                                        |
+//| By Name,Date | T.Sciple, 01/19/2026                                        |
 
 // ============================================================================
 // Includes & Forward Declarations
