@@ -25,6 +25,10 @@ This document outlines the planned upgrades for the contact manager application 
 - [x] Text file export (printable format, same as View All)
 - [x] Alphabetical sorting with letter separators (--A-- format)
 - [x] Interactive browse & delete contacts (paginated)
+- [x] Partial name search (search any part of first/last name)
+- [x] Manual contact editing (add/edit phone, email, etc.)
+- [x] Add new contact manually (menu-driven entry)
+- [x] Renumber contact IDs alphabetically (cleanup/compact IDs)
 - [x] Partial name search
 - [x] Add new contact manually
 - [x] Edit contact (add/edit phone, email, address, etc.)
@@ -54,10 +58,7 @@ This document outlines the planned upgrades for the contact manager application 
 - [x] 21. Exit (with auto-save)
 
 ### Remaining Tasks
-- [x] Partial name search (search any part of first/last name)
-- [x] Manual contact editing (add/edit phone, email, address, etc.)
-- [x] Renumber contact_ids alphabetically (cleanup/compact IDs)
-- [x] Add new contact manually (not just import)
+- All tasks complete! 🎉
 
 **All planned features have been implemented! 🎉**
 
@@ -305,9 +306,9 @@ Compact and renumber all contact_ids sequentially, sorted alphabetically by last
 | **9** | VCF export | ✅ Done | `exportToVCF()` |
 | **10** | Text file export | ✅ Done | `exportToTextFile()` |
 | **11** | Browse & delete | ✅ Done | `interactiveBrowseDelete()` |
-| **12** | Partial name search | 🔲 TODO | `searchNamePartial()` |
-| **13** | Manual contact edit | 🔲 TODO | `editContact()`, `addPhoneToContact()`, etc. |
-| **14** | Renumber contact IDs | 🔲 TODO | `renumberContactIds()` |
+| **12** | Partial name search | ✅ Done | `searchNamePartial()` |
+| **13** | Manual contact edit | ✅ Done | `editContact()`, `addNewContact()` |
+| **14** | Renumber contact IDs | ✅ Done | `renumberContactIds()` |
 
 ---
 
@@ -316,21 +317,29 @@ Compact and renumber all contact_ids sequentially, sorted alphabetically by last
 ```
 Contact Manager
 =================================================
-1.  Import from VCF file
-2.  Import from Yahoo CSV file
-3.  Clean phone numbers
-4.  Remove duplicate phones within contacts  [NEW]
-5.  Extract names from email-only contacts   [NEW]
-6.  Find & merge duplicate contacts          [NEW]
-7.  View all contacts
-8.  Search by name (fast)
-9.  Search by phone                          [NEW]
-10. Search by email                          [NEW]
-11. Export to VCF (iPhone/iCloud)            [NEW]
-12. Export to pipe-delimited CSV
-13. Save contacts
-14. Exit
+1.  Import contacts from VCF file
+2.  Import contacts from Yahoo CSV file
+3.  Clean phone numbers, remove hard formatting
+4.  View all contacts
+5.  Export contacts to pipe-delimited CSV file
+6.  Search contact by name (exact)
+7.  Search contact by phone
+8.  Search contact by email
+9.  Extract names from email-only contacts
+10. Bulk update email domain
+11. Find & merge duplicate contacts
+12. Remove duplicate phones within contacts
+13. Export to VCF (iPhone/iCloud)
+14. Export to text file (printable)
+15. Browse & delete contacts
+16. Search by partial name
+17. Add new contact
+18. Edit contact
+19. Renumber contact IDs
+20. Save contacts
+21. Exit
 =================================================
+```
 ```
 
 ---
@@ -350,10 +359,10 @@ Contact Manager
 - Log merge operations for undo capability
 
 ### Future Enhancements
-- [ ] Partial name search (search "john" finds "Johnson", "Johnny", etc.)
-- [ ] Manual contact editing (interactive menu to edit any field)
-- [ ] Renumber contact IDs alphabetically (compact and sequential)
-- [ ] Add new contact manually (menu-driven entry)
+- [x] Partial name search (search "john" finds "Johnson", "Johnny", etc.)
+- [x] Manual contact editing (interactive menu to edit any field)
+- [x] Renumber contact IDs alphabetically (compact and sequential)
+- [x] Add new contact manually (menu-driven entry)
 - [ ] Google Contacts CSV import/export
 - [ ] Contact groups/categories
 - [ ] Undo last merge operation
@@ -377,7 +386,7 @@ Contact Manager
 ## Notes
 - Current file: `contact_mgr.cpp`
 - Date created: January 18, 2026
-- Last updated: January 18, 2026
+- Last updated: January 19, 2026
 
 ---
 
@@ -397,4 +406,7 @@ Contact Manager
 | Jan 19, 2026 | Phase 9: VCF export for iPhone/iCloud || Jan 19, 2026 | Phase 10: Text file export (same format as View All) |
 | Jan 19, 2026 | Added alphabetical sorting with --A-- letter separators |
 | Jan 19, 2026 | Phase 11: Interactive browse & delete (paginated, mark & delete) |
-| Jan 19, 2026 | Added TODO: partial name search, manual edit, renumber IDs |
+| Jan 19, 2026 | Phase 12: Partial name search (substring match on first/last) |
+| Jan 19, 2026 | Phase 13: Manual contact editing & add new contact |
+| Jan 19, 2026 | Phase 14: Renumber contact IDs alphabetically |
+| Jan 19, 2026 | All planned features complete! Menu now has 21 options |
