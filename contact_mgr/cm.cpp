@@ -131,40 +131,21 @@ public:
     std::string getPhoneTypeStr(const PhoneType& type) const;
     std::string getEmailTypeStr(const EmailType& type) const;
     int getNextId() const;
-    
-    // 6. View all contacts
-    // 7. Search by name (exact) - searchName()
-    // 8. Partial name search
     void searchNamePartial(const std::string& partial) const;
-    
-    // 9. Search by phone / 10. Search by email
     void rebuildIndexes();
     void searchByPhone(const std::string& phone) const;
     void searchByEmail(const std::string& email) const;
     bool isDuplicateName(const std::string& firstName, const std::string& lastName) const;
     std::string makeUniqueName(const std::string& firstName, const std::string& lastName) const;
-    
-    // 11. Add new contact / 12. Edit contact
     bool editContact(int contact_id);
     void addNewContact();
-    
-    // 13. Browse & delete
     size_t interactiveBrowseDelete();
-    
-    // 16. Find & merge duplicates
+    bool removeContactById(int id);
     std::vector<std::pair<int, int>> findDuplicates() const;
     size_t interactiveMergeDuplicates();
-    
-    // 17. Extract names from emails
     size_t extractNamesFromEmails();
-    
-    // 18. Bulk update email domain
     size_t bulkUpdateEmailDomain(const std::string& oldDomain, const std::string& newDomain);
-    
-    // 19. Renumber contact IDs
     void renumberContactIds();
-    
-    // 20. Save/Load functionality
     bool saveToFile(const std::string& filename) const;
     size_t loadFromFile(const std::string& filename);
     size_t getContactCount() const { return contacts.size(); }
@@ -177,10 +158,10 @@ private:
     void addToIndexes(const Contact& c);
     const Contact* findContactById(int id) const;
     std::string capitalizeFirst(const std::string& str) const;
+    std::string removeLeadingTrailingSpaces(const std::string& str) const;
     
     // Merge helpers
     Contact* findContactByIdMutable(int id);
-    void removeContactById(int id);
     void displaySideBySide(const Contact& left, const Contact& right) const;
     std::string chooseField(const std::string& label, const std::string& left, const std::string& right) const;
     bool hasSharedPhone(const Contact& a, const Contact& b) const;
@@ -635,6 +616,11 @@ bool ContactMgr::cleanAllPhoneNos() {
     
     for (auto& contact : contacts) {
         
+        contact.firstName = removeLeadingTrailingSpaces(contact.firstName);
+        contact.firstName = capitalizeFirst(contact.firstName);
+        contact.lastName = removeLeadingTrailingSpaces(contact.lastName);   
+        contact.lastName = capitalizeFirst(contact.lastName);
+        
         // Inner loop: Iterate through every PhoneNumber struct in the contact's vector
         for (auto& pEntry : contact.phoneNumbers) {
             
@@ -708,7 +694,7 @@ bool ContactMgr::cleanAllPhoneNos() {
 
 
 // ============================================================================
-// 15. Remove duplicate phone numbers within each contact
+// 16. Remove duplicate phone numbers within each contact
 // ============================================================================
 size_t ContactMgr::removeDuplicatePhones() {
     if (contacts.empty()) return 0;
@@ -771,38 +757,6 @@ int ContactMgr::getNextId() const {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // ============================================================================
 // Display & Formatting Helpers
 // ============================================================================
@@ -860,8 +814,6 @@ void ContactMgr::viewAllContacts(std::ostream& out) const {
     out << "==================================================" << std::endl;
     out << "Total: " << contacts.size() << " contacts" << std::endl;
 }
-
-
 
 
 std::string ContactMgr::show_phone_mask(const std::string& str) const{
@@ -1518,12 +1470,14 @@ Contact* ContactMgr::findContactByIdMutable(int id) {
 }
 
 // Helper: Remove a contact by ID
-void ContactMgr::removeContactById(int id) {
+bool ContactMgr::removeContactById(int id) {
+    auto originalSize = contacts.size();
     contacts.erase(
         std::remove_if(contacts.begin(), contacts.end(),
             [id](const Contact& c) { return c.contact_id == id; }),
         contacts.end()
     );
+    return contacts.size() < originalSize;
 }
 
 // Helper: Check if two contacts share any phone number
@@ -2030,6 +1984,14 @@ std::string ContactMgr::capitalizeFirst(const std::string& str) const {
     std::string result = toLower(str);
     result[0] = std::toupper(result[0]);
     return result;
+}
+
+
+std::string ContactMgr::removeLeadingTrailingSpaces(const std::string& str) const {
+    size_t start = str.find_first_not_of(" \t");
+    if (start == std::string::npos) return "";
+    size_t end = str.find_last_not_of(" \t");
+    return str.substr(start, end - start + 1);
 }
 
 
@@ -2893,12 +2855,12 @@ int main(int argc, char const *argv[])
             << "  5. Export to text             | ADD & EDIT\n"
             << "                                | 11. Add new contact\n"
             << " CLEANUP & MAINTENANCE          | 12. Edit contact\n"
-            << " 14. Clean phone numbers        | 13. Browse & delete\n"
-            << " 15. Remove dup phones          |-------------------------------\n"
-            << " 16. Find & merge duplicates    | SYSTEM\n"
-            << " 17. Extract names from emails  | 20. Save contacts\n"
-            << " 18. Bulk update email domain   | 21. Exit\n"
-            << " 19. Renumber contact IDs       |\n"
+            << " 15. Clean phone nos/names      | 13. Browse & delete\n"
+            << " 16. Remove dup phones          | 14. Delete contact by ID\n"
+            << " 17. Find & merge duplicates    |-------------------------------\n" 
+            << " 18. Extract names from emails  | SYSTEM\n"
+            << " 19. Bulk update email domain   | 21. Save contacts\n"
+            << " 20. Renumber contact IDs       | 22. Exit\n"
             << "============================================================\n"
             << "Choice: "; 
 
@@ -3072,13 +3034,29 @@ int main(int argc, char const *argv[])
                 waitForEnter();
                 break;
 
-            // --- CLEANUP & MAINTENANCE ---
             case 14:  // Clean phone numbers
+                {
+                    int delId;
+                    std::cout << "Enter contact ID to delete: ";
+                    std::cin >> delId;
+
+                    if (cm.removeContactById(delId)) {
+                        std::cout << "Contact ID " << delId << " deleted successfully." << std::endl;
+                    } else {
+                        std::cout << "Contact ID " << delId << " not found." << std::endl;
+                    }
+                }
+                waitForEnter();
+                break;
+
+            // --- CLEANUP & MAINTENANCE ---
+            case 15:  // Delete contact by ID
                 cm.cleanAllPhoneNos();
                 std::cout << "All phone numbers cleaned." << std::endl;
                 waitForEnter();
                 break;
-            case 15:  // Remove duplicate phones within contacts
+
+            case 16:  // Remove duplicate phones within contacts
                 {
                     size_t removed = cm.removeDuplicatePhones();
                     if (removed == 0) {
@@ -3087,7 +3065,7 @@ int main(int argc, char const *argv[])
                 }
                 waitForEnter();
                 break;
-            case 16:  // Find & merge duplicate contacts
+            case 17:  // Find & merge duplicate contacts
                 {
                     size_t merged = cm.interactiveMergeDuplicates();
                     if (merged > 0) {
@@ -3096,14 +3074,14 @@ int main(int argc, char const *argv[])
                 }
                 waitForEnter();
                 break;
-            case 17:  // Extract names from email-only contacts
+            case 18:  // Extract names from email-only contacts
                 {
                     size_t extracted = cm.extractNamesFromEmails();
                     std::cout << "\nExtracted names for " << extracted << " contact(s)." << std::endl;
                 }
                 waitForEnter();
                 break;
-            case 18:  // Bulk update email domain
+            case 19:  // Bulk update email domain
                 {
                     std::string oldDomain, newDomain;
                     std::cout << "Enter OLD email domain (e.g., rig-rds.com): ";
@@ -3122,13 +3100,13 @@ int main(int argc, char const *argv[])
                 }
                 waitForEnter();
                 break;
-            case 19:  // Renumber contact IDs
+            case 20:  // Renumber contact IDs
                 cm.renumberContactIds();
                 waitForEnter();
                 break;
 
             // --- SYSTEM ---
-            case 20:  // Save contacts
+            case 21:  // Save contacts
                 if (cm.saveToFile(DEFAULT_SAVE_FILE)) {
                     std::cout << "Contacts saved successfully to " << DEFAULT_SAVE_FILE << std::endl;
                 } else {
@@ -3136,7 +3114,7 @@ int main(int argc, char const *argv[])
                 }
                 waitForEnter();
                 break;
-            case 21:  // Exit
+            case 22:  // Exit
                 cm.saveToFile(DEFAULT_SAVE_FILE);
                 std::cout << "Contacts saved. Exiting program." << std::endl;
                 break;
@@ -3147,7 +3125,7 @@ int main(int argc, char const *argv[])
                 break;
         }
 
-    } while (user_entry != 21);
+    } while (user_entry != 22);
 
     waitForEnter();
     return 0;
