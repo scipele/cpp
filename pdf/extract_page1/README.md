@@ -1,34 +1,17 @@
 # Extract Page 1 from PDFs
 
 A C++ utility that extracts the first page from all PDF files in a folder and saves them to an output folder.
-
-## Prerequisites
-
-- **poppler-utils** - Provides the `pdfseparate` command-line tool
-- **g++** with C++17 support
-
-### Install Prerequisites (Ubuntu/Debian)
-
-```bash
-sudo apt install poppler-utils g++
-```
-
-## Compile
-
-```bash
-g++ -std=c++17 -o extract_pg1 src/extract_pg1.cpp
-```
-
-Or with optimizations for release:
-
-```bash
-g++ -std=c++17 -O2 -o extract_pg1 src/extract_pg1.cpp
-```
+**Cross-platform:** Works on Windows and Linux.
 
 ## Usage
 
 ```bash
-./extract_pg1 <input_folder> <output_folder>
+./extr_pg1 <input_folder> <output_folder>
+```
+
+Windows:
+```cmd
+extr_pg1.exe <input_folder> <output_folder>
 ```
 
 ### Arguments
@@ -41,8 +24,11 @@ g++ -std=c++17 -O2 -o extract_pg1 src/extract_pg1.cpp
 ### Example
 
 ```bash
-# Extract first page from all PDFs in ./isos folder and save to ./output
-./extract_pg1 ./isos ./output
+# Linux
+./extr_pg1 ./isos ./output
+
+# Windows
+extr_pg1.exe C:\PDFs\input C:\PDFs\output
 ```
 
 ### Output
@@ -62,3 +48,57 @@ Complete: 10 succeeded, 0 failed.
 - The output folder is created automatically if it doesn't exist
 - Only files with `.pdf` extension are processed
 - The program uses `pdfseparate` from poppler-utils internally
+- Paths with spaces are handled correctly on both platforms
+
+
+
+## Prerequisites
+
+- **poppler-utils** - Provides the `pdfseparate` command-line tool
+- **C++17 compiler** (g++, MSVC, or clang++)
+
+### Install Prerequisites
+
+#### Linux (Ubuntu/Debian)
+
+```bash
+sudo apt install poppler-utils g++
+```
+
+#### Windows
+
+**Option 1: Using Chocolatey**
+```powershell
+choco install poppler
+```
+
+**Option 2: Manual Installation**
+1. Download poppler for Windows from: https://github.com/oschwartz10612/poppler-windows/releases
+2. Extract to a folder (e.g., `C:\poppler`)
+3. Add the `bin` folder to your PATH (e.g., `C:\poppler\Library\bin`)
+
+## Compile
+
+### Linux
+
+```bash
+g++ -std=c++17 -o extr_pg1 src/extr_pg1.cpp
+```
+
+With optimizations:
+```bash
+g++ -std=c++17 -O2 -o extr_pg1 src/extr_pg1.cpp
+```
+
+### Windows (MSVC - Developer Command Prompt)
+
+```cmd
+cl /std:c++17 /EHsc /Fe:extr_pg1.exe src\extr_pg1.cpp
+```
+
+### Windows (MinGW/g++)
+
+```cmd
+g++ -std=c++17 -o extr_pg1.exe src/extr_pg1.cpp
+```
+
