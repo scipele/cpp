@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
         if (entry.is_regular_file() && entry.path().extension() == ".pdf") {
             fs::path inputPath = entry.path();
             fs::path outputFileName = entry.path().stem();
-            outputFileName += "_page1.pdf";
+            outputFileName += "_pg1.pdf";
             fs::path outputPath = outputFolder / outputFileName;
 
             if (extractFirstPage(inputPath, outputPath)) {
@@ -108,7 +108,6 @@ std::string escapeShellArg(const fs::path& arg) {
         case '\'':
             escaped += "'\\''";
             break;
-        
         default:
             escaped += c;
             break;
