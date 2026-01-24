@@ -26,3 +26,5 @@ file_utilities/list_files_by_date/search_results.txt
 estim/mag/
 pdf/extract_page1/out/
 pdf/extract_page1/inp/
+pdf/extr_bom/inp/
+pdf/extr_bom/out/bom_output.csv
