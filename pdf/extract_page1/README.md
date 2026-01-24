@@ -1,51 +1,51 @@
 # Extract Page 1 from PDFs
 
-A C++ utility that extracts the first page from all PDF files in a folder and saves them to an output folder.
+A C++ utility that extracts the first page from all PDF files in a folder and saves them to an out folder.
 **Cross-platform:** Works on Windows and Linux.
 
 ## Usage
 
 ```bash
-./extr <input_folder> <output_folder>
+./extr <inp_folder> <out_folder>
 ```
 
 Windows:
 ```cmd
-extr.exe <input_folder> <output_folder>
+extr.exe <inp_folder> <out_folder>
 ```
 
 ### Arguments
 
 | Argument        | Description                                      |
 |-----------------|--------------------------------------------------|
-| `input_folder`  | Path to folder containing PDF files to process   |
-| `output_folder` | Path to folder where extracted pages are saved   |
+| `inp_folder`  | Path to folder containing PDF files to process   |
+| `out_folder` | Path to folder where extracted pages are saved   |
 
 ### Example
 
 ```bash
 # Linux
-./extr ./input ./output
+./extr ./inp ./out
 
 # Windows
-extr.exe C:\PDFs\input C:\PDFs\output
+extr.exe C:\PDFs\inp C:\PDFs\out
 ```
 
-### Output
+### out
 
 - Extracted PDFs are named with `_page1` suffix
 - Example: `document.pdf` → `document_page1.pdf`
 
 ```
-Extracted: ./isos/2001-176-OW-1152-01.pdf -> ./output/2001-176-OW-1152-01_page1.pdf
-Extracted: ./isos/2001-176-OW-1152-02.pdf -> ./output/2001-176-OW-1152-02_page1.pdf
+Extracted: ./isos/2001-176-OW-1152-01.pdf -> ./out/2001-176-OW-1152-01_page1.pdf
+Extracted: ./isos/2001-176-OW-1152-02.pdf -> ./out/2001-176-OW-1152-02_page1.pdf
 ...
 Complete: 10 succeeded, 0 failed.
 ```
 
 ## Notes
 
-- The output folder is created automatically if it doesn't exist
+- The out folder is created automatically if it doesn't exist
 - Only files with `.pdf` extension are processed
 - The program uses `pdfseparate` from poppler-utils internally
 - Paths with spaces are handled correctly on both platforms
