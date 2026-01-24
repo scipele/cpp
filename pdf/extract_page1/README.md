@@ -6,12 +6,12 @@ A C++ utility that extracts the first page from all PDF files in a folder and sa
 ## Usage
 
 ```bash
-./extr_pg1 <input_folder> <output_folder>
+./extr <input_folder> <output_folder>
 ```
 
 Windows:
 ```cmd
-extr_pg1.exe <input_folder> <output_folder>
+extr.exe <input_folder> <output_folder>
 ```
 
 ### Arguments
@@ -25,10 +25,10 @@ extr_pg1.exe <input_folder> <output_folder>
 
 ```bash
 # Linux
-./extr_pg1 ./isos ./output
+./extr ./input ./output
 
 # Windows
-extr_pg1.exe C:\PDFs\input C:\PDFs\output
+extr.exe C:\PDFs\input C:\PDFs\output
 ```
 
 ### Output
@@ -82,23 +82,23 @@ choco install poppler
 ### Linux
 
 ```bash
-g++ -std=c++17 -o extr_pg1 src/extr_pg1.cpp
+g++ -std=c++17 -o extr src/extr.cpp
 ```
 
 With optimizations:
 ```bash
-g++ -std=c++17 -O2 -o extr_pg1 src/extr_pg1.cpp
+g++ -std=c++17 -O2 -o extr src/extr.cpp
 ```
 
 ### Windows (MSVC - Developer Command Prompt)
 
 ```cmd
-cl /std:c++17 /EHsc /Fe:extr_pg1.exe src\extr_pg1.cpp
+cl /std:c++17 /EHsc /Fe:extr.exe src\extr.cpp
 ```
 
 ### Windows (MinGW/g++)
 
 ```cmd
-g++ -std=c++17 -o extr_pg1.exe src/extr_pg1.cpp
+g++ -std=c++17 -o extr.exe src/extr.cpp
 ```
 

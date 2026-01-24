@@ -24,5 +24,5 @@ webscrape/get_bible_verses/input/lookup_verses.txt
 temp.txt
 file_utilities/list_files_by_date/search_results.txt
 estim/mag/
-pdf/extract_page1/output/
-pdf/extract_page1/input/
+pdf/extract_page1/out/
+pdf/extract_page1/inp/
