@@ -30,20 +30,21 @@ bool extractFirstPage(const fs::path& inputPath, const fs::path& outputPath);
 
 
 int main(int argc, char* argv[]) {
-    if (argc != 3) {
-        std::cerr << "Usage: " << argv[0] << " <input_folder> <output_folder>" << std::endl;
-        std::cerr << "  Extracts the first page from all PDFs in input_folder" << std::endl;
-        std::cerr << "  and saves them to output_folder with '_page1' suffix." << std::endl;
-        return 1;
-    }
 
-    // Use fs::path to handle international characters properly
-    fs::path inputFolder = fs::u8path(argv[1]);
-    fs::path outputFolder = fs::u8path(argv[2]);
+    // Get path to executable
+    fs::path exePath = fs::absolute(argv[0]);
+    fs::path binFolder = exePath.parent_path();
+    fs::path inputFolder = binFolder / ".." / "inp";
+    fs::path outputFolder = binFolder / ".." / "out";
+    inputFolder = fs::weakly_canonical(inputFolder);
+    outputFolder = fs::weakly_canonical(outputFolder);
+
+    std::cout << "Input folder:  " << inputFolder.string() << std::endl;
+    std::cout << "Output folder: " << outputFolder.string() << std::endl;
 
     // Verify input folder exists
     if (!fs::exists(inputFolder) || !fs::is_directory(inputFolder)) {
-        std::cerr << "Error: Input folder does not exist: " << inputFolder.u8string() << std::endl;
+        std::cerr << "Error: Input folder does not exist: " << inputFolder.string() << std::endl;
         return 1;
     }
 
@@ -79,8 +80,8 @@ int main(int argc, char* argv[]) {
 std::string escapeShellArg(const fs::path& arg) {
 #if IS_WINDOWS
     // Windows: use double quotes, escape internal double quotes
-    // Convert to UTF-8 string for command line
-    std::string pathStr = arg.u8string();
+    // Convert to string for command line
+    std::string pathStr = arg.string();
     std::string escaped = "\"";
     for (char c : pathStr) {
         switch (c) {
@@ -129,10 +130,10 @@ bool extractFirstPage(const fs::path& inputPath, const fs::path& outputPath) {
     int result = std::system(cmd.c_str());
     
     if (result == 0) {
-        std::cout << "Extracted: " << inputPath.u8string() << " -> " << outputPath.u8string() << std::endl;
+        std::cout << "Extracted: " << inputPath.string() << " -> " << outputPath.string() << std::endl;
         return true;
     } else {
-        std::cerr << "Error extracting from: " << inputPath.u8string() << std::endl;
+        std::cerr << "Error extracting from: " << inputPath.string() << std::endl;
         return false;
     }
 }

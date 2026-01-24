@@ -99,6 +99,6 @@ cl /std:c++17 /EHsc /Fe:extr.exe src\extr.cpp
 ### Windows (MinGW/g++)
 
 ```cmd
-g++ -std=c++17 -o extr.exe src/extr.cpp
+g++ -std=c++17 -o ../bin/extr.exe extr.cpp  
 ```
 
