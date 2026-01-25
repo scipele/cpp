@@ -7,29 +7,34 @@
 //|              | the first page from                                         |
 //| Outputs      | the first page of all the pdf files                         |
 //| Dependencies | poppler-utils (pdfseparate) via system calls                |
-//| By Name,Date | T.Sciple, 01/24/2026                                        |
+//| By Name,Date | T.Sciple, 01/24/2026        
+//| Windows Compile Using g++:
+//      g++
+//      -std=c++17
+//      -I C:/poppler/include
+//      -L C:/poppler/lib
+//      -o ../bin/extr.exe
+//      extr.cpp
+//      -lpoppler-cpp
+// g++ -std=c++17 -I C:/poppler/include -L C:/poppler/lib -o ../bin/extr.exe extr.cpp -lpoppler-cpp
+
 
 
 #include <filesystem>
 #include <string>
 #include <iostream>
-#include <cstdlib>
+#include <memory>
+
 
 namespace fs = std::filesystem;
 
-// Detect platform
-#ifdef _WIN32
-    #define IS_WINDOWS 1
-#else
-    #define IS_WINDOWS 0
-#endif
 
 // Function declarations
-std::string escapeShellArg(const fs::path& arg);
 bool extractFirstPage(const fs::path& inputPath, const fs::path& outputPath);
 
 
 int main(int argc, char* argv[]) {
+
 
     // Get path to executable
     fs::path exePath = fs::absolute(argv[0]);
@@ -71,69 +76,60 @@ int main(int argc, char* argv[]) {
     }
 
     std::cout << "\nComplete: " << successCount << " succeeded, " << failCount << " failed." << std::endl;
+
+    // pause before exit
+    std::cout << "Press Enter to exit...";
+    std::cin.get();
+
     return (failCount > 0) ? 1 : 0;
 }
 
 
-// Escape shell argument to handle spaces and special characters
-// Uses filesystem::path to handle international characters properly
-std::string escapeShellArg(const fs::path& arg) {
-#if IS_WINDOWS
-    // Windows: use double quotes, escape internal double quotes
-    // Convert to string for command line
-    std::string pathStr = arg.string();
-    std::string escaped = "\"";
-    for (char c : pathStr) {
-        switch (c) {
-            case '"':
-            escaped += "\\\"";
-            break;
-            case '\\':
-            escaped += "\\\\";
-            break;
-            default:
-            escaped += c;
-            break;
-        }
-    }
-    escaped += "\"";
-    return escaped;
-#else
-    // Linux/Unix: use single quotes, escape internal single quotes
-    // u8string returns UTF-8 which is native on Linux
-    std::string pathStr = arg.u8string();
-    std::string escaped = "'";
-    for (char c : pathStr) {
-        switch (c)
-        {
-        case '\'':
-            escaped += "'\\''";
-            break;
-        default:
-            escaped += c;
-            break;
-        }
-    }
-    escaped += "'";
-    return escaped;
-#endif
-}
 
 
+
+// Extracts the first page of a PDF using Poppler C++ API
 bool extractFirstPage(const fs::path& inputPath, const fs::path& outputPath) {
-    // Build command: pdfseparate -f 1 -l 1 input.pdf output.pdf
-    // -f 1 = first page, -l 1 = last page (so only page 1)
-    std::string cmd = "pdfseparate -f 1 -l 1 " + 
-                      escapeShellArg(inputPath) + " " + 
-                      escapeShellArg(outputPath);
-    
+    // Use pdfseparate to extract the first page as a new PDF
+    // pdfseparate -f 1 -l 1 input.pdf output_pg1.pdf
+    std::string input = inputPath.string();
+    std::string output = outputPath.string();
+
+    // pdfseparate expects an output pattern, e.g., output_%d.pdf
+    // We'll extract to a temp file and then rename it
+    fs::path tempOutput = outputPath.parent_path() / (outputPath.stem().string() + "_%d.pdf");
+    std::string tempOutputStr = tempOutput.string();
+
+#ifdef _WIN32
+    // On Windows, quote paths with spaces
+    std::string cmd = "pdfseparate -f 1 -l 1 \"" + input + "\" \"" + tempOutputStr + "\"";
+#else
+    std::string cmd = "pdfseparate -f 1 -l 1 '" + input + "' '" + tempOutputStr + "'";
+#endif
+
     int result = std::system(cmd.c_str());
-    
-    if (result == 0) {
-        std::cout << "Extracted: " << inputPath.string() << " -> " << outputPath.string() << std::endl;
-        return true;
-    } else {
-        std::cerr << "Error extracting from: " << inputPath.string() << std::endl;
+    if (result != 0) {
+        std::cerr << "Error: pdfseparate failed for " << input << std::endl;
         return false;
     }
+
+    // The output will be tempOutput with %d replaced by 1
+    fs::path actualOutput = tempOutput;
+    std::string tempName = tempOutput.string();
+    size_t pos = tempName.find("%d");
+    if (pos != std::string::npos) {
+        tempName.replace(pos, 2, "1");
+    }
+    actualOutput = tempName;
+
+    // Rename to the desired output file name
+    std::error_code ec;
+    fs::rename(actualOutput, outputPath, ec);
+    if (ec) {
+        std::cerr << "Error: Could not rename output file: " << actualOutput << " to " << outputPath << std::endl;
+        return false;
+    }
+
+    std::cout << "Extracted: " << input << " -> " << output << std::endl;
+    return true;
 }

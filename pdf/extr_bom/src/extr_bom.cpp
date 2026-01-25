@@ -85,39 +85,46 @@ int main(int argc, char* argv[]) {
 
     // Parse command line arguments
     // Usage: extr_bom [input_folder] [output_file] [crop_x"] [crop_w"] [crop_y"] [crop_h"]
-    if (argc >= 2) {
-        inputFolder = fs::path(argv[1]);
-    }
-    if (argc >= 3) {
-        outputFile = fs::path(argv[2]);
-    }
-    if (argc >= 4) {
-        // Crop X position in inches (convert to points)
-        g_cropRegion.x = static_cast<int>(std::stod(argv[3]) * 72);
-    }
-    if (argc >= 5) {
-        // Crop width in inches (convert to points)
-        g_cropRegion.w = static_cast<int>(std::stod(argv[4]) * 72);
-    }
-    if (argc >= 6) {
-        // Crop Y position in inches (convert to points)
-        g_cropRegion.y = static_cast<int>(std::stod(argv[5]) * 72);
-    }
-    if (argc >= 7) {
-        // Crop height in inches (convert to points)
-        g_cropRegion.h = static_cast<int>(std::stod(argv[6]) * 72);
+    // Process arguments in sequence - switch handles fall-through nicely here
+    switch (argc) {
+        default:  // argc >= 7
+        case 7:
+            // Crop height in inches (convert to points)
+            g_cropRegion.h = static_cast<int>(std::stod(argv[6]) * 72);
+            [[fallthrough]];
+        case 6:
+            // Crop Y position in inches (convert to points)
+            g_cropRegion.y = static_cast<int>(std::stod(argv[5]) * 72);
+            [[fallthrough]];
+        case 5:
+            // Crop width in inches (convert to points)
+            g_cropRegion.w = static_cast<int>(std::stod(argv[4]) * 72);
+            [[fallthrough]];
+        case 4:
+            // Crop X position in inches (convert to points)
+            g_cropRegion.x = static_cast<int>(std::stod(argv[3]) * 72);
+            [[fallthrough]];
+        case 3:
+            outputFile = fs::u8path(argv[2]);
+            [[fallthrough]];
+        case 2:
+            inputFolder = fs::u8path(argv[1]);
+            [[fallthrough]];
+        case 1:
+        case 0:
+            break;
     }
 
     std::cout << "BOM Extractor - Piping Isometrics" << std::endl;
-    std::cout << "Input folder: " << inputFolder.string() << std::endl;
-    std::cout << "Output file:  " << outputFile.string() << std::endl;
-    std::cout << "Crop region:  x=" << (g_cropRegion.x / 72.0) << "\" y=" << (g_cropRegion.y / 72.0)
+    std::cout << "Input folder: " << inputFolder.u8string() << std::endl;
+    std::cout << "Output file:  " << outputFile.u8string() << std::endl;
+    std::cout << "Crop region:  x=" << (g_cropRegion.x / 72.0) << "\" y=" << (g_cropRegion.y / 72.0) 
               << "\" w=" << (g_cropRegion.w / 72.0) << "\" h=" << (g_cropRegion.h / 72.0) << "\"" << std::endl;
     std::cout << std::string(50, '-') << std::endl;
 
     // Verify input folder exists
     if (!fs::exists(inputFolder) || !fs::is_directory(inputFolder)) {
-        std::cerr << "Error: Input folder does not exist: " << inputFolder.string() << std::endl;
+        std::cerr << "Error: Input folder does not exist: " << inputFolder.u8string() << std::endl;
         return 1;
     }
 
@@ -177,7 +184,7 @@ int main(int argc, char* argv[]) {
     if (!allItems.empty()) {
         writeCsv(allItems, outputFile);
         std::cout << std::string(50, '-') << std::endl;
-        std::cout << "Output written to: " << outputFile.string() << std::endl;
+        std::cout << "Output written to: " << outputFile.u8string() << std::endl;
     }
 
     std::cout << "\nComplete: " << successCount << " succeeded, " << failCount << " failed." << std::endl;
@@ -205,12 +212,12 @@ std::string extractTextFromPdf(const fs::path& pdfPath) {
     );
     
     if (!doc) {
-        std::cerr << "Error: Could not load PDF: " << pdfPath.string() << std::endl;
+        std::cerr << "Error: Could not load PDF: " << pdfPath.u8string() << std::endl;
         return "";
     }
     
     if (doc->is_locked()) {
-        std::cerr << "Error: PDF is password protected: " << pdfPath.string() << std::endl;
+        std::cerr << "Error: PDF is password protected: " << pdfPath.u8string() << std::endl;
         return "";
     }
     
@@ -652,7 +659,7 @@ void writeCsv(const std::vector<BomItem>& items, const fs::path& outputPath) {
     std::ofstream file(outputPath);
     
     if (!file.is_open()) {
-        std::cerr << "Error: Could not create output file: " << outputPath.string() << std::endl;
+        std::cerr << "Error: Could not create output file: " << outputPath.u8string() << std::endl;
         return;
     }
     
