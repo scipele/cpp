@@ -24,11 +24,7 @@
 #include <string>
 #include <iostream>
 #include <memory>
-#include <poppler-document.h>
-#include <poppler-page.h>
-#include <poppler-page-renderer.h>
-#include <poppler-version.h>
-#include <poppler-pdf-writer.h>
+
 
 namespace fs = std::filesystem;
 
@@ -80,6 +76,11 @@ int main(int argc, char* argv[]) {
     }
 
     std::cout << "\nComplete: " << successCount << " succeeded, " << failCount << " failed." << std::endl;
+
+    // pause before exit
+    std::cout << "Press Enter to exit...";
+    std::cin.get();
+
     return (failCount > 0) ? 1 : 0;
 }
 
@@ -89,36 +90,46 @@ int main(int argc, char* argv[]) {
 
 // Extracts the first page of a PDF using Poppler C++ API
 bool extractFirstPage(const fs::path& inputPath, const fs::path& outputPath) {
-    std::unique_ptr<poppler::document> doc(poppler::document::load_from_file(inputPath.string()));
-    if (!doc) {
-        std::cerr << "Error: Could not open PDF: " << inputPath << std::endl;
-        return false;
-    }
-    if (doc->is_locked()) {
-        std::cerr << "Error: PDF is locked: " << inputPath << std::endl;
-        return false;
-    }
-    if (doc->pages() < 1) {
-        std::cerr << "Error: PDF has no pages: " << inputPath << std::endl;
+    // Use pdfseparate to extract the first page as a new PDF
+    // pdfseparate -f 1 -l 1 input.pdf output_pg1.pdf
+    std::string input = inputPath.string();
+    std::string output = outputPath.string();
+
+    // pdfseparate expects an output pattern, e.g., output_%d.pdf
+    // We'll extract to a temp file and then rename it
+    fs::path tempOutput = outputPath.parent_path() / (outputPath.stem().string() + "_%d.pdf");
+    std::string tempOutputStr = tempOutput.string();
+
+#ifdef _WIN32
+    // On Windows, quote paths with spaces
+    std::string cmd = "pdfseparate -f 1 -l 1 \"" + input + "\" \"" + tempOutputStr + "\"";
+#else
+    std::string cmd = "pdfseparate -f 1 -l 1 '" + input + "' '" + tempOutputStr + "'";
+#endif
+
+    int result = std::system(cmd.c_str());
+    if (result != 0) {
+        std::cerr << "Error: pdfseparate failed for " << input << std::endl;
         return false;
     }
 
-    // Extract first page
-    std::unique_ptr<poppler::page> page(doc->create_page(0));
-    if (!page) {
-        std::cerr << "Error: Could not extract first page from: " << inputPath << std::endl;
+    // The output will be tempOutput with %d replaced by 1
+    fs::path actualOutput = tempOutput;
+    std::string tempName = tempOutput.string();
+    size_t pos = tempName.find("%d");
+    if (pos != std::string::npos) {
+        tempName.replace(pos, 2, "1");
+    }
+    actualOutput = tempName;
+
+    // Rename to the desired output file name
+    std::error_code ec;
+    fs::rename(actualOutput, outputPath, ec);
+    if (ec) {
+        std::cerr << "Error: Could not rename output file: " << actualOutput << " to " << outputPath << std::endl;
         return false;
     }
 
-    // Write the single page to a new PDF
-    poppler::pdf_writer writer(outputPath.string());
-    writer.set_info("Title", page->label());
-    writer.append_page(page.get());
-    if (!writer.write()) {
-        std::cerr << "Error: Could not write output PDF: " << outputPath << std::endl;
-        return false;
-    }
-
-    std::cout << "Extracted: " << inputPath.string() << " -> " << outputPath.string() << std::endl;
+    std::cout << "Extracted: " << input << " -> " << output << std::endl;
     return true;
 }
