@@ -17,7 +17,7 @@
 //|--------------|-------------------------------------------------------------|
 //| Compile Linux| g++ -std=c++17 ./extr_bom.cpp -o ../bin/extr_bom $(pkg-config --cflags --libs poppler-cpp) |
 //| Compile Win  | g++ -std=c++17 extr_bom.cpp -o extr_bom -I<poppler>/include -L<poppler>/lib -lpoppler-cpp |
-
+//| Compile in MSYS2 UCRT64 Term-> $ g++ -std=c++17 -o ../bin/extr_bom.exe extr_bom.cpp $(pkg-config --cflags --libs poppler-cpp) -lstdc++
 
 #include <filesystem>
 #include <string>
