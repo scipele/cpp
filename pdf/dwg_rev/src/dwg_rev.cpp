@@ -12,8 +12,8 @@
 //| Defaults     | ./inp ./out/bom_output.csv 10.89 5.33 0.81 6.78             |
 //| Crop Region  | Extracts only from BOM area (right side of 11x17 drawing)   |
 //|--------------|-------------------------------------------------------------|
-//| Compile Linux| g++ -std=c++17 ./dwg_rev.cpp -o ../bin/dwg_rev $(pkg-config --cflags --libs poppler-cpp)
-//| Compile in MSYS2 UCRT64 Term-> g++ -std=c++17 -o ../bin/dwg_rev.exe dwg_rev.cpp $(pkg-config --cflags --libs poppler-cpp) -lstdc++
+//| Compile Linux| g++ -std=c++17 ./dwg_rev.cpp -o ../bin/dwg_rev $(pkg-config --cflags --libs poppler-cpp) g++ -std=c++17 -o ../bin/dwg_rev.exe dwg_rev.cpp $(pkg-config --cflags --libs poppler-cpp) -lstdc++
+//| Compile in MSYS2 UCRT64 Term->
 
 
 #include <filesystem>
