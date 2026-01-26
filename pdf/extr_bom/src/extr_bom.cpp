@@ -16,8 +16,7 @@
 //| Crop Region  | Extracts only from BOM area (right side of 11x17 drawing)   |
 //|--------------|-------------------------------------------------------------|
 //| Compile Linux| g++ -std=c++17 ./extr_bom.cpp -o ../bin/extr_bom $(pkg-config --cflags --libs poppler-cpp) |
-//| Compile Win  | g++ -std=c++17 extr_bom.cpp -o extr_bom -I<poppler>/include -L<poppler>/lib -lpoppler-cpp |
-//| Compile in MSYS2 UCRT64 Term-> $ g++ -std=c++17 -o ../bin/extr_bom.exe extr_bom.cpp $(pkg-config --cflags --libs poppler-cpp) -lstdc++
+//| Compile in MSYS2 UCRT64 Term-> g++ -std=c++17 -o ../bin/extr_bom.exe extr_bom.cpp $(pkg-config --cflags --libs poppler-cpp) -lstdc++
 
 #include <filesystem>
 #include <string>
@@ -76,6 +75,7 @@ bool looksLikeDimension(const std::string& field);
 bool isValidBomItem(const BomItem& item);
 bool isDescriptionContinuation(const std::string& line);
 void writeCsv(const std::vector<BomItem>& items, const fs::path& outputPath);
+void pauseConsole();
 
 
 int main(int argc, char* argv[]) {
@@ -85,27 +85,38 @@ int main(int argc, char* argv[]) {
 
     // Parse command line arguments
     // Usage: extr_bom [input_folder] [output_file] [crop_x"] [crop_w"] [crop_y"] [crop_h"]
-    if (argc >= 2) {
-        inputFolder = fs::u8path(argv[1]);
-    }
-    if (argc >= 3) {
-        outputFile = fs::u8path(argv[2]);
-    }
-    if (argc >= 4) {
-        // Crop X position in inches (convert to points)
-        g_cropRegion.x = static_cast<int>(std::stod(argv[3]) * 72);
-    }
-    if (argc >= 5) {
-        // Crop width in inches (convert to points)
-        g_cropRegion.w = static_cast<int>(std::stod(argv[4]) * 72);
-    }
-    if (argc >= 6) {
-        // Crop Y position in inches (convert to points)
-        g_cropRegion.y = static_cast<int>(std::stod(argv[5]) * 72);
-    }
-    if (argc >= 7) {
-        // Crop height in inches (convert to points)
-        g_cropRegion.h = static_cast<int>(std::stod(argv[6]) * 72);
+    
+    // Use a switch statement to handle argument parsing in reverse order for fall-through
+    switch (argc) {
+        default:
+        case 7:
+            // Crop height in inches (convert to points)
+            g_cropRegion.h = static_cast<int>(std::stod(argv[6]) * 72);
+            // This [[fallthrough]] attribute is used to explicitly indicate that the control flow is intentionally
+            // falling through from the previous case in a switch statement to the next case. This helps to avoid
+            // compiler warnings about implicit fallthroughs and improves code readability by making the developer's
+            // intention clear. It is especially useful for maintaining and understanding switch-case logic.
+            [[fallthrough]];
+        case 6:
+            // Crop Y position in inches (convert to points)
+            g_cropRegion.y = static_cast<int>(std::stod(argv[5]) * 72);
+            [[fallthrough]];
+        case 5:
+            // Crop width in inches (convert to points)
+            g_cropRegion.w = static_cast<int>(std::stod(argv[4]) * 72);
+            [[fallthrough]];
+        case 4:
+            // Crop X position in inches (convert to points)
+            g_cropRegion.x = static_cast<int>(std::stod(argv[3]) * 72);
+            [[fallthrough]];
+        case 3:
+            outputFile = fs::u8path(argv[2]);
+            [[fallthrough]];
+        case 2:
+            inputFolder = fs::u8path(argv[1]);
+            [[fallthrough]];
+        case 1:
+            break;
     }
 
     std::cout << "BOM Extractor - Piping Isometrics" << std::endl;
@@ -183,7 +194,10 @@ int main(int argc, char* argv[]) {
     std::cout << "\nComplete: " << successCount << " succeeded, " << failCount << " failed." << std::endl;
     std::cout << "Total BOM items extracted: " << allItems.size() << std::endl;
     
+    // pause depending on system
+    pauseConsole();
     return (failCount > 0 && successCount == 0) ? 1 : 0;
+
 }
 
 
@@ -674,4 +688,13 @@ void writeCsv(const std::vector<BomItem>& items, const fs::path& outputPath) {
     }
     
     file.close();
+}
+
+void pauseConsole() {
+    #ifdef _WIN32
+        system("pause");
+    #else
+        std::cout << "Press Enter to continue...";
+        std::cin.get();
+    #endif
 }
