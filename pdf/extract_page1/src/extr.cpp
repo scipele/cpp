@@ -8,34 +8,22 @@
 //| Outputs      | the first page of all the pdf files                         |
 //| Dependencies | poppler-utils (pdfseparate) via system calls                |
 //| By Name,Date | T.Sciple, 01/24/2026        
-//| Windows Compile Using g++:
-//      g++
-//      -std=c++17
-//      -I C:/poppler/include
-//      -L C:/poppler/lib
-//      -o ../bin/extr.exe
-//      extr.cpp
-//      -lpoppler-cpp
-// g++ -std=c++17 -I C:/poppler/include -L C:/poppler/lib -o ../bin/extr.exe extr.cpp -lpoppler-cpp
-
-
+// Windows Compile Using MSYS2 UCRT64 Shell:
+// g++ -std=c++17 -mconsole -o ../bin/extr.exe extr.cpp $(pkg-config --cflags --libs poppler-cpp) -lstdc++
 
 #include <filesystem>
 #include <string>
 #include <iostream>
 #include <memory>
 
-
 namespace fs = std::filesystem;
 
-
-// Function declarations
+// Function prototypes
 bool extractFirstPage(const fs::path& inputPath, const fs::path& outputPath);
+void pauseConsole();
 
 
 int main(int argc, char* argv[]) {
-
-
     // Get path to executable
     fs::path exePath = fs::absolute(argv[0]);
     fs::path binFolder = exePath.parent_path();
@@ -77,13 +65,9 @@ int main(int argc, char* argv[]) {
 
     std::cout << "\nComplete: " << successCount << " succeeded, " << failCount << " failed." << std::endl;
 
-    // pause before exit
-    std::cout << "Press Enter to exit...";
-    std::cin.get();
-
+    pauseConsole();
     return (failCount > 0) ? 1 : 0;
 }
-
 
 
 // Extracts the first page of a PDF using Poppler C++ API
@@ -130,4 +114,15 @@ bool extractFirstPage(const fs::path& inputPath, const fs::path& outputPath) {
 
     std::cout << "Extracted: " << input << " -> " << output << std::endl;
     return true;
+}
+
+
+// Pause console for user input
+void pauseConsole() {
+#ifdef _WIN32
+    system("pause");
+#else
+    std::cout << "Press Enter to continue...";
+    std::cin.get(); 
+#endif
 }
