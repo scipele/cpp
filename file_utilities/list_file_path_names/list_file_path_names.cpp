@@ -7,7 +7,7 @@
 //| Outputs      | file listing                                                |
 //| Dependencies | see std includes                                            |
 //| By Name,Date | T.Sciple, 10/17/2025                                        |
-// Compile with : g++ -std=c++17 -o list_file_path_names list_file_path_names.cpp
+// Compile with : g++ -std=c++17 -o list_file_path_names list_file_path_names.cpp -static
 
 #include <filesystem>
 #include <iostream>
