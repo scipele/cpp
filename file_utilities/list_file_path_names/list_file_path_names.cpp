@@ -153,7 +153,6 @@ size_t file_list(const std::filesystem::path& directory, bool include_subfolders
 
     // Second pass: collect file info
     file_count = 0;
-    std::cout << "Scanning files in directory: " << to_utf8(directory.wstring()) << std::endl;
     try {
         if (include_subfolders) {
             for (const auto& entry : std::filesystem::recursive_directory_iterator(directory)) {
@@ -172,9 +171,9 @@ size_t file_list(const std::filesystem::path& directory, bool include_subfolders
                 }
             }
         }
-        if (file_count > 0) std::cout << std::endl;
-        std::cout.flush();
-        std::cout << "Files found: " << file_count << std::endl;
+        if (file_count > 0) std::cout << "\rFiles found: " << file_count << std::flush;
+        std::cout << std::endl; // Print newline only once after scan is done
+
     } catch (const std::filesystem::filesystem_error& e) {
         std::cerr << "Error accessing directory (scan phase): " << e.what() << std::endl;
         out_file.close();
