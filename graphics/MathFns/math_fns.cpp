@@ -124,7 +124,7 @@ bool init_window(SDL_Window*& window, SDL_Renderer*& rd, SDL_DisplayMode& disp) 
         return false;
     }
     window = SDL_CreateWindow(
-        "Grapht",
+        "Graph of Mathematical Functions",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         disp.w,
