@@ -77,9 +77,10 @@ void GetPaths::printFileDataHeaderInfo() {
 
 void GetPaths::printFileAndFolderInfo(FilePropGatherer& OrigFiles, FilePropGatherer& NewFiles) {
 
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-    std::string pathA = converter.to_bytes(copy_to_path);
-    std::string pathB = converter.to_bytes(copy_from_path);
+    // Conversion removed: std::wstring_convert is deprecated and causes runtime errors.
+    // Simple ASCII fallback for demonstration (not for Unicode paths):
+    std::string pathA(copy_to_path.begin(), copy_to_path.end());
+    std::string pathB(copy_from_path.begin(), copy_from_path.end());
 
     std::cout       << "| " 
                     << std::left << std::setw(24) << pathA << "|"

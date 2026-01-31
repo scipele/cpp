@@ -87,13 +87,15 @@ std::string FilePropGatherer::get_current_date() {
 // Member function to output file properties to a CSV
 void FilePropGatherer::OutputToCSV(const std::wstring& file_name) {
     #ifdef _WIN32
-        const std::wstring& filename = this->folder_parent_path + L"\\" + file_name;
+        const std::wstring& filename = this->user_path + L"\\" + file_name;
     #else
-        const std::wstring& filename = this->folder_parent_path + L"/" + file_name;
+        const std::wstring& filename = this->user_path + L"/" + file_name;
     #endif
     // Open the file in write mode
     // Convert std::wstring to std::string (UTF-8 or ASCII)
     std::string filename_str(filename.begin(), filename.end());
+
+    std::cout << "\nWriting file properties to CSV: " << filename_str << "\n";
 
     std::ofstream file(filename_str);
     

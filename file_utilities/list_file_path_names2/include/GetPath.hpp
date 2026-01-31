@@ -12,20 +12,20 @@
 #include "FilePropGatherer.hpp"
 
 
-class GetPath {
+class GetPathInfo {
 
 public:
     // Default constructor
-    GetPath();
+    GetPathInfo();
 
     // Destructor
-    virtual ~GetPath();
+    virtual ~GetPathInfo();
     
     std::wstring list_files_path;
     int GetPathLocsAndValidate();
     void printFileDataHeaderInfo();         
     void printFileAndFolderInfo(FilePropGatherer& OrigFiles);
-   
+
 
 
 

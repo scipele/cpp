@@ -8,11 +8,10 @@
 //| Dependencies | see classes in #includes here                               |
 //| By Name,Date | T.Sciple, 1/30/2026                                         |
 // Compile Linux -> /home/ts/dev/cpp/file_utilities/list_file_path_names2/src/g++ -std=c++17 -o f_list *.cpp class/*.cpp
-//      
+// Compile Win -> g++ -std=c++17 -o f_list.exe f_list.cpp class/FilePropGatherer.cpp class/GetPath.cpp
 
 #include <iostream>
 #include <locale>
-#include <codecvt>
 // My Classes
 #include "../include/GetPath.hpp"
 #include "../include/FilePropGatherer.hpp"
@@ -24,14 +23,19 @@ void pause_console();
 
 int main() {
 
+    // Set locale for wide-character input/output
+    std::locale::global(std::locale(""));
+    std::wcin.imbue(std::locale());
+    std::wcout.imbue(std::locale());
+
     // Start Timer
     TimerCls timer;
     
     // Get hard coded paths and validate that they exist
-    GetPath pth;
+    GetPathInfo pth;
     if (pth.GetPathLocsAndValidate() != 0) {
         std::cerr << "Program terminated due to invalid path(s)." << std::endl;
-        system("pause");
+        pause_console();
         return -1; // Exit the program with an error code
     }
 
@@ -48,7 +52,7 @@ int main() {
     ListFiles.getFileProperties();
 
     // Create separate logs stored as csv format "|" delimeted
-    ListFiles.OutputToCSV(L"log_orig.csv");
+    ListFiles.OutputToCSV(L"file_list.csv");
    
     // End the Timer class
     timer.end();
@@ -57,6 +61,7 @@ int main() {
     pause_console();
     return 0;
 }
+
 
 
 void pause_console() {

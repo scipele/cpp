@@ -72,8 +72,9 @@ void GetPth::printFileDataHeaderInfo() {
 
 void GetPth::printFileAndFolderInfo(FilePropGatherer& OrigFiles) {
 
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-    std::string pathA = converter.to_bytes(list_path);
+    // Conversion removed: std::wstring_convert is deprecated and causes runtime errors.
+    // Simple ASCII fallback for demonstration (not for Unicode paths):
+    std::string pathA(list_path.begin(), list_path.end());
 
     std::cout       << "| " 
                     << std::left << std::setw(24) << pathA << "|"

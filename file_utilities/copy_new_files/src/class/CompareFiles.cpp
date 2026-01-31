@@ -250,17 +250,19 @@ std::wstring CompareFiles::stripExtension(const std::wstring& filename) {
 }
 
 
+
 std::string CompareFiles::getStrFromWstr(std::wstring& wstr) {
-    // Using std::wstring_convert
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-    return converter.to_bytes(wstr);
+    // Conversion removed: std::wstring_convert is deprecated and causes runtime errors.
+    // Simple ASCII fallback for demonstration (not for Unicode paths):
+    return std::string(wstr.begin(), wstr.end());
 }
 
 
+
 std::string CompareFiles::getStrFromConstWstr(const std::wstring& wstr) {
-    // Using std::wstring_convert
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-    return converter.to_bytes(wstr);
+    // Conversion removed: std::wstring_convert is deprecated and causes runtime errors.
+    // Simple ASCII fallback for demonstration (not for Unicode paths):
+    return std::string(wstr.begin(), wstr.end());
 }
 
 
