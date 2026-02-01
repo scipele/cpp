@@ -8,7 +8,7 @@
 //| Outputs      | graph                                                       |
 //| Dependencies | SDL2, SDL2_ttf                                              |
 //| By Name,Date | T.Sciple, 01/31/2026                                        |
-// g++ -fdiagnostics-color=always -std=c++17 -g${file} -o${fileDirname}/${fileBasenameNoExtension} -I/usr/include/SDL2 -lSDL2 -lSDL2_ttf
+// Compile on Linux -> g++ -fdiagnostics-color=always -std=c++17 -g math_fns.cpp -o math_fns -I/usr/include/SDL2 -lSDL2 -lSDL2_ttf
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
@@ -43,6 +43,7 @@ bool init_window(SDL_Window*& window, SDL_Renderer*& rd, SDL_DisplayMode& disp);
 void draw_axes(SDL_Renderer* rd, SDL_DisplayMode& disp);
 void draw_line(SDL_Renderer* rd, line_coord_dbl& lc, color_rgb_opac& col);
 void draw_line(SDL_Renderer* rd, line_coord_int& lc, color_rgb_opac& col);
+void draw_thk_line(SDL_Renderer* rd, line_coord_int& lc, color_rgb_opac& col, int thk);
 double math_fn_a(double x);
 double math_fn_b(double x);
 double math_fn_c(double x);
@@ -73,6 +74,27 @@ int main(int argc, char const *argv[])
     SDL_Quit();
     return 0;
 }
+
+
+// Overloaded function for integer
+void draw_thk_line(SDL_Renderer* rd, line_coord_int& lc, color_rgb_opac& col, int thk) {
+    int x1 = static_cast<int>(lc.x_prev);
+    int y1 = static_cast<int>(lc.y_prev);
+    int x2 = static_cast<int>(lc.x);
+    int y2 = static_cast<int>(lc.y);
+    double angle = atan2(y2 - y1, x2 - x1);
+    for (int i = -thk / 2; i <= thk / 2; ++i) {
+        int offsetX = static_cast<int>(i * sin(angle));
+        int offsetY = static_cast<int>(-i * cos(angle));
+        SDL_SetRenderDrawColor(rd, col.r, col.g, col.b, col.o);
+        SDL_Rect rect = {std::min(x1, x2) + offsetX, std::min(y1, y2) + offsetY,
+                         abs(x2 - x1) + 1, abs(y2 - y1) + 1};
+
+        SDL_RenderFillRect(rd, &rect);
+    }
+};
+
+
 
 // Overloaded function for integer
 void draw_line(SDL_Renderer* rd, line_coord_dbl& lc, color_rgb_opac& col) {
@@ -245,10 +267,10 @@ void graph_math_fn(SDL_Renderer* rd, SDL_DisplayMode& disp) {
         line_c = conv_coord_to_screen_coord(x, yc, line_c, sf, x_offset, y_offset);
         line_d = conv_coord_to_screen_coord(x, yd, line_d, sf, x_offset, y_offset);
 
-        draw_line(rd, line_a, col_a);
-        draw_line(rd, line_b, col_b);
-        draw_line(rd, line_c, col_c );
-        draw_line(rd, line_d, col_d );
+        draw_thk_line(rd, line_a, col_a, 3);
+        draw_thk_line(rd, line_b, col_b, 3);
+        draw_thk_line(rd, line_c, col_c, 3);
+        draw_thk_line(rd, line_d, col_d, 3);
    }
 
 }
