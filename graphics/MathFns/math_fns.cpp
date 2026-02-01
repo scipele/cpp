@@ -48,7 +48,7 @@ double math_fn_b(double x);
 double math_fn_c(double x);
 double math_fn_d(double ya, double yb, double yc); 
 void graph_math_fn(SDL_Renderer* rd, SDL_DisplayMode& disp);
-void render_text(SDL_Renderer* rd, const char* text, int x, int y);
+void render_text(SDL_Renderer* rd, const char* text, int x, int y, int font_sz);
 void wait_for_keypress();
 line_coord_int conv_coord_to_screen_coord(double x, double y, line_coord_int& prev_coord, int sf, int x_offset, int y_offset);   
 
@@ -64,7 +64,7 @@ int main(int argc, char const *argv[])
 
     draw_axes(rd, disp);
     graph_math_fn(rd, disp);
-    render_text(rd, "Press any key to exit...", 120, 80);
+    render_text(rd, "Press any key to exit...", 2000, 1200, 16);
     wait_for_keypress();
    
     // Cleanup
@@ -154,15 +154,15 @@ void draw_axes(SDL_Renderer* rd, SDL_DisplayMode& disp) {
     SDL_RenderClear(rd);
 
     // Draw the x and y axis
-    SDL_SetRenderDrawColor(rd, 0, 255, 0, 255); // Green for axes
+    SDL_SetRenderDrawColor(rd, 0, 0, 0, 255);
     line_coord_int li  = {disp.w, disp.h / 2, 0, disp.h / 2};    // x axis
 
     std::string w = "screen width = " + std::to_string(disp.w);
-    render_text(rd, w.c_str(), 120, 140);
+    render_text(rd, w.c_str(), 120, 140, 12);
     std::string h = "screen height = " + std::to_string(disp.h);
-    render_text(rd, h.c_str(), 120, 160);
+    render_text(rd, h.c_str(), 120, 160, 12);
  
-    color_rgb_opac col_axes = {0, 255, 0, 255}; // Green for axes
+    color_rgb_opac col_axes = {30, 30, 30, 255}; // Black for axes
     draw_line(rd, li, col_axes);
 
     li  = {disp.w / 2, 0, disp.w / 2, disp.h};    // y axis
@@ -187,13 +187,13 @@ void draw_axes(SDL_Renderer* rd, SDL_DisplayMode& disp) {
         li = {disp.w / 2 - tick_len, disp.h / 2 + i, disp.w / 2 + tick_len, disp.h / 2 + i};
         draw_line(rd, li, col_axes); // x axis ticks
         if (show_labels) {
-            render_text(rd, std::to_string(i / 20).c_str(), disp.w / 2 + tick_len + 2, disp.h / 2 - i - 8);
+            render_text(rd, std::to_string(i / 20).c_str(), disp.w / 2 + tick_len + 2, disp.h / 2 - i - 8, 12);
         }
 
         li = {disp.w / 2 + i, disp.h / 2 - tick_len, disp.w / 2 + i, disp.h / 2 + tick_len};
         draw_line(rd, li, col_axes); // y axis ticks
         if (show_labels && i != 0) {
-            render_text(rd, std::to_string(i / 20).c_str(), disp.w / 2 + i - 5, disp.h / 2 + tick_len + 2);
+            render_text(rd, std::to_string(i / 20).c_str(), disp.w / 2 + i - 5, disp.h / 2 + tick_len + 2, 12);
         }
     }
 }
@@ -215,9 +215,9 @@ void graph_math_fn(SDL_Renderer* rd, SDL_DisplayMode& disp) {
     color_rgb_opac col_c = {0, 0, 255, 255}; // Blue
     color_rgb_opac col_d = {0, 0, 128, 255}; // Blue
 
-    render_text(rd, "Graph of Sin Waves", 120, 100);
+    render_text(rd, "Graph of Sin Waves", 120, 80, 36);
     std::string scale_str = "Scale Factor: " + std::to_string(sf);
-    render_text(rd, scale_str.c_str(), 120, 120);
+    render_text(rd, scale_str.c_str(), 120, 120, 12);
 
     // set initial previous coordinates
     double ya, yb, yc, yd;
@@ -249,20 +249,16 @@ void graph_math_fn(SDL_Renderer* rd, SDL_DisplayMode& disp) {
         draw_line(rd, line_b, col_b);
         draw_line(rd, line_c, col_c );
         draw_line(rd, line_d, col_d );
-
-        line_coord_int line_a_prev = line_a;
-        line_coord_int line_b_prev = line_b;
-        line_coord_int line_c_prev = line_c;
    }
 
 }
 
 
-void render_text(SDL_Renderer* rd, const char* text, int x, int y) {
+void render_text(SDL_Renderer* rd, const char* text, int x, int y, int font_sz) {
     if (TTF_Init() == -1) {
         SDL_Log("Unable to initialize SDL_ttf: %s", TTF_GetError());
     } else {
-        TTF_Font* font = TTF_OpenFont("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 12);
+        TTF_Font* font = TTF_OpenFont("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", font_sz);
         if (font) {
             SDL_Color color = {0, 0, 255, 255};
             SDL_Surface* textSurface = TTF_RenderText_Blended(font, text, color);
