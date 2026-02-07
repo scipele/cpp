@@ -19,7 +19,7 @@
 #include <fstream>
 #include <string>
 
-const int GRID_SIZE = 200;
+const int GRID_SIZE = 400;
 
 struct Vec3 {
     float x, y, z;
