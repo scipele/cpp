@@ -19,6 +19,7 @@
 #include <fstream>
 #include <string>
 
+const int GRID_SIZE = 200;
 
 struct Vec3 {
     float x, y, z;
@@ -92,7 +93,6 @@ int main() {
     const float zoomSpeed = 40.0f;
     const float minFocal = 100.0f;
     const float maxFocal = 2000.0f;
-    const int GRID_SIZE = 400;
 
     // Main loop
     while (state.running) {
@@ -205,7 +205,6 @@ TTF_Font* loadFont(const char* path, int size) {
 }
 
 void generateGrid(std::vector<std::vector<Vec3>>& grid, float& minZ, float& maxZ) {
-    const int GRID_SIZE = 400;
     const float SCALE = 7.0f;
     const float STEP = (2.0f * SCALE) / (GRID_SIZE - 1.0f);
 
