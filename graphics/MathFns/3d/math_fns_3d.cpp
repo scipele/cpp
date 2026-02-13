@@ -9,7 +9,9 @@
 //| Dependencies | SDL2, SDL2_ttf                                              |
 //| By Name,Date | T.Sciple, 02/07/2026                                        |
 // Compile on Linux -> g++ -fdiagnostics-color=always -std=c++17 -g math_fns_3d.cpp -o math_fns_3d -I/usr/include/SDL2 -lSDL2 -lSDL2_ttf
+// Compile on Windows -> g++.exe -std=c++20 -g math_fns_3d.cpp -o math_fns_3d.exe -IC:/msys64/ucrt64/include/SDL2 -LC:/msys64/ucrt64/lib -lSDL2 -lSDL2_ttf
 
+#define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
@@ -19,6 +21,7 @@
 #include <fstream>
 #include <string>
 
+double M_PI = 3.14159265358979323846;
 const int GRID_SIZE = 400;
 
 struct Vec3 {
@@ -205,7 +208,7 @@ TTF_Font* loadFont(const char* path, int size) {
 }
 
 void generateGrid(std::vector<std::vector<Vec3>>& grid, float& minZ, float& maxZ) {
-    const float SCALE = 7.0f;
+    const float SCALE = 14.0f;
     const float STEP = (2.0f * SCALE) / (GRID_SIZE - 1.0f);
 
     grid.resize(GRID_SIZE, std::vector<Vec3>(GRID_SIZE));
