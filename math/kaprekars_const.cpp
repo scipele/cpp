@@ -9,17 +9,18 @@
 //| Dependencies | none                                                        |
 //| By Name,Date | T.Sciple, 2/16/2026                                         |
 
-
 #include<iostream>
 #include<string>
 #include <algorithm>
 #include <iomanip>
 
-//Function prototype
+
+//Function prototypes
 std::string padWithZeros(const std::string& str);
+int printKaprekarIterations(const std::string& str);
 
 
-int main(int argc, char const *argv[])
+int main()
 {
     std::cout << "Kaprekar's constant Definition:\n";
     std::cout   << "Kaprekar's constant is 6174, a unique four-digit number in base 10 that acts as a mathematical black hole. Named after Indian mathematician D. R. Kaprekar in 1949,\n"
@@ -35,11 +36,31 @@ int main(int argc, char const *argv[])
     std::string s;
     std::cout << "Enter a 4-digit number: ";
     std::getline(std::cin, s);
+
+    printKaprekarIterations(s); // Call the function to perform the iterations
+
+    for (int i = 0; i < 10; i++) {
+        // try some random numbers
+        int randomNum = rand() % 10000; // Generate a random number between 0 and 9999
+        std::string randomStr = std::to_string(randomNum);
+        printKaprekarIterations(randomStr); // Call the function to perform the iterations  
+    }
+
+    std::cout << "Press Enter to continue...";
+    std::cin.get(); // Wait for user input before closing the console
+    
+    return 0;
+}
+
+
+
+int printKaprekarIterations(const std::string& str) {
+    std::string s = str;
     s = s.substr(0, 4);                                                     // Ensure we only take the first 4 characters
 
     int n = 0;
     int indx = 0;
-
+    std::cout << "\nStarting number: " << s << "\n";
     std::cout << "+------+-------+-------+-------+-------+\n"
               << "| iter | start | large | small | delta |\n"
               << "+------+-------+-------+-------+-------+\n";
@@ -70,15 +91,12 @@ int main(int argc, char const *argv[])
     }
     
     if (n != 6174) {
-        std::cout << "\nKaprekar's constant was not reached within 8 iterations." << "\n\n";
+        std::cout << "\nKaprekar's constant was not reached within 7 iterations." << "\n";
     } else {
-        std::cout << "\nKaprekar's constant reached in " << indx << " iterations: " << s << "\n\n";
+        std::cout << "\nKaprekar's constant reached in " << indx << " iterations: " << s << "\n";
     }
 
-    std::cout << "Press Enter to continue...";
-    std::cin.get(); // Wait for user input before closing the console
-    
-    return 0;
+    return 0;  // exit normally
 }
 
 
