@@ -21,7 +21,7 @@
 #include <fstream>
 #include <string>
 
-double M_PI = 3.14159265358979323846;
+const double MPI = 3.14159265358979323846;
 const int GRID_SIZE = 400;
 
 struct Vec3 {
@@ -395,19 +395,19 @@ bool project(const Vec3& world, const Camera& cam, int screenWidth, int screenHe
 }
 
 Vec3 rotateX(const Vec3& v, float angle_deg) {
-    float rad = angle_deg * M_PI / 180.0f;
+    float rad = angle_deg * MPI / 180.0f;
     float c = cosf(rad), s = sinf(rad);
     return {v.x, v.y * c - v.z * s, v.y * s + v.z * c};
 }
 
 Vec3 rotateY(const Vec3& v, float angle_deg) {
-    float rad = angle_deg * M_PI / 180.0f;
+    float rad = angle_deg * MPI / 180.0f;
     float c = cosf(rad), s = sinf(rad);
     return {v.x * c - v.z * s, v.y, v.x * s + v.z * c};
 }
 
 Vec3 rotateZ(const Vec3& v, float angle_deg) {
-    float rad = angle_deg * M_PI / 180.0f;
+    float rad = angle_deg * MPI / 180.0f;
     float c = cosf(rad), s = sinf(rad);
     return {v.x * c - v.y * s, v.x * s + v.y * c, v.z};
 }
