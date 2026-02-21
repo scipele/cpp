@@ -58,9 +58,15 @@ PipeData::~PipeData() {
 
 
 void PipeData::GetUserInput() {
-    for(int i=0; i<25; i++) std::cout << "\n";  //print several blank lines to clear out the screen
-    this->nom_size = get_str_from_user("1. Enter Nominal Pipe size in Decimal Format (0.5, 1.25, 2, 3, 4, 6, 8, 10, 12 ...) --> ");
-    this->sched = get_str_from_user("2. Enter Pipe Schedule (std, xs, xxs, 5, 10, 20, 30, 40, 60, 80, 120, 140, 160) --> ");
+
+    #ifdef _WIN32
+        system("cls");
+    #else
+        std::cout << "\033[2J\033[H";
+    #endif
+
+    this->nom_size = get_str_from_user("1. Enter Nominal Pipe size in Decimal Format (0.5,1.25,2,3,6,8,12...) --> ");
+    this->sched = get_str_from_user("2. Enter Pipe Schedule (std,xs,xxs,5,10,20,30,40,60,80,120,140,160) --> ");
     // Now get additional data using the user input
     int result = get_od_and_thk();
     // print any errors using the result integer return value from the 'get_od_and_thk' function
