@@ -65,6 +65,8 @@ void PipeData::GetUserInput() {
         std::cout << "\033[2J\033[H";
     #endif
 
+    std::cout << "Welcome to the Pipe Data Calculator!" << "\n\n";
+
     this->nom_size = get_str_from_user("1. Enter Nominal Pipe size in Decimal Format (0.5,1.25,2,3,6,8,12...) --> ");
     this->sched = get_str_from_user("2. Enter Pipe Schedule (std,xs,xxs,5,10,20,30,40,60,80,120,140,160) --> ");
     // Now get additional data using the user input

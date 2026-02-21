@@ -12,9 +12,9 @@
 //                                                          PipeDataExtended
 //
 // How to Compile:  
-// Windows Compile:     g++ "-fdiagnostics-color=always""-g" *.cpp" "class/*.cpp" -o" pipe_data_main 
-// Linux Compile:       g++ "-fdiagnostics-color=always""-g" *.cpp" "class/*.cpp" -o" pipe_data_main 
-//  By:         T.Sciple, 8/31/2024
+// Windows Compile:     g++ -fdiagnostics-color=always -g *.cpp class/*.cpp -o pipe_data_main
+// Linux Compile:       g++ -fdiagnostics-color=always -g *.cpp class/*.cpp -o pipe_data_main
+//  By:         T.Sciple, 2/23/2026
 
 
 #include <iostream>
