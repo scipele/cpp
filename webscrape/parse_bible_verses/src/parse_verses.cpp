@@ -36,6 +36,7 @@ const std::vector<std::string> BIBLE_BOOKS = {
 
 std::string escapeRegex(const std::string& str);
 std::string buildBooksPattern();
+void pauseConsole();
 
 
 int main() {
@@ -99,6 +100,8 @@ int main() {
     
     std::cout << "\nVerses written to: " << outputPath << std::endl;
     
+    pauseConsole();
+    
     return 0;
 }
 
@@ -125,4 +128,15 @@ std::string buildBooksPattern() {
     }
     pattern += ")";
     return pattern;
+}
+
+
+void pauseConsole() {
+    // If Windows, use system("pause"); otherwise, use cin.get() to wait for user input
+    #ifdef _WIN32
+        system("pause");    
+    #else
+        std::cout << "Press Enter to continue...";
+        std::cin.get();
+    #endif
 }
