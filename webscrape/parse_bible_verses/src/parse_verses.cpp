@@ -5,9 +5,9 @@
 //| EntryPoint   | main                                                        |
 //| Purpose      | strip out the Bible verses from a text                      |
 //| Inputs       | ../input/raw_text.txt                                       |
-//| Outputs      | ../output/clean_text.txt                                    |
+//| Outputs      | ../output/lookup_verses.txt                                 |
 //| Dependencies | none                                                        |
-//| By Name,Date | T.Sciple, 02/02/2024                                        |
+//| By Name,Date | T.Sciple, 02/22/2026                                        |
 // compile with: g++ -std=c++17 -o parse_verses parse_verses.cpp
 
 
@@ -24,7 +24,7 @@ const std::vector<std::string> BIBLE_BOOKS = {
     // Old Testament
     "Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth",
     "1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra",
-    "Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon",
+    "Nehemiah","Esther","Job","Psalms","Psalm","Proverbs","Ecclesiastes","Song of Solomon",
     "Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos",
     "Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi",
     // New Testament
@@ -60,21 +60,24 @@ int main() {
     // Match patterns like: "John 3:16", "1 Cor 13:1-13", "Genesis 1:1,3,5", "Psalm 23"
     // Use word boundary \b to prevent matching partial words (e.g., "verses" matching "es")
     std::string versePattern = "\\b" + booksPattern + 
-        R"(\.?\s+(\d{1,3})(?:\s*:\s*(\d{1,3})(?:\s*[-–—]\s*(\d{1,3}))?(?:\s*,\s*(\d{1,3}(?:\s*[-–—]\s*\d{1,3})?))*)?)"
-        ;
+        R"(\.?\s+(\d{1,3})(?:\s*:\s*(\d{1,3})(?:\s*[-–—]\s*(\d{1,3}))?(?:\s*,\s*(\d{1,3}(?:\s*[-–—]\s*\d{1,3})?))*)?)";
     
     std::regex verseRegex(versePattern, std::regex::icase);
     
     // Find all matches
-    std::set<std::string> uniqueVerses; // Use set to avoid duplicates
-    std::regex whitespaceRegex(R"(\s+)"); // For normalizing whitespace
+    std::vector<std::string> uniqueVerses; // Maintain order of appearance
+    std::set<std::string> seenVerses;      // Track duplicates
+    std::regex whitespaceRegex(R"(\s+)");  // For normalizing whitespace
     std::sregex_iterator it(content.begin(), content.end(), verseRegex);
     std::sregex_iterator end;
     
     while (it != end) {
         // Normalize whitespace: replace multiple spaces/newlines with single space
         std::string verse = std::regex_replace(it->str(), whitespaceRegex, " ");
-        uniqueVerses.insert(verse);
+        // Only add if not seen before (preserves first occurrence order)
+        if (seenVerses.insert(verse).second) {
+            uniqueVerses.push_back(verse);
+        }
         ++it;
     }
     
@@ -100,7 +103,6 @@ int main() {
 }
 
 
-
 std::string escapeRegex(const std::string& str) {
     std::string result;
     for (char c : str) {
@@ -113,6 +115,7 @@ std::string escapeRegex(const std::string& str) {
     }
     return result;
 }
+
 
 std::string buildBooksPattern() {
     std::string pattern = "(";
