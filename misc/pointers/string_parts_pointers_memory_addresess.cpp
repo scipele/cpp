@@ -29,10 +29,10 @@ int main() {
     std::cout << "Pointer to the end (ptr_end)        : " << static_cast<void*>(ptr_end) << " (" << *ptr_end << ")\n\n";
 
     std::cout << "First part of the string:  " << std::string(ptr_begin, ptr_space - ptr_begin ) << "\n";
-    std::cout << "Second part of the string: " << std::string(ptr_space, ptr_end - ptr_space ) << "\n\n";
+    std::cout << "Second part of the string: " << std::string(ptr_space+1, ptr_end - ptr_space ) << "\n\n";
 
     // Next loop thru each character and print the memory address of each character
-    std::cout << "Indx  Ascii   Char    Hexidecimal Address of Memory Address where data is stored";
+    std::cout << "Indx  Ascii   Char    Hexidecimal Address of Memory Address where data is stored\n";
     for (int i = 0; i < str.length(); ++i) {
         std::cout << "[" << i << "]\t" << static_cast<int>(str[i]) << "\t'" << str[i] << "'\t" << static_cast<void*>(&str[i]) << std::endl;
     }

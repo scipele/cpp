@@ -12,29 +12,16 @@
 //                                                          PipeDataExtended
 //
 // How to Compile:  
-//              The following directive must be used in the '"args": [' section of the 'tasks.json' 
-//            "args": [
-//                "-fdiagnostics-color=always",
-//                "-g",
-//                "*.cpp",  // Compile all .cpp files in the current directory
-//                "class/*.cpp",    // compiles the implementation files
-//                "-o",
-//                "${fileDirname}\\${fileBasenameNoExtension}.exe"
-//            ],
-
-//              compiler will compile all the files in the current path
-//                  - Placement:  put the following after the "-g", argument
-//                      "*.cpp",  // This compiles all .cpp files in the current directory
-//                      comment this out -> // "${file}",  which tells the compiler to compile only the current file
-//
-//  By:         T.Sciple, 8/31/2024
+// Windows Compile:     g++ -fdiagnostics-color=always -g *.cpp class/*.cpp -o pipe_data_main
+// Linux Compile:       g++ -fdiagnostics-color=always -g *.cpp class/*.cpp -o pipe_data_main
+//  By:         T.Sciple, 2/23/2026
 
 
 #include <iostream>
 #include "../include/PipeData.hpp" // Header file definition for PipeData Class, note that the implementation file is PipeData.cpp
 
 
-int main(int argc, char const *argv[])
+int main()
 {
     std::string loopAgain;
     do
@@ -47,13 +34,12 @@ int main(int argc, char const *argv[])
 
         //Keep looping or 'q' to quit
         std::cout << "Enter to Continue, q to quit ";
-        std::getline(std::cin, loopAgain);
+        if (!std::getline(std::cin, loopAgain)) {
+            std::cerr << "\nInput stream closed. Exiting.\n";
+            break;
+        }
 
     } while (loopAgain != "q");
-
-    // Alternate try just getting basic properties with base class 'PipeData'
-    // PipeData pd;
-    // pd.PrintPipeData();
 
     return 0;
 }

@@ -4,7 +4,6 @@
 // 
 // by:          JAS, 10/5/2024
 
-#pragma once
 #include <vector>
 #include <algorithm>
 #include <map>

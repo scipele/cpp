@@ -6,6 +6,9 @@
 //                  Method or Class Member Function '.FracToDecFeet'
 //
 // By:  T.Sciple, 09/11/2024
+// compile in linux: 
+//      g++ -fdiagnostics-color=always -std=c++17 -g add_frac_ft_In.cpp ../../FracConv/src/Class/FracConvert.cpp -o add_frac_ft_In
+
 
 #include <iostream>
 #include <string>
@@ -14,6 +17,7 @@
 
 // Function Prototypes
 std::string get_user_input();
+void pause();
 
 int main() {
     std::cout << "Enter Fractional Feet Inches and Fractions (ie 43'-7 7/16\") :\n"
@@ -45,8 +49,10 @@ int main() {
 
         std::cout << "Running Sum: " << dec_ft_sum << "\n";
     };
-   
-    system("pause");
+
+    pause();
+    
+    return 0;
 }
 
 std::string get_user_input() {
@@ -54,4 +60,15 @@ std::string get_user_input() {
     std::string tmp_str;
     std::getline(std::cin, tmp_str);
     return tmp_str;
+}
+
+
+void pause() {
+    // If Windows, use system("pause"); otherwise, use cin.get() to wait for user input
+    #ifdef _WIN32
+        system("pause");    
+    #else
+        std::cout << "Press Enter to continue...";
+        std::cin.get();
+    #endif
 }

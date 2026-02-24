@@ -16,9 +16,13 @@
 *.xlsm
 *.xlsx
 *.zip
+*.csv
+*.bin
 llm/llama.cpp/
 llm/models
 llm/matchQA/data/vec_dase.bin
+llm/matchQA/data/new_questions.csv
+llm/matchQA/data/database_questions_answers.csv
 webscrape/get_bible_verses/output/
 webscrape/get_bible_verses/input/lookup_verses.txt
 temp.txt
