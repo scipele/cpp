@@ -1,13 +1,14 @@
 // ************ MAIN PROGRAM ***************************************************
 //| Item	     | Main Program Documentation Notes                            |
 //|--------------|-------------------------------------------------------------|
-//| Filename     | x.cpp                                                       |
-//| EntryPoint   | xxx                                                         |
-//| Purpose      | compute estimate work hours for various                     |
-//| Inputs       | varies                                                      |
-//| Outputs      | number of work hours                                        |
-//| Dependencies | Indicate if any libraries are used or none                  |
-//| By Name,Date | T.Sciple, MM/DD/YYYY                                        |
+//| Filename     | various_pointers.cpp                                        |
+//| EntryPoint   | main                                                        |
+//| Purpose      | illustrate various pointer usages                           |
+//| Inputs       | hard coded                                                  |
+//| Outputs      | screen printing                                             |
+//| Dependencies | none                                                        |
+//| By Name,Date | T.Sciple, 02/23/2026                                        |
+
 
 #include <iostream>
 #include <iomanip>
@@ -27,15 +28,15 @@ void pauseConsole() {
 void printValue (void *ptr, const std::string &type) {
    
     if (type == "i") {
-        std::cout << "\tInt Value: " << *(static_cast<int*>(ptr)) << "\n"; // Cast void pointer to int pointer and dereference to print value
+        std::cout << "\tInt Value: " << *(static_cast<int*>(ptr)) << "\n";          // Cast void pointer to int pointer and dereference to print value
     } else if (type == "d") {
-        std::cout << "\tDouble Value: " << *(static_cast<double*>(ptr)) << "\n"; // Cast void pointer to double pointer and dereference to print value
+        std::cout << "\tDouble Value: " << *(static_cast<double*>(ptr)) << "\n";    // Cast void pointer to double pointer and dereference to print value
     } else if (type == "c") {
-        std::cout << "\tChar Value: " << *(static_cast<char*>(ptr)) << "\n"; // Cast void pointer to char pointer and dereference to print value
+        std::cout << "\tChar Value: " << *(static_cast<char*>(ptr)) << "\n";        // Cast void pointer to char pointer and dereference to print value
     } else if (type == "f") {
-        std::cout << "\tFloat Value: " << *(static_cast<float*>(ptr)) << "\n"; // Cast void pointer to float pointer and dereference to print value
+        std::cout << "\tFloat Value: " << *(static_cast<float*>(ptr)) << "\n";      // Cast void pointer to float pointer and dereference to print value
     } else {
-        std::cout << "\tUnknown type\n"; // Handle unknown types
+        std::cout << "\tUnknown type\n";                                            // Handle unknown types
     }
 }
 
@@ -48,7 +49,7 @@ int main() {
     int a = 10; // An integer variable
     int *ptr = &a; // Pointer to an integer, initialized to the address of a
 
-    std::cout << "Integer Pointer Example:\n";
+    std::cout << "1. Integer Pointer Example:\n";
     std::cout << std::setw(45) << std::left << "\tValue of integer a: " << a << "\n"; // Output the value of a
     std::cout << std::setw(45) << std::left << "\tSize of integer a: " << sizeof(a) << " bytes" << "\n"; // Output the size of a
     std::cout << std::setw(45) << std::left << "\tAddress of a using the & operator: " << &a << "\n"; // Output the address of a
@@ -63,24 +64,32 @@ int main() {
     std::cout << std::setw(45) << std::left << "\tAddress of a using the & operator: " << &a << "\n\n\n"; // Output the address of a again to show it hasn't changed
     
 
-    std::cout << "Integer Array Pointer Example:\n";
-    int arr[5] = {1, 2, 3, 5, 8}; // An array of integers
+    std::cout << "2. Integer Array Pointer Example:\n";
+
+    int arr[8];
+    // create an array of fibbinacci numbers
+    arr[0] = 0;  arr[1] = 1;
+    for (int indx = 2; indx < 8; ++indx) {
+        arr[indx] = arr[indx - 1] + arr[indx - 2];
+    }
+        
     int *arrPtr = arr; // Pointer to the first element of the array (equivalent to &arr[0])
     std::cout << std::setw(45) << std::left << "\tValue of arrPtr (address of first element): " << arrPtr << "\n"; // Output the value of arrPtr (address of first element)
     std::cout << std::setw(45) << std::left << "\tSize of arrPtr: " << sizeof(arrPtr) << " bytes" << "\n"; // Output the size of arrPtr
     std::cout << std::setw(45) << std::left << "\twhich is the Value of arr[0]: " << arr[0] << "\n"; // Output the value of the first element of the array to show it's the same as *arrPtr      
     std::cout << std::setw(45) << std::left << "\tValue pointed to by arrPtr: " << *arrPtr << "\n"; // Output the value at the address stored in arrPtr (first element of the array)
     std::cout << std::setw(45) << std::left << "\tValue pointed to by arrPtr+2: " << *(arrPtr + 2) << "\n"; // Output the value at the address stored in arrPtr (third element of the array)
-    std::cout << std::setw(45) << std::left << "\tValue pointed to by arrPtr+5: " << *(arrPtr + 5) << "\n"; // Output the value at the address stored in arrPtr (sixth element of the array, out of bounds, will likely print garbage value or cause undefined behavior)
     
     // Loop through the array using the pointer to demonstrate pointer arithmetic and output each element's value and address
-    for (auto elem : arr) {
-        std::cout << std::setw(45) << std::left << "\tValue of element: " << elem << " Address: " << &elem << "\n"; // Output each element of the array
+    // create a 
+
+    for (int indx = 0; indx < 8; ++indx) {
+        std::cout << std::setw(45) << std::left << "\tValue of element at index " + std::to_string(indx) + ": " << *(arrPtr + indx) << " Address: " << (arrPtr + indx) << "\n"; // Output each element of the array
     }
 
 
     // 2. Pointer to a pointer (double pointer)
-    std::cout << "\n\nDouble Pointer Example:\n";
+    std::cout << "\n\n3. Double Pointer Example (Pointer to Pointer):\n";
     int **doublePtr = &ptr; // A pointer to a pointer, initialized to the address of ptr
     std::cout << std::setw(45) << std::left << "\tWhy use a double pointer? It allows us to indirectly access and modify the value of a pointer (ptr)\n"
                                             << "\tthat points to another variable (a). This can be useful in scenarios like dynamic memory allocation,\n"
@@ -90,9 +99,9 @@ int main() {
     std::cout << std::setw(45) << std::left << "\tValue pointed to by doublePtr (value of ptr): " << *doublePtr << "\n"; // Output the value at the address stored in doublePtr (value of ptr, which is the address of a)
     std::cout << std::setw(45) << std::left << "\tValue pointed to by the pointer pointed to by doublePtr (value of a): " << **doublePtr << "\n"; // Output the value at the address stored in the pointer pointed to by doublePtr (value of a)     
 
-
+    
     // 3. Void pointer (generic pointer)
-    std::cout << "\n\nVoid Pointer Example:\n";
+    std::cout << "\n\n4. Void Pointer Example (Generic Pointer):\n";
     void *voidPtr; // A void pointer, which can point to any data type but cannot be dereferenced directly
     voidPtr = &a; // Pointing to an integer variable
     std::cout << std::setw(45) << std::left << "\tValue of voidPtr (address of a): " << voidPtr << "\n"; // Output the value of voidPtr (address of a)
@@ -106,12 +115,12 @@ int main() {
 
     int b = 42;
     double c = 3.14;
-    char d = 'A';
+    char d = 'b';
     float e = 2.718f;
     void *f = nullptr; // Example of an unknown type (void is not a valid variable type, but we can use it to demonstrate the printValue function's handling of unknown types)
 
 
-    std::cout << "\nUsing printValue function:\n";
+    std::cout << "\n5. Using printValue function (Unknown Type Handling via void pointer):\n";
 
     std::cout << std::setw(45) << std::left << "\tPassing different types of data to the printValue function using void pointers:\n"; // Explanation of what we are doing with the printValue function  
     printValue(&b, typeid(b).name()); // Pass the address of b and its type name to the printValue function
