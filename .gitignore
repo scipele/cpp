@@ -16,6 +16,8 @@
 *.xlsm
 *.xlsx
 *.zip
+*.csv
+*.bin
 llm/llama.cpp/
 llm/models
 llm/matchQA/data/vec_dase.bin
