@@ -6,7 +6,7 @@
 //| Inputs       | hard coded                                                  |
 //| Outputs      | print to screen                                             |
 //| Dependencies | none                                                        |
-//| By Name,Date | T.Sciple, 02/23/2026                                        |
+//| By Name,Date | T.Sciple, 02/25/2026                                        |
 
 
 #include <iostream>
@@ -14,19 +14,20 @@
 #include <algorithm>
 #include <iomanip>
 #include <bitset>
+#include <cstdint>
 
 
 // Function prototypes
-std::string convertNumToBinaryStr(u_int32_t num);
+std::string convertNumToBinaryStr(uint32_t num);
 void convertBinaryStrToDecimal(const std::string& bin_str);
-std::string FormatWithCommas(u_int32_t num);
+std::string FormatWithCommas(uint32_t num);
 void binaryToHexBitset(const std::string& binaryString);
 
 
 int main() {
 
     // convert a number to binary string representation
-    u_int32_t num = 4'294'967'295; // Max value for uint32_t  = 4'294'967'295
+    uint32_t num = 4'294'967'295; // Max value for uint32_t  = 4'294'967'295
     std::cout << "Step 1: Convert a number to binary string representation\n";
     std::string bin_str = convertNumToBinaryStr(num);
     binaryToHexBitset(bin_str);
@@ -52,7 +53,7 @@ int main() {
     std::cout << "\nStep 5: Convert a hex string to a decimal number\n";
     std::string hex_str = "1F";
     std::cout << "\tHexStr: " << hex_str << std::endl;
-    u_int32_t decimal_num = std::stoul(hex_str, nullptr, 16);
+    uint32_t decimal_num = std::stoul(hex_str, nullptr, 16);
     std::cout << "\tDecimalNum: " << FormatWithCommas(decimal_num) << std::endl;
     bin_str = convertNumToBinaryStr(decimal_num);
     binaryToHexBitset(bin_str);
@@ -71,7 +72,7 @@ void convertBinaryStrToDecimal(const std::string& bin_str) {
     }
 
     // Convert binary string to decimal number
-    u_int32_t decimal_num = 0;
+    uint32_t decimal_num = 0;
     int power = 0;
     for (auto it = cleaned_bin_str.rbegin(); it != cleaned_bin_str.rend(); ++it) {
         if (*it == '1') {
@@ -84,8 +85,8 @@ void convertBinaryStrToDecimal(const std::string& bin_str) {
 }
 
 
-std::string convertNumToBinaryStr(u_int32_t num) {
-    u_int32_t n = num;
+std::string convertNumToBinaryStr(uint32_t num) {
+    uint32_t n = num;
 
     // Mannually Convert integer to binary string representation
     std::string binaryStr;
@@ -135,14 +136,14 @@ void binaryToHexBitset(const std::string& binaryString) {
         return;
     }
 
-    u_int32_t decimalValue = static_cast<u_int32_t>(std::bitset<32>(cleanedBinary).to_ulong());
+    uint32_t decimalValue = static_cast<uint32_t>(std::bitset<32>(cleanedBinary).to_ulong());
 
     std::cout << "\tThe hexadecimal equivalent is: 0x"
               << std::hex << std::uppercase << decimalValue << std::dec << std::endl;
 }
 
 
-std::string FormatWithCommas(u_int32_t num) {
+std::string FormatWithCommas(uint32_t num) {
     std::string str = std::to_string(num);
     int bkw_cnt = str.length(); // initialize a backward counter to count down from string len to 0
     std::string formated_str;
