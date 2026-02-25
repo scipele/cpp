@@ -8,10 +8,14 @@
 //| Outputs      | screen printing                                             |
 //| Dependencies | none                                                        |
 //| By Name,Date | T.Sciple, 02/23/2026                                        |
+//
 
 
 #include <iostream>
 #include <iomanip>
+#include <string>
+// #include <typeinfo>
+// #include <cstdlib>
 
 void pauseConsole() {
     // If Windows, use system("pause"); otherwise, use cin.get() to wait for user input
@@ -65,11 +69,10 @@ int main() {
     
 
     std::cout << "2. Integer Array Pointer Example:\n";
-
-    int arr[8];
+    int arr[10];
     // create an array of fibbinacci numbers
     arr[0] = 0;  arr[1] = 1;
-    for (int indx = 2; indx < 8; ++indx) {
+    for (int indx = 2; indx < 10; ++indx) {
         arr[indx] = arr[indx - 1] + arr[indx - 2];
     }
         
@@ -83,12 +86,12 @@ int main() {
     // Loop through the array using the pointer to demonstrate pointer arithmetic and output each element's value and address
     // create a 
 
-    for (int indx = 0; indx < 8; ++indx) {
+    for (int indx = 0; indx < 10; ++indx) {
         std::cout << std::setw(45) << std::left << "\tValue of element at index " + std::to_string(indx) + ": " << *(arrPtr + indx) << " Address: " << (arrPtr + indx) << "\n"; // Output each element of the array
     }
 
 
-    // 2. Pointer to a pointer (double pointer)
+    // 3. Pointer to a pointer (double pointer)
     std::cout << "\n\n3. Double Pointer Example (Pointer to Pointer):\n";
     int **doublePtr = &ptr; // A pointer to a pointer, initialized to the address of ptr
     std::cout << std::setw(45) << std::left << "\tWhy use a double pointer? It allows us to indirectly access and modify the value of a pointer (ptr)\n"
@@ -113,7 +116,7 @@ int main() {
                                             << "\tand reusable. For example, we can write a function that takes a void pointer and a size parameter to perform operations on\n"
                                             << "\tdifferent types of data without needing to overload the function for each specific type\n" << std::endl; 
 
-    int b = 42;
+    int b = 2123456789;
     double c = 3.14;
     char d = 'b';
     float e = 2.718f;
@@ -123,6 +126,7 @@ int main() {
     std::cout << "\n5. Using printValue function (Unknown Type Handling via void pointer):\n";
 
     std::cout << std::setw(45) << std::left << "\tPassing different types of data to the printValue function using void pointers:\n"; // Explanation of what we are doing with the printValue function  
+    printValue(&a, typeid(a).name()); // Pass the address of a and its type name to the printValue function
     printValue(&b, typeid(b).name()); // Pass the address of b and its type name to the printValue function
     printValue(&c, typeid(c).name());
     printValue(&d, typeid(d).name());
