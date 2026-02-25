@@ -27,7 +27,9 @@ void binaryToHexBitset(const std::string& binaryString);
 int main() {
 
     // convert a number to binary string representation
-    uint32_t num = 4'294'967'295; // Max value for uint32_t  = 4'294'967'295
+    uint32_t num = 4294967295; // Max value for uint32_t  = 4'294'967'295
+    auto *ptr_num = &num;
+
     std::cout << "Step 1: Convert a number to binary string representation\n";
     std::string bin_str = convertNumToBinaryStr(num);
     binaryToHexBitset(bin_str);
