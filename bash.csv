@@ -1,3 +1,19 @@
+,Windows Commannd Line Reference
+dir "*hvy*" /s /o-d /t:w | findstr /r "^[0-9]"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ,Command to list all files in the current directory and its subdirectories,displaying their last modification date, size, and name.  
 find . -type f -exec stat --printf='%y %12s %n\n' {} +
 ,Explanation of the command components:
