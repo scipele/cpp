@@ -6,7 +6,7 @@
 //| Inputs       | user entered path                                           |
 //| Outputs      | file copy operation                                         |
 //| Dependencies | none                                                        |
-//| By Name,Date | T.Sciple, 9/4/2025                                          |
+//| By Name,Date | T.Sciple, 3/17/2026                                         |
 
 #include <iostream>
 #include <fstream>
@@ -35,7 +35,18 @@ int main() {
         return -1; // Exit with error
      }
 
-    // Copy the files and print list to screen 
+    // Open log file for writing in the destination path
+    std::wstring logPath = copy_to_path + L"\\_copy_log.csv";
+    std::wofstream logFile(logPath.c_str());
+    if (!logFile.is_open()) {
+        std::cerr << "Error: Could not create copy_log.csv" << std::endl;
+        system("pause");
+        return -1;
+    }
+    logFile << L"sep=|" << std::endl;
+    logFile << L"Index|Status|File Path|File Name" << std::endl;
+
+    // Copy the files and print list to screen and log file
     int indx=1;
     int copied_count=0;
 
@@ -46,14 +57,18 @@ int main() {
         try {
             std::filesystem::copy(path, dest_path, std::filesystem::copy_options::overwrite_existing);
             std::wcout << L"copied " << indx << L"|" << path << std::endl;
+            logFile << indx << L"|copied|" << path << L"|" << file_name_no_path << std::endl;
             copied_count++;
         } catch (const std::filesystem::filesystem_error& e) { 
             std::wcout << indx << L"copy error->" << path << std::endl;
+            logFile << indx << L"|error|" << path << L"|" << file_name_no_path << std::endl;
         }
         indx++;
     }
 
     std::wcout << L"Copied " << copied_count << L" of " << indx-1 << L" files." <<std::endl;
+    logFile << L"\nCopied " << copied_count << L" of " << indx-1 << L" files." << std::endl;
+    logFile.close();
     system("pause");
     return 0;
 }
