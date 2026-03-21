@@ -14,10 +14,11 @@
 #include <string>
 #include <fstream>
 #include <vector>
-
+#include <chrono>
 
 // Function prototypes
 int scripple_scramble(const std::string& filePath);
+void pause_console();
 
 
 int main()
@@ -36,7 +37,9 @@ int main()
     
     std::string filePath;
     std::getline(std::cin, filePath);
-    
+
+    auto startTime = std::chrono::steady_clock::now();
+
 
     int result = scripple_scramble(filePath);
     if (result != 0) {
@@ -44,13 +47,18 @@ int main()
     } else {
         std::cout << "File scrambled or unscrambled successfully!\n";
     }
+    
+    auto endTime = std::chrono::steady_clock::now();
+    auto elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+    std::cout << "Elapsed time: " << elapsedMs << " ms\n";
 
+    // call the function to pause the console before exiting
+    pause_console();
     return 0;
 }
 
 
 int scripple_scramble(const std::string& filePath) { 
-    size_t bufferSize = 4096;
     
     std::fstream file(filePath, std::ios::in | std::ios::out | std::ios::binary);
     if (!file.is_open()) {
@@ -67,6 +75,7 @@ int scripple_scramble(const std::string& filePath) {
     }
 
     try {
+        const size_t bufferSize = 4096;
         std::vector<char> buffer(bufferSize);
         std::streampos pos = 0;
         // Read and scramble the file in chunks
@@ -96,4 +105,16 @@ int scripple_scramble(const std::string& filePath) {
     
     // return 0 to indicate success
     return 0;
+}
+
+
+void pause_console() {
+    // if windows, use system("pause") to pause the console
+    #ifdef _WIN32
+        system("pause");
+    #else
+    // For other platforms, use a simple input prompt to pause
+    std::cout << "Press Enter to continue...";
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    #endif
 }
