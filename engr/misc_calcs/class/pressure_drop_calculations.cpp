@@ -161,8 +161,6 @@ double PressureDropCalculations::calculateReynoldsNumber(double mass_flow_lb_hr,
 
 double PressureDropCalculations::calculateFrictionFactor(double reynolds_number, 
                                                          double relative_roughness) {
-    const double PI = 3.14159265359;
-    
     // For laminar flow (Re < 2000)
     if (reynolds_number < 2000.0) {
         if (reynolds_number > 0) {
@@ -170,25 +168,35 @@ double PressureDropCalculations::calculateFrictionFactor(double reynolds_number,
         }
         return 0.04;
     }
-    
-    // For turbulent flow, use Colebrook equation solved iteratively
-    // f = (-2*log10((e/D)/3.7 + 5.02/Re*log10((e/D)/3.7 + 5.02/Re*log10((e/D)/3.7 + 13/Re))))^-2
-    double f = 0.02;  // initial guess
-    
-    for (int i = 0; i < 10; ++i) {  // iterate for convergence
-        double arg = (relative_roughness / 3.7) + (5.02 / reynolds_number) * 
-                     std::log10((relative_roughness / 3.7) + (5.02 / reynolds_number) * 
-                     std::log10((relative_roughness / 3.7) + (13.0 / reynolds_number)));
-        double f_new = 1.0 / (-2.0 * std::log10(arg));
-        f_new = f_new * f_new;
-        
-        if (std::abs(f_new - f) < 1e-6) {
+
+    // For turbulent flow, solve Colebrook-White for Darcy friction factor:
+    // 1/sqrt(f) = -2*log10((e/D)/3.7 + 2.51/(Re*sqrt(f)))
+    const double rr = std::max(relative_roughness, 0.0);
+    double f = 0.02;  // reasonable starting guess for commercial steel
+
+    for (int i = 0; i < 50; ++i) {
+        const double sqrt_f = std::sqrt(f);
+        const double arg = (rr / 3.7) + (2.51 / (reynolds_number * sqrt_f));
+
+        if (arg <= 0.0) {
             break;
         }
+
+        const double inv_sqrt_f = -2.0 * std::log10(arg);
+        if (inv_sqrt_f <= 0.0) {
+            break;
+        }
+
+        const double f_new = 1.0 / (inv_sqrt_f * inv_sqrt_f);
+        if (std::abs(f_new - f) < 1e-10) {
+            f = f_new;
+            break;
+        }
+
         f = f_new;
     }
-    
-    return std::max(f, 0.008);  // minimum friction factor
+
+    return std::max(f, 0.008);  // retain historical floor guard
 }
 
 double PressureDropCalculations::calculateVelocity(double mass_flow_lb_hr, 
