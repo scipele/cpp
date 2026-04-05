@@ -11,9 +11,9 @@ void EngineeringCalcApp::run() {
             {
                 "1. Flow / Density Related",
                 "2. Heat Exchange Related",
-                "3. Civil",
-                "4. Chemical",
-                "5. Environmental",
+                "3. Pipe Data Lookup (NPS/Schedule)",
+                "4. Civil",
+                "5. Chemical",
                 "0. Exit"
             },
             0,
@@ -36,16 +36,16 @@ void EngineeringCalcApp::handleMainCategory(int category) {
             runFlowRelatedMenu();
             break;
         case HeatExchangeRelated:
-            showNotImplemented("Heat Exchange Related");
+            heat_exchange_calcs_.runHeatExchangeMenu();
+            break;
+        case PipeDataLookupMain:
+            pipe_data_lookup_.runInteractive();
             break;
         case Civil:
             showNotImplemented("Civil");
             break;
         case Chemical:
             showNotImplemented("Chemical");
-            break;
-        case Environmental:
-            showNotImplemented("Environmental");
             break;
         default:
             break;
@@ -81,6 +81,8 @@ void EngineeringCalcApp::runFlowRelatedMenu() {
                 pressure_drop_calcs_.runPressureDropCalculation();
                 break;
             case 4:
+                showNotImplemented("This flow-related option");
+                break;
             case 5:
                 showNotImplemented("This flow-related option");
                 break;

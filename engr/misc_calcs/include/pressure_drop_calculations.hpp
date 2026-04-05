@@ -1,12 +1,15 @@
 #pragma once
 
 #include "calc_types.hpp"
+#include "pipe_data_lookup.hpp"
 
 class PressureDropCalculations {
 public:
     void runPressureDropCalculation();
 
 private:
+    PipeDataLookup pipe_data_lookup_;
+
     PressureDropRelated calculatePressureDrop();
     double calculateReynoldsNumber(double mass_flow_lb_hr, double diameter_in, double viscosity_cp);
     double calculateFrictionFactor(double reynolds_number, double relative_roughness);

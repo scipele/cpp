@@ -4,9 +4,9 @@ enum MainCategory {
     ExitProgram = 0,
     FlowRelated = 1,
     HeatExchangeRelated,
+    PipeDataLookupMain,
     Civil,
     Chemical,
-    Environmental
 };
 
 struct DensityRelated {

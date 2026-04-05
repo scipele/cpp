@@ -68,8 +68,38 @@ PressureDropRelated PressureDropCalculations::calculatePressureDrop() {
     PressureDropRelated results{};
 
     std::cout << "Enter pipe and flow parameters:\n\n";
-    
-    results.pipe_inner_diameter = InputReader::getDouble("Pipe Inner Diameter (in): ", 0.1, false);
+
+    while (true) {
+        const int diameter_input_method = InputReader::getIntInRange(
+            "Pipe ID Input Method [1=Manual ID, 2=NPS+Schedule Lookup]: ", 1, 2);
+
+        if (diameter_input_method == 1) {
+            results.pipe_inner_diameter = InputReader::getDouble("Pipe Inner Diameter (in): ", 0.1, false);
+            break;
+        }
+
+        std::string nominal_size;
+        std::string schedule;
+
+        std::cout << "Nominal Pipe Size (in, ex: 2, 3, 6, 8, 12): ";
+        std::getline(std::cin, nominal_size);
+
+        std::cout << "Pipe Schedule (ex: STD, XS, XXS, 10, 40, 80): ";
+        std::getline(std::cin, schedule);
+
+        const PipeLookupResult lookup = pipe_data_lookup_.lookupByNominalAndSchedule(nominal_size, schedule);
+        if (!lookup.success) {
+            std::cout << "Lookup error: " << lookup.error_message << " Please try again.\n\n";
+            continue;
+        }
+
+        results.pipe_inner_diameter = lookup.inside_diameter_in;
+        std::cout << "Using calculated inside diameter: " << std::fixed << std::setprecision(4)
+                  << results.pipe_inner_diameter << " in"
+                  << " (NPS " << lookup.nominal_size << ", SCH " << lookup.schedule << ")\n\n";
+        break;
+    }
+
     results.mass_flow_rate = InputReader::getDouble("Mass Flow Rate (lb/hr): ", 0.1, false);
     results.temperature = InputReader::getDouble("Temperature (F): ", 32.0, false);
     results.inlet_pressure = InputReader::getDouble("Inlet Pressure (psig): ", 0.0, true);
