@@ -78,6 +78,8 @@ void EngineeringCalcApp::runFlowRelatedMenu() {
                 density_calcs_.runVaporDensityVaporFlowConversions();
                 break;
             case 3:
+                pressure_drop_calcs_.runPressureDropCalculation();
+                break;
             case 4:
             case 5:
                 showNotImplemented("This flow-related option");
