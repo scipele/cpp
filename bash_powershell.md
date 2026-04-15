@@ -22,9 +22,9 @@ Get-ChildItem -Path "P:\2024\24-1467" -Recurse -File -Filter "*.xlsx" |
 
 ## Various Commands
 Command to list all files in the current directory and its subdirectories,displaying their last modification date, size, and name.  
-find . -type f -exec stat --printf='%y %12s %n\n' {} +
-Explanation of the command components:
-find . -type f,        This recursively finds all regular files (excluding directories) starting from the current directory (.).
+- find . -type f -exec stat --printf='%y %12s %n\n' {} +
+[ ] Explanation of the command components:
+[ ] find . -type f,        This recursively finds all regular files (excluding directories) starting from the current directory (.).
 find . -type f,        This recursively finds all regular files (excluding directories) starting from the current directory (.).
 -exec ... {} +,        This executes the specified stat command for the found files. Using + is more efficient than ; as it passes multiple file names at once.
 stat --printf='...',   The GNU stat command's --printf option allows for highly customizable output using format specifiers.
