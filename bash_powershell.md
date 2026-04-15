@@ -1,0 +1,51 @@
+# Command Prompt
+## Dir Command
+    dir "*hvy*" /s /o-d /t:w | findstr /r "^[0-9]"
+
+
+# Powershell
+## 1. Command to list all .xlsx files in a directory and its subdirectories, sorted by last modification date, and save the output to a text file:
+Get-ChildItem -Path "P:\2024\24-1467" -Recurse -File -Filter "*.xlsx" |
+    Sort-Object LastWriteTime -Descending |
+    Select-Object -ExpandProperty FullName |
+    Out-File -FilePath "C:\t\file_list.txt" -Encoding UTF8
+
+## 2. Write the parentpath|filename|last_mod_date to a text file
+"sep=|", "parent_path|file_name|last_write_time" | Out-File -FilePath "C:\t\file_list.csv" -Encoding UTF8
+Get-ChildItem -Path "P:\2024\24-1467" -Recurse -File -Filter "*.xlsx" |
+    Sort-Object LastWriteTime -Descending |
+    ForEach-Object { "$($_.DirectoryName)|$($_.Name)|$($_.LastWriteTime)" } |
+    Out-File -FilePath "C:\t\file_list.csv" -Encoding UTF8 -Append
+
+
+# Bash Terminal
+
+## Various Commands
+Command to list all files in the current directory and its subdirectories,displaying their last modification date, size, and name.  
+find . -type f -exec stat --printf='%y %12s %n\n' {} +
+Explanation of the command components:
+find . -type f,        This recursively finds all regular files (excluding directories) starting from the current directory (.).
+find . -type f,        This recursively finds all regular files (excluding directories) starting from the current directory (.).
+-exec ... {} +,        This executes the specified stat command for the found files. Using + is more efficient than ; as it passes multiple file names at once.
+stat --printf='...',   The GNU stat command's --printf option allows for highly customizable output using format specifiers.
+%Y-%m-%d %H:%M:%S,     Formats the file's modification date and time into YYYY-MM-DD HH:MM:SS format.
+%12s,                  Prints the file size in bytes, right-aligned with a minimum width of 12 characters.
+%n,                    Prints the file name.
+\n,                    Inserts a newline character at the end of each line for proper formatting. 
+
+## Command to save the output to a file named 
+> 'out.txt'
+
+## list bare file names only (without paths) in the current directory and its subdirectories:
+find . -type f -printf "%f\n" > list.txt
+Explanation of the command components:
+find .,                Searches recursively starting from the current directory (.).
+-type f,               Restricts the results to only files (excluding directories).
+-printf "%f\n",        Prints only the bare filename (%f) followed by a newline character (\n) for each result. 
+> list.txt,            Redirects the output to a file named 'list.txt'.
+
+## search for a file named 'my_file.txt' in the current directory and its subdirectories:
+find . -name "my_file.txt"
+
+## Edit a text file
+nano filename.txt
