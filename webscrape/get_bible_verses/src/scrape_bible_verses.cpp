@@ -2,6 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <cctype>
 #include <curl/curl.h>
 #ifdef _WIN32
 #include <windows.h>
@@ -51,8 +52,8 @@ int main() {
         const auto& ref = refs[i];
         std::string verse = fetch_verse(ref);
         if (!verse.empty()) {
-            std::cout << ref << "\n" << verse << "\n";
-            output_file << ref << "\n" << verse << "\n";
+            std::cout << ref << "  " << verse << "\n";
+            output_file << ref << "  " << verse << "\n";
         } else {
             std::cout << ref << ": Failed to fetch verse.\n";
             output_file << ref << "\nFailed to fetch verse\n";
@@ -86,8 +87,12 @@ std::string strip_tags(const std::string& input, bool keep_verse_num, bool keep_
     bool in_verse_num = false;
     bool in_crossreference = false;
     bool in_footnote = false;
+    bool pending_word_separator = false;
     for (size_t i = 0; i < input.length(); ++i) {
         if (input[i] == '<') {
+            if (!output.empty() && std::isalnum(static_cast<unsigned char>(output.back()))) {
+                pending_word_separator = true;
+            }
             in_tag = true;
             if (keep_verse_num) {
                 if (i + 16 < input.length() && input.substr(i, 16) == "<sup class=\"versenum\">") {
@@ -112,6 +117,14 @@ std::string strip_tags(const std::string& input, bool keep_verse_num, bool keep_
             if (in_crossreference) in_crossreference = false;
             if (in_footnote) in_footnote = false;
         } else if (!in_tag && !in_crossreference && !in_footnote) {
+            unsigned char cur = static_cast<unsigned char>(input[i]);
+            if (pending_word_separator && !output.empty()) {
+                unsigned char prev = static_cast<unsigned char>(output.back());
+                if (std::isalnum(prev) && std::isalnum(cur)) {
+                    output += ' ';
+                }
+                pending_word_separator = false;
+            }
             output += input[i];
         }
     }
