@@ -1,3 +1,15 @@
+// ************ MAIN PROGRAM ***************************************************
+//| Item	     | Main Program Documentation Notes                            |
+//|--------------|-------------------------------------------------------------|
+//| Filename     | iid_to_string.cpp                                           |
+//| EntryPoint   | main                                                        |
+//| Purpose      | test speed conversion of IIDs to strings                    |
+//| Inputs       | hard coded hex array values                                 |
+//| Outputs      | print results                                               |
+//| Dependencies | std libs                                                    |
+//| By Name,Date | T.Sciple, 5/5/2026                                          |
+
+
 #include <array>
 #include <chrono>
 #include <cstdint>
@@ -21,12 +33,12 @@ static const char hex[] = "0123456789abcdef";
 int main() {
     using IID = std::array<unsigned char, 16>;
 
-    // Deterministic data: edge values + mixed patterns for realistic cache paths.
+    // Sample data
     const std::array<IID, 8> testData = {{
         {{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
         {{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}},
         {{0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0x10, 0x32, 0x54, 0x76, 0x98, 0xBA, 0xDC, 0xFE}},
-        {{0xFE, 0xDC, 0xBA, 0x98, 0x76, 0x54, 0x32, 0x10, 0xEF, 0xCD, 0xAB, 0x89, 0x67, 0x45, 0x23, 0x01}},
+        {{0xFE, 0xDC, 0xBA, 0x98, 0x76, 0x54, 0x32, 0x10, 0xEF, 0xCD, 0xAB, 0x89, 0x6A, 0x45, 0x23, 0x01}},
         {{0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA}},
         {{0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55}},
         {{0x0F, 0xF0, 0x1E, 0xE1, 0x2D, 0xD2, 0x3C, 0xC3, 0x4B, 0xB4, 0x5A, 0xA5, 0x69, 0x96, 0x78, 0x87}},
@@ -36,7 +48,8 @@ int main() {
     constexpr std::uint64_t loops = 40'000'000;
 
     auto runBench = [&](const char* name, void (*fn)(const unsigned char*, char*)) {
-        char out[37] = {};
+        // char array with 32 hex chars + 4 dashes + null terminator
+        char out[37] = {};  
         volatile std::uint64_t sink = 0;
 
         const auto t0 = std::chrono::steady_clock::now();
@@ -53,20 +66,21 @@ int main() {
         double rate = loops / sec;
         double pct_faster = 0.0;
         
-        std::cout << name << '\n';
-        std::cout << "  Sample output: " << out << '\n';
-        std::cout << "  Iterations: " << loops << '\n';
-        std::cout << "  Elapsed: " << ms << " ms\n";
-        std::cout << "  Rate: " << std::fixed << std::setprecision(2)
-                  << rate << " conversions/sec\n";
-        std::cout << "  Sink: " << sink << "\n\n";
+
+        std::cout   << name << '\n'
+                    << "  Sample output: " << out << '\n'
+                    << "  Iterations: " << loops << '\n'
+                    << "  Elapsed: " << ms << " ms\n"
+                    << "  Rate: " << std::fixed << std::setprecision(2)
+                    << rate << " conversions/sec\n"
+                    << "  Sink: " << sink << "\n";
         static double baseline_rate = 0.0;
         if (name == "IIDToStringFast2") {
             baseline_rate = rate;
-            pct_faster = 0.0; // Baseline
+            std::cout << "  This is the baseline for comparison.\n\n";
         } else {
             pct_faster = ((rate - baseline_rate) / baseline_rate) * 100.0;
-            std::cout << "Percent faster than IIDToStringFast2: " << pct_faster << "%\n\n";
+            std::cout << "  Percent faster than IIDToStringFast2: " << pct_faster << "%\n\n";
         }
     };
 
@@ -127,33 +141,32 @@ void IIDToStringFast3(const IID *iid, char* out) {
 
 void IIDToStringFast4(const IID *iid, char* out) {
     const unsigned char *p = (const unsigned char *)iid;
-    char* o = out;
     unsigned char b;
 
-    b = p[3];  *o++ = hex[b >> 4]; *o++ = hex[b & 0xF];
-    b = p[2];  *o++ = hex[b >> 4]; *o++ = hex[b & 0xF];
-    b = p[1];  *o++ = hex[b >> 4]; *o++ = hex[b & 0xF];
-    b = p[0];  *o++ = hex[b >> 4]; *o++ = hex[b & 0xF];
-    *o++ = '-';
+    b = p[3];  *out++ = hex[b >> 4]; *out++ = hex[b & 0xF];
+    b = p[2];  *out++ = hex[b >> 4]; *out++ = hex[b & 0xF];
+    b = p[1];  *out++ = hex[b >> 4]; *out++ = hex[b & 0xF];
+    b = p[0];  *out++ = hex[b >> 4]; *out++ = hex[b & 0xF];
+    *out++ = '-';
 
-    b = p[5];  *o++ = hex[b >> 4]; *o++ = hex[b & 0xF];
-    b = p[4];  *o++ = hex[b >> 4]; *o++ = hex[b & 0xF];
-    *o++ = '-';
+    b = p[5];  *out++ = hex[b >> 4]; *out++ = hex[b & 0xF];
+    b = p[4];  *out++ = hex[b >> 4]; *out++ = hex[b & 0xF];
+    *out++ = '-';
 
-    b = p[7];  *o++ = hex[b >> 4]; *o++ = hex[b & 0xF];
-    b = p[6];  *o++ = hex[b >> 4]; *o++ = hex[b & 0xF];
-    *o++ = '-';
+    b = p[7];  *out++ = hex[b >> 4]; *out++ = hex[b & 0xF];
+    b = p[6];  *out++ = hex[b >> 4]; *out++ = hex[b & 0xF];
+    *out++ = '-';
 
-    b = p[8];  *o++ = hex[b >> 4]; *o++ = hex[b & 0xF];
-    b = p[9];  *o++ = hex[b >> 4]; *o++ = hex[b & 0xF];
-    b = p[10]; *o++ = hex[b >> 4]; *o++ = hex[b & 0xF];
-    b = p[11]; *o++ = hex[b >> 4]; *o++ = hex[b & 0xF];
-    b = p[12]; *o++ = hex[b >> 4]; *o++ = hex[b & 0xF];
-    b = p[13]; *o++ = hex[b >> 4]; *o++ = hex[b & 0xF];
-    b = p[14]; *o++ = hex[b >> 4]; *o++ = hex[b & 0xF];
-    b = p[15]; *o++ = hex[b >> 4]; *o++ = hex[b & 0xF];
+    b = p[8];  *out++ = hex[b >> 4]; *out++ = hex[b & 0xF];
+    b = p[9];  *out++ = hex[b >> 4]; *out++ = hex[b & 0xF];
+    b = p[10]; *out++ = hex[b >> 4]; *out++ = hex[b & 0xF];
+    b = p[11]; *out++ = hex[b >> 4]; *out++ = hex[b & 0xF];
+    b = p[12]; *out++ = hex[b >> 4]; *out++ = hex[b & 0xF];
+    b = p[13]; *out++ = hex[b >> 4]; *out++ = hex[b & 0xF];
+    b = p[14]; *out++ = hex[b >> 4]; *out++ = hex[b & 0xF];
+    b = p[15]; *out++ = hex[b >> 4]; *out++ = hex[b & 0xF];
 
-    *o = '\0';
+    *out = '\0';
 }
 
 
