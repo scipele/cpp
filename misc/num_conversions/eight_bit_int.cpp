@@ -6,8 +6,7 @@
 //| Inputs       | hard coded                                                  |
 //| Outputs      | print to screen                                             |
 //| Dependencies | none                                                        |
-//| By Name,Date | T.Sciple, 02/25/2026                                        |
-
+//| By Name,Date | T.Sciple, 05/18/2026                                        |
 
 #include <iostream>
 #include <cstdint>
@@ -16,15 +15,19 @@
 #include <cmath>
 #include <string>
 
+
 void printBinaryToDecimalCalc(std::string binaryStr);
 void printBinaryToConversionToHexAndDecimal(std::string binaryStr);
 
 
 int main()
 {
-    std::string binaryStr = "11100101"; // This represents -128 in 8-bit two's complement
+    std::string binaryStr = "01101101"; // This represents 8 in 8-bit two's complement
+
     printBinaryToDecimalCalc(binaryStr);
     printBinaryToConversionToHexAndDecimal(binaryStr);
+
+    std::cout << "\n" << std::endl;
     return 0;
 }
 
@@ -54,7 +57,7 @@ void printBinaryToDecimalCalc(std::string binaryStr) {
 void printBinaryToConversionToHexAndDecimal(std::string binaryStr ) {
     // Next convert the high nibble (the leftmost 4 bits) to decimal and the low nibble (the rightmost 4 bits) to decimal, then add them together
     std::cout   << "\n2. Converting 8-bit binary to decimal using nibbles:\n"
-                << "\tDesc           Binary         Hex\n";
+                << "\tDesc           Binary          Hex\n";
 
     std::string highNibble = binaryStr.substr(0, 4); // Get the high nibble (first 4 bits)
     std::string lowNibble = binaryStr.substr(4, 4); // Get the low nibble (last 4 bits)
