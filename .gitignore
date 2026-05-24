@@ -37,3 +37,5 @@ pdf/dwg_rev/inp/
 graphics/MathFns/3d/*.obj
 .vscode/
 file_utilities/scripples_scramble/test_data.txt
+cpp.code-workspace
+.gitignore
