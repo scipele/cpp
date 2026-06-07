@@ -1,3 +1,7 @@
+// Compile on Linux with:
+// g++ -fdiagnostics-color=always -g /home/dev/cpp/hash_funcs/encryption/pw.cpp -o /home/dev/cpp/hash_funcs/encryption/pw -lssl -lcrypto
+
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -8,6 +12,8 @@
 #include <algorithm>
 #include <cctype>
 #include <cstdlib>
+#include <chrono>
+#include <ctime>
 #ifdef _WIN32
 #include <conio.h>
 #include <windows.h>
@@ -195,15 +201,18 @@ std::string decrypt_credential_record(const StoredCredential& record,
 std::string build_plain_record(const std::string& resource_name,
                                const std::string& description,
                                const std::string& user_name,
-                               const std::string& password) {
-    return resource_name + "|" + description + "|" + user_name + "|" + password + "|";
+                               const std::string& password,
+                               const std::string& password_last_modified) {
+    return resource_name + "|" + description + "|" + user_name + "|" + password + "|" +
+           password_last_modified + "|";
 }
 
 bool parse_plain_record(const std::string& plain_record,
                         std::string& resource_name,
                         std::string& description,
                         std::string& user_name,
-                        std::string& password) {
+                        std::string& password,
+                        std::string& password_last_modified) {
     std::vector<std::string> fields;
     std::string current;
 
@@ -224,7 +233,24 @@ bool parse_plain_record(const std::string& plain_record,
     description = fields[1];
     user_name = fields[2];
     password = fields[3];
+    password_last_modified = fields.size() >= 5 ? fields[4] : "";
     return true;
+}
+
+std::string current_local_timestamp() {
+    const auto now = std::chrono::system_clock::now();
+    const std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+
+    std::tm local_tm{};
+#ifdef _WIN32
+    localtime_s(&local_tm, &now_time);
+#else
+    localtime_r(&now_time, &local_tm);
+#endif
+
+    std::ostringstream oss;
+    oss << std::put_time(&local_tm, "%Y-%m-%d %H:%M:%S");
+    return oss.str();
 }
 
 struct DisplayRecord {
@@ -382,9 +408,30 @@ bool save_records(const std::string& file_path,
 
 void print_decrypted_records(const std::vector<DisplayRecord>& records,
                              std::size_t skipped) {
-    std::cout << "idx|resource_name|description|user_name|password|\n";
+    std::cout << "idx|resource_name|description|user_name|password|password_last_modified|\n";
     for (std::size_t i = 0; i < records.size(); ++i) {
-        std::cout << (i + 1) << "|" << records[i].plain << "\n";
+        std::string resource_name;
+        std::string description;
+        std::string user_name;
+        std::string password;
+        std::string password_last_modified;
+
+        if (parse_plain_record(records[i].plain,
+                               resource_name,
+                               description,
+                               user_name,
+                               password,
+                               password_last_modified)) {
+            std::cout << (i + 1) << "|"
+                      << resource_name << "|"
+                      << description << "|"
+                      << user_name << "|"
+                      << password << "|"
+                      << password_last_modified << "|\n";
+        } else {
+            // Fallback for unexpected record formats.
+            std::cout << (i + 1) << "|" << records[i].plain << "|\n";
+        }
     }
     if (skipped > 0) {
         std::cout << "# skipped_unreadable_records=" << skipped << "\n";
@@ -539,7 +586,12 @@ int main(int argc, char* argv[]) {
                     break;
                 }
 
-                const std::string plain_record = build_plain_record(resource_name, description, user_name, password);
+                const std::string password_last_modified = current_local_timestamp();
+                const std::string plain_record = build_plain_record(resource_name,
+                                                                    description,
+                                                                    user_name,
+                                                                    password,
+                                                                    password_last_modified);
                 records.push_back(encrypt_credential_record(plain_record, key));
                 std::cout << "Credential added (encrypted in memory).\n";
                 break;
@@ -576,7 +628,13 @@ int main(int argc, char* argv[]) {
                 std::string description;
                 std::string user_name;
                 std::string password;
-                if (!parse_plain_record(selected.plain, resource_name, description, user_name, password)) {
+                std::string password_last_modified;
+                if (!parse_plain_record(selected.plain,
+                                        resource_name,
+                                        description,
+                                        user_name,
+                                        password,
+                                        password_last_modified)) {
                     std::cout << "Unable to parse selected record.\n";
                     break;
                 }
@@ -602,20 +660,31 @@ int main(int argc, char* argv[]) {
 
                 std::cout << "password (leave blank to keep current): ";
                 std::getline(std::cin, updated_value);
+                bool password_changed = false;
                 if (!updated_value.empty()) {
+                    password_changed = (updated_value != password);
                     password = updated_value;
+                }
+
+                if (password_changed) {
+                    password_last_modified = current_local_timestamp();
                 }
 
                 if (resource_name.empty() || description.empty() || user_name.empty() || password.empty()) {
                     std::cout << "All fields are required.\n";
                     break;
                 }
-                if (contains_pipe(resource_name) || contains_pipe(description) || contains_pipe(user_name) || contains_pipe(password)) {
+                if (contains_pipe(resource_name) || contains_pipe(description) || contains_pipe(user_name) ||
+                    contains_pipe(password) || contains_pipe(password_last_modified)) {
                     std::cout << "Values cannot contain '|'.\n";
                     break;
                 }
 
-                const std::string updated_record = build_plain_record(resource_name, description, user_name, password);
+                const std::string updated_record = build_plain_record(resource_name,
+                                                                      description,
+                                                                      user_name,
+                                                                      password,
+                                                                      password_last_modified);
                 const std::size_t storage_index = selected.storage_index;
                 records[storage_index] = encrypt_credential_record(updated_record, key);
                 std::cout << "Updated record " << idx << ".\n";
