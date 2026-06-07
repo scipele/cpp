@@ -39,3 +39,4 @@ graphics/MathFns/3d/*.obj
 file_utilities/scripples_scramble/test_data.txt
 cpp.code-workspace
 .gitignore
+hash_funcs/encryption/credentials.vault
