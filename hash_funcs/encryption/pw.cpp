@@ -1,3 +1,6 @@
+// Compile on Windows/ucrt64 with:
+//c:/msys64/ucrt64/bin/g++.exe -std=c++17 -g c:/dev/cpp/hash_funcs/encryption/pw.cpp -o c:/dev/cpp/hash_funcs/encryption/pw.exe -lssl -lcrypto
+
 // Compile on Linux with:
 // g++ -fdiagnostics-color=always -g /home/dev/cpp/hash_funcs/encryption/pw.cpp -o /home/dev/cpp/hash_funcs/encryption/pw -lssl -lcrypto
 
