@@ -20,6 +20,17 @@
 
 # Bash Terminal
 
+## remove duplicates recursively based on sha1 hashes
+find . -type f -exec sha1sum {} + | sort | awk 'BEGIN {FS="  "} {hash=$1; file=substr($0, 43); if (seen[hash]++) { print "Deleting: " file; system("rm \"" file "\"") } else { print "Keeping:  " file }}'
+
+## hash files in path
+sha1sum *
+
+## hash files showing only duplicates
+find . -type f -exec sha1sum {} + | sort | uniq -w 40 -D
+
+## hash files recursively
+
 ## Various Commands
 Command to list all files in the current directory and its subdirectories,displaying their last modification date, size, and name.  
 -   find . -type f -exec stat --printf='%y %12s %n\n' {} +
