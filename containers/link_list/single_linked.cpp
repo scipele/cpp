@@ -8,6 +8,7 @@
 // by T. Sciple,  8/6/2024
 //
 #include <iostream>
+#include <iomanip>
 
 class LinkedList {
 private:
@@ -32,15 +33,26 @@ public:
 		}
 	}
 
-
+	// Why is this printing in order and not in the order in which the nodes were added? 
+	// Because the InsertAtFront method adds new nodes to the front of the list, so the most recently
+	// added node will be at the front. When we print the list, we start from the head and follow the
+	// next pointers, which means we will see the nodes in the order they were added, with the most 
+	//recent node first. If we want to print in the order they were added, we would need to insert 
+	//at the back of the list instead of the front.
 	void PrintList() const {
-			Node* n = head;
+		std::cout << "Printing Linked List:\n\n";
+		std::cout << "value | this_mem_adr | next_mem_adr\n";
+		Node* n = head;
 			while (n != NULL) {
-				std::cout	<< "Node Value: "
+				std::cout	<< std::setw(5)
 							<< n->value
-								<< ", pointer memory addr of next node :"
-								<< static_cast<void*> (n->next)
-								<< "\n";
+							<< " | "
+							<< std::setw(12)
+							<< static_cast<void*> (n)
+							<< " | "
+							<< std::setw(12)	
+							<< static_cast<void*> (n->next)
+							<< "\n";
 			n = n->next;
 		}
 	}
@@ -52,7 +64,7 @@ public:
 		head = new_node;
 	}
 
-
+	// It traverses the list until it finds the last node (where next is NULL) and then appends the new node there.
 	void InsertAtBack(int new_value) {        	// 1. Prepare new Node
 		Node* new_node = new Node(new_value);
 		new_node->value = new_value;
@@ -90,17 +102,16 @@ int main () {
 
 	LinkedList list;
 
-    list.InsertAtBack(10);
-    list.InsertAtBack(20);
-//    Node* second = list.getHead()->next; // Accessing the second node directly
     list.InsertAtBack(30);
+    list.InsertAtBack(5);
+    list.InsertAtBack(10);
+    list.InsertAtBack(15);
+    list.InsertAtBack(2);
 
-    // Insert at the front
-    list.InsertAtFront(5);
-    list.InsertAtFront(3);
+	list.InsertAtFront(100);
+	list.InsertAtFront(105);
+	list.InsertAtFront(4);
 
-    // Insert after the second node
-//    list.insertAfter(second, 25);
 
     // Print the list
     list.PrintList();
