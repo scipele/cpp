@@ -12,19 +12,20 @@
 
 class LinkedList {
 private:
-
-	struct Node {
-		int value;
-		Node* next;
-
-		Node(int val) : value(val), next(nullptr) {}	
-	};
+		struct Node {
+			Node* next;		// pointer to the next node in the list, 8 bytes in size on a 64-bit system
+			int value;
+			// Constructor to initialize the node with a value and set next to nullptr
+			Node(int val) : value(val), next(nullptr) {}	
+		};
 
 	Node* head;
 
 public:
+	// Constructor to initialize the linked list with head set to nullptr
 	LinkedList() : head(nullptr) {}
 
+	// Destructor to clean up the linked list and free memory
 	~LinkedList() {
 		while (head != nullptr) {
 			Node* temp = head;
@@ -33,15 +34,13 @@ public:
 		}
 	}
 
-	// Why is this printing in order and not in the order in which the nodes were added? 
-	// Because the InsertAtFront method adds new nodes to the front of the list, so the most recently
-	// added node will be at the front. When we print the list, we start from the head and follow the
-	// next pointers, which means we will see the nodes in the order they were added, with the most 
-	//recent node first. If we want to print in the order they were added, we would need to insert 
-	//at the back of the list instead of the front.
+	// PrintList function to display the contents of the linked list
+	// Why are the memory addresses 32 bytes apart?  Because the Node struct is 32 bytes in size, and each node is allocated
+	//  in memory with that size. The memory addresses of consecutive nodes will be separated by the size of the Node struct,
+	//  which is 32 bytes in this case.
 	void PrintList() const {
 		std::cout << "Printing Linked List:\n\n";
-		std::cout << "value | this_mem_adr | next_mem_adr\n";
+		std::cout << "value | this_mem_adr   | next_mem_adr   | delta_bytes \n";
 		Node* n = head;
 			while (n != NULL) {
 				std::cout	<< std::setw(5)
@@ -52,6 +51,9 @@ public:
 							<< " | "
 							<< std::setw(12)	
 							<< static_cast<void*> (n->next)
+							<< " | "
+							<< std::setw(12)
+							<< (n->next ? reinterpret_cast<char*>(n->next) - reinterpret_cast<char*>(n) : 0)	
 							<< "\n";
 			n = n->next;
 		}
@@ -109,8 +111,6 @@ int main () {
     list.InsertAtBack(2);
 
 	list.InsertAtFront(100);
-	list.InsertAtFront(105);
-	list.InsertAtFront(4);
 
 
     // Print the list
