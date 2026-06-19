@@ -40,11 +40,22 @@ std::vector<MatrixStream> streams;
 
 
 int main() {
+    // 1. Wait a moment for the terminal window to gain focus
+    usleep(100000); 
+
+    // 2. Simulate hardware key down and up for F11
+    system("xdotool keydown F11 && xdotool keyup F11"); 
+    
+    // Give the desktop environment a moment to animate into fullscreen
+    usleep(300000); 
+
+    // 3. Initialize NCurses
     setlocale(LC_ALL, "");
-    srand(time(0)); 
-    initscr();     
-    noecho();      
+    initscr();
+    cbreak();
+    noecho();
     curs_set(0);   
+    srand(time(0)); 
 
     std::cout << "Press 'q' to exit the Matrix rain effect." << std::endl;
     // pause for a moment to let the user read the message before clearing the screen
@@ -69,10 +80,14 @@ int main() {
 
         updateStreams();    // Update the position/speed of each stream
         drawStreams();      // Draw the streams at their new positions  
-        usleep(40000);      // Global tick rate (40ms) for smoother rendering
+        usleep(30000);      // Global tick rate (30ms) for smoother rendering
     }
 
-    endwin(); 
+    endwin();
+    
+    //  Simulate F11 again to exit fullscreen when the program closes
+    system("xdotool keydown F11 && xdotool keyup F11"); 
+
     return 0;
 }
 
