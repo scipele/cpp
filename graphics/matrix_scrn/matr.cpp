@@ -1,18 +1,28 @@
-// compile w linux:
-// g++ matr.cpp -o matr -lncurses
+//| Item	     | Main Program Documentation Notes                            |
+//|--------------|-------------------------------------------------------------|
+//| Filename     | matr.cp                                                     |
+//| EntryPoint   | main                                                        |
+//| Purpose      | display Matrix rain effect in terminal                      |
+//| Inputs       | none                                                        |
+//| Outputs      | none                                                        |
+//| Dependencies | ncurses library                                             |
+//| By Name,Date | T.Sciple, 06/18/2026                                        |
+//  compile w linux:
+//  g++ matr.cpp -o matr -lncurses
 
 #include <ncurses.h>        // library to handle console output and control the display of characters.
 #include <cstdlib>
 #include <ctime>
 #include <vector>
 #include <unistd.h>
+#include <locale.h>     
 
 
 // Function prototypes
 void initializeStreams();   // initializeStreams` function sets random starting positions for each rain stream.
 void updateStreams();       // updateStreams` function moves the streams down the console.
 void drawStreams();         // drawStreams` function clears the console and redraws the streams at their new positions. 
-char getRandomKana();       // getRandomKana` function generates random half-width kana characters.
+wchar_t getrandomkana();       // getrandomkana` function generates random half-width kana characters.
 
 
 // Struct to track each independent Matrix rain stream
@@ -24,15 +34,21 @@ struct MatrixStream {
     int length;        // Length of the stream's trail
 };
 
+// Global vector declaration, left blank for dynamic resizing based on terminal width
+std::vector<MatrixStream> streams; 
+
 
 int main() {
-    initializeStreams(); // Now this safely uses COLS and LINES    
+    setlocale(LC_ALL, "");
+    initializeStreams(); // Set up based on user terminal size 
     srand(time(0)); 
     initscr();     
     noecho();      
     curs_set(0);   
 
     // Setup Ncurses colors
+    // These are to display characters representing the Blond, Brunette, and Redhead (Not really)
+    // You should have taken the blue pill, Neo. You would have seen the Matrix...
     start_color();
     init_pair(1, COLOR_GREEN, COLOR_BLACK); // Standard Matrix Green
     init_pair(2, COLOR_WHITE, COLOR_BLACK); // White for the leading head
@@ -50,13 +66,9 @@ int main() {
 }
 
 
-
-// Keep this global vector declaration, but leave it empty initially
-std::vector<MatrixStream> streams; 
-
 void initializeStreams() {
     // Resize the vector dynamically based on the terminal width
-    int num_streams = COLS / 1; // Adjust divisor to change density
+    int num_streams = COLS / 0.75; // Adjust divisor to change density
     streams.resize(num_streams);
 
     for (int i = 0; i < num_streams; ++i) {
@@ -78,6 +90,8 @@ void updateStreams() {
             streams[i].head_y++;
             streams[i].speed_counter = 0;
 
+            // Check if the stream has moved off the bottom of the screen, 
+            // and reset it to the top with new random parameters
             if (streams[i].head_y - streams[i].length > LINES) {
                 streams[i].x = rand() % COLS; 
                 streams[i].head_y = -(rand() % 5); 
@@ -97,20 +111,24 @@ void drawStreams() {
         for (int j = 0; j < streams[i].length; ++j) {
             int current_y = streams[i].head_y - j;
 
-            // REPLACED: 'HEIGHT' becomes 'LINES'
+            // Check that the current_y is within the visible range of the terminal
             if (current_y >= 0 && current_y < LINES) {
+                // Start with the leading character, which is the brightest and white
+                wchar_t kana_char = getrandomkana(); 
+                cchar_t wide_char;
+
+                mvadd_wch(current_y, streams[i].x, &wide_char);
                 if (j == 0) {
-                    attron(COLOR_PAIR(2) | A_BOLD);
-                    mvaddch(current_y, streams[i].x, getRandomKana());
-                    attroff(COLOR_PAIR(2) | A_BOLD);
+                    setcchar(&wide_char, &kana_char, A_BOLD, 2, NULL);
+                    mvadd_wch(current_y, streams[i].x, &wide_char);
+                // Case for the next few characters in the stream, which are brighter
                 } else if (j < 4) {
-                    attron(COLOR_PAIR(1) | A_BOLD);
-                    mvaddch(current_y, streams[i].x, getRandomKana());
-                    attroff(COLOR_PAIR(1) | A_BOLD);
+                    setcchar(&wide_char, &kana_char, A_BOLD, 1, NULL);
+                    mvadd_wch(current_y, streams[i].x, &wide_char);
+                // Remaining characters in the stream are dimmer and standard green
                 } else {
-                    attron(COLOR_PAIR(1) | A_DIM);
-                    mvaddch(current_y, streams[i].x, getRandomKana());
-                    attroff(COLOR_PAIR(1) | A_DIM);
+                    setcchar(&wide_char, &kana_char, A_DIM, 1, NULL);
+                    mvadd_wch(current_y, streams[i].x, &wide_char);
                 }
             }
         }
@@ -119,7 +137,6 @@ void drawStreams() {
 }
 
 
-// Generate random half-width katakana characters
-char getRandomKana() { 
-    return static_cast<char>(0xFF61 + rand() % (0xFF9F - 0xFF61 + 1)); 
+wchar_t getrandomkana() { 
+    return static_cast<wchar_t>(0xFF61 + rand() % (0xFF9F - 0xFF61 + 1)); 
 }
