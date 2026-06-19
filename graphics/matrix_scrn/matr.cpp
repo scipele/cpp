@@ -42,7 +42,7 @@ int main() {
     while (true) {
         updateStreams(); 
         drawStreams();   
-        usleep(40000); // Global tick rate (20ms) for smoother rendering
+        usleep(40000); // Global tick rate (40ms) for smoother rendering
     }
 
     endwin(); 
