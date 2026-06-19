@@ -15,7 +15,8 @@
 #include <ctime>
 #include <vector>
 #include <unistd.h>
-#include <locale.h>     
+#include <locale.h>
+#include <iostream>
 
 
 // Function prototypes
@@ -45,6 +46,10 @@ int main() {
     noecho();      
     curs_set(0);   
 
+    std::cout << "Press 'q' to exit the Matrix rain effect." << std::endl;
+    // pause for a moment to let the user read the message before clearing the screen
+    usleep(1000000); // 1 second
+    
     // Setup Ncurses colors
     // These are to display characters representing the Blond, Brunette, and Redhead (Not really)
     start_color();
@@ -53,7 +58,15 @@ int main() {
 
     initializeStreams(); 
 
+    nodelay(stdscr, TRUE); // Make getch non-blocking
+    int ch;
+
     while (true) {
+        ch = getch();
+        if (ch == 'q' || ch == 'Q') {
+            break; // Exit the loop if 'q' or 'Q' is pressed
+        }
+
         updateStreams();    // Update the position/speed of each stream
         drawStreams();      // Draw the streams at their new positions  
         usleep(40000);      // Global tick rate (40ms) for smoother rendering
