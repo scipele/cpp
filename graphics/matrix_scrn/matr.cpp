@@ -40,7 +40,6 @@ std::vector<MatrixStream> streams;
 
 int main() {
     setlocale(LC_ALL, "");
-    initializeStreams(); // Set up based on user terminal size 
     srand(time(0)); 
     initscr();     
     noecho();      
@@ -48,7 +47,6 @@ int main() {
 
     // Setup Ncurses colors
     // These are to display characters representing the Blond, Brunette, and Redhead (Not really)
-    // You should have taken the blue pill, Neo. You would have seen the Matrix...
     start_color();
     init_pair(1, COLOR_GREEN, COLOR_BLACK); // Standard Matrix Green
     init_pair(2, COLOR_WHITE, COLOR_BLACK); // White for the leading head
@@ -56,9 +54,9 @@ int main() {
     initializeStreams(); 
 
     while (true) {
-        updateStreams(); 
-        drawStreams();   
-        usleep(40000); // Global tick rate (40ms) for smoother rendering
+        updateStreams();    // Update the position/speed of each stream
+        drawStreams();      // Draw the streams at their new positions  
+        usleep(40000);      // Global tick rate (40ms) for smoother rendering
     }
 
     endwin(); 
