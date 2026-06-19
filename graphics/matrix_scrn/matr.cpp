@@ -43,9 +43,10 @@ int main() {
     // 1. Wait a moment for the terminal window to gain focus
     usleep(100000); 
 
-    // 2. Simulate hardware key down and up for F11
-    system("xdotool keydown F11 && xdotool keyup F11"); 
-    
+    // 1. Send native ANSI/XTerm escape sequence to enter fullscreen
+    // \033[10t tells the terminal window manager to switch to fullscreen mode
+    std::cout << "\033[10t" << std::flush;
+   
     // Give the desktop environment a moment to animate into fullscreen
     usleep(300000); 
 
@@ -85,9 +86,6 @@ int main() {
 
     endwin();
     
-    //  Simulate F11 again to exit fullscreen when the program closes
-    system("xdotool keydown F11 && xdotool keyup F11"); 
-
     return 0;
 }
 
