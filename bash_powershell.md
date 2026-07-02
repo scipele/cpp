@@ -11,11 +11,12 @@
     Out-File -FilePath "C:\t\file_list.txt" -Encoding UTF8
 
 ## 2. Write the parentpath|filename|last_mod_date to a text file
--   "sep=|", "parent_path|file_name|last_write_time" | Out-File -FilePath "C:\t\file_list.csv" -Encoding UTF8
-    Get-ChildItem -Path "P:\2024\24-1467" -Recurse -File -Filter "*.xlsx" |
-        Sort-Object LastWriteTime -Descending |
-        ForEach-Object { "$($_.DirectoryName)|$($_.Name)|$($_.LastWriteTime)" } |
-        Out-File -FilePath "C:\t\file_list.csv" -Encoding UTF8 -Append
+- "sep=| , parent_path|file_name|last_write_time" | Out-File -FilePath C:\t\file_list.csv -Encoding UTF8
+
+Get-ChildItem -Path "T:\my_path" -Recurse -File -Filter *.xlsx | 
+    Sort-Object LastWriteTime -Descending | 
+    ForEach-Object { "$($_.DirectoryName)|$($_.Name)|$($_.LastWriteTime)" } | 
+    Out-File -FilePath C:\t\file_list.csv -Encoding UTF8 -Append
 
 
 # Bash Terminal
