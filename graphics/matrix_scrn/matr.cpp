@@ -8,7 +8,7 @@
 //| Dependencies | ncurses library                                             |
 //| By Name,Date | T.Sciple, 06/18/2026                                        |
 //  compile w linux:
-//  g++ matr.cpp -o matr -lncurses
+//  g++ matr.cpp -o matr -lncursesw
 
 #include <ncurses.h>        // library to handle console output and control the display of characters.
 #include <cstdlib>
