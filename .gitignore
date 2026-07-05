@@ -40,3 +40,4 @@ file_utilities/scripples_scramble/test_data.txt
 cpp.code-workspace
 .gitignore
 hash_funcs/encryption/pw.vault
+*.pdf

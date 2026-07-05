@@ -8,7 +8,7 @@
 //| Outputs      | graph                                                       |
 //| Dependencies | SDL2, SDL2_ttf                                              |
 //| By Name,Date | T.Sciple, 01/31/2026                                        |
-// Compile on Linux -> g++ -fdiagnostics-color=always -std=c++17 -g math_fns.cpp -o math_fns -I/usr/include/SDL2 -lSDL2 -lSDL2_ttf
+// Compile on Linux -> g++ -fdiagnostics-color=always -std=c++17 -g math_fns_2d.cpp -o math_fns_2d -I/usr/include/SDL2 -lSDL2 -lSDL2_ttf
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
