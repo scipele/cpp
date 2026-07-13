@@ -304,6 +304,55 @@ std::vector<DisplayRecord> build_sorted_decrypted_records(const std::vector<Stor
     return output;
 }
 
+std::vector<DisplayRecord> build_decrypted_records_sorted_by_last_modified(
+    const std::vector<StoredCredential>& records,
+    const std::vector<unsigned char>& key,
+    std::size_t& skipped) {
+    std::vector<DisplayRecord> output;
+    skipped = 0;
+
+    output.reserve(records.size());
+    for (std::size_t i = 0; i < records.size(); ++i) {
+        const std::string plain = decrypt_credential_record(records[i], key);
+        if (plain.empty()) {
+            ++skipped;
+            continue;
+        }
+
+        std::string resource_name;
+        std::string description;
+        std::string user_name;
+        std::string password;
+        std::string password_last_modified;
+        if (!parse_plain_record(plain,
+                                resource_name,
+                                description,
+                                user_name,
+                                password,
+                                password_last_modified)) {
+            password_last_modified.clear();
+        }
+
+        output.push_back(DisplayRecord{i, plain, password_last_modified});
+    }
+
+    std::sort(output.begin(), output.end(), [](const DisplayRecord& a, const DisplayRecord& b) {
+        const bool a_has_date = !a.sort_key.empty();
+        const bool b_has_date = !b.sort_key.empty();
+
+        // Show records with timestamps first, sorted newest to oldest.
+        if (a_has_date != b_has_date) {
+            return a_has_date;
+        }
+        if (a.sort_key == b.sort_key) {
+            return a.plain < b.plain;
+        }
+        return a.sort_key > b.sort_key;
+    });
+
+    return output;
+}
+
 std::vector<unsigned char> load_or_create_salt(const std::string& file_path) {
     std::ifstream in(file_path);
     if (in) {
@@ -409,9 +458,112 @@ bool save_records(const std::string& file_path,
     return true;
 }
 
+struct ColumnSpec {
+    std::string header;
+    std::size_t width;
+};
+
+std::string rtrim_spaces(const std::string& text) {
+    std::size_t end = text.size();
+    while (end > 0 && text[end - 1] == ' ') {
+        --end;
+    }
+    return text.substr(0, end);
+}
+
+std::vector<std::string> wrap_cell_text(const std::string& text, std::size_t width) {
+    if (width == 0) {
+        return {text};
+    }
+    if (text.empty()) {
+        return {""};
+    }
+
+    std::vector<std::string> lines;
+    std::size_t pos = 0;
+
+    while (pos < text.size()) {
+        while (pos < text.size() && text[pos] == ' ') {
+            ++pos;
+        }
+        if (pos >= text.size()) {
+            break;
+        }
+
+        const std::size_t remaining = text.size() - pos;
+        if (remaining <= width) {
+            lines.push_back(rtrim_spaces(text.substr(pos)));
+            break;
+        }
+
+        const std::size_t window_end = pos + width;
+        std::size_t split_at = text.rfind(' ', window_end - 1);
+
+        if (split_at == std::string::npos || split_at < pos) {
+            lines.push_back(text.substr(pos, width));
+            pos += width;
+            continue;
+        }
+
+        lines.push_back(rtrim_spaces(text.substr(pos, split_at - pos)));
+        pos = split_at + 1;
+    }
+
+    if (lines.empty()) {
+        lines.push_back("");
+    }
+
+    return lines;
+}
+
+void print_table_separator(const std::vector<ColumnSpec>& columns) {
+    std::cout << "+";
+    for (const auto& column : columns) {
+        std::cout << std::string(column.width + 2, '-') << "+";
+    }
+    std::cout << "\n";
+}
+
+void print_table_row(const std::vector<std::string>& values,
+                     const std::vector<ColumnSpec>& columns) {
+    std::vector<std::vector<std::string>> wrapped_values;
+    wrapped_values.reserve(columns.size());
+
+    std::size_t row_height = 1;
+    for (std::size_t i = 0; i < columns.size(); ++i) {
+        const std::string value = i < values.size() ? values[i] : "";
+        wrapped_values.push_back(wrap_cell_text(value, columns[i].width));
+        row_height = std::max(row_height, wrapped_values.back().size());
+    }
+
+    for (std::size_t line = 0; line < row_height; ++line) {
+        std::cout << "|";
+        for (std::size_t col = 0; col < columns.size(); ++col) {
+            const std::string chunk = line < wrapped_values[col].size() ? wrapped_values[col][line] : "";
+            std::cout << " "
+                      << std::left << std::setw(static_cast<int>(columns[col].width)) << chunk
+                      << " |";
+        }
+        std::cout << "\n";
+    }
+}
+
 void print_decrypted_records(const std::vector<DisplayRecord>& records,
                              std::size_t skipped) {
-    std::cout << "idx|resource_name|description|user_name|password|password_last_modified|\n";
+    const std::vector<ColumnSpec> columns = {
+        {"idx", 3},
+        {"resource_name", 28},
+        {"description", 28},
+        {"user_name", 28},
+        {"password", 22},
+        {"password_last_modified", 23},
+    };
+
+    print_table_separator(columns);
+    print_table_row({"idx", "resource_name", "description", "user_name", "password", "password_last_modified"},
+                    columns);
+    print_table_separator(columns);
+
     for (std::size_t i = 0; i < records.size(); ++i) {
         std::string resource_name;
         std::string description;
@@ -425,17 +577,25 @@ void print_decrypted_records(const std::vector<DisplayRecord>& records,
                                user_name,
                                password,
                                password_last_modified)) {
-            std::cout << (i + 1) << "|"
-                      << resource_name << "|"
-                      << description << "|"
-                      << user_name << "|"
-                      << password << "|"
-                      << password_last_modified << "|\n";
+            print_table_row({std::to_string(i + 1),
+                             resource_name,
+                             description,
+                             user_name,
+                             password,
+                             password_last_modified},
+                            columns);
         } else {
             // Fallback for unexpected record formats.
-            std::cout << (i + 1) << "|" << records[i].plain << "|\n";
+            print_table_row({std::to_string(i + 1),
+                             "(unparsed)",
+                             records[i].plain,
+                             "",
+                             "",
+                             ""},
+                            columns);
         }
     }
+
     if (skipped > 0) {
         std::cout << "# skipped_unreadable_records=" << skipped << "\n";
     }
@@ -555,12 +715,13 @@ int main(int argc, char* argv[]) {
     while (true) {
         std::cout << "\nChoose an option:\n";
         std::cout << "1) Add credential\n";
-        std::cout << "2) Show decrypted records (pipe-delimited CSV format)\n";
-        std::cout << "3) Edit record by index\n";
-        std::cout << "4) Delete record by index\n";
-        std::cout << "5) Save\n";
-        std::cout << "6) Exit without saving\n";
-        std::cout << "7) Save and exit\n";
+        std::cout << "2) Show decrypted records (wrapped column view)\n";
+        std::cout << "3) Show decrypted records sorted by password_last_modified (newest first)\n";
+        std::cout << "4) Edit record by index\n";
+        std::cout << "5) Delete record by index\n";
+        std::cout << "6) Save\n";
+        std::cout << "7) Exit without saving\n";
+        std::cout << "8) Save and exit\n";
         std::cout << "> ";
 
         const int choice = read_menu_choice();
@@ -606,6 +767,13 @@ int main(int argc, char* argv[]) {
                 break;
             }
             case 3: {
+                std::size_t skipped = 0;
+                const std::vector<DisplayRecord> display =
+                    build_decrypted_records_sorted_by_last_modified(records, key, skipped);
+                print_decrypted_records(display, skipped);
+                break;
+            }
+            case 4: {
                 if (records.empty()) {
                     std::cout << "No records to edit.\n";
                     break;
@@ -693,7 +861,7 @@ int main(int argc, char* argv[]) {
                 std::cout << "Updated record " << idx << ".\n";
                 break;
             }
-            case 4: {
+            case 5: {
                 if (records.empty()) {
                     std::cout << "No records to delete.\n";
                     break;
@@ -719,17 +887,17 @@ int main(int argc, char* argv[]) {
                 std::cout << "Deleted record " << idx << ".\n";
                 break;
             }
-            case 5:
+            case 6:
                 if (!save_records(vault_file, metadata.salt, metadata.auth_tag, records)) {
                     std::cerr << "Failed to save vault file: " << vault_file << "\n";
                     return 1;
                 }
                 std::cout << "Saved " << records.size() << " encrypted record(s) to " << vault_file << ".\n";
                 break;
-            case 6:
+            case 7:
                 std::cout << "Exiting without saving changes.\n";
                 return 0;
-            case 7:
+            case 8:
                 if (!save_records(vault_file, metadata.salt, metadata.auth_tag, records)) {
                     std::cerr << "Failed to save vault file: " << vault_file << "\n";
                     return 1;
