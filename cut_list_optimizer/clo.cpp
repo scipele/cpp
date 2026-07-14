@@ -1,3 +1,16 @@
+// ************ MAIN PROGRAM ***************************************************
+//| Item	     | Main Program Documentation Notes                            |
+//|--------------|-------------------------------------------------------------|
+//| Filename     | clo.cpp                                                     |
+//| EntryPoint   | main                                                        |
+//| Purpose      | optimize cutting plans for 4'x8' sheet materials            |
+//| Inputs       | cut_list.csv in form of (id,len_in,width_in)                |
+//| Outputs      | cut_sequence.csv and cut_layout.svg                         |
+//| Dependencies | Standard C++17 libraries                                    |
+//| By Name,Date | T.Sciple, 07/13/2026                                        |
+// Compile on Linux with: 
+// g++ -std=c++17 -O2 -o clo clo.cpp
+
 #include <algorithm>
 #include <cctype>
 #include <filesystem>
