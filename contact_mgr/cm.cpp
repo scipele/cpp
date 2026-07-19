@@ -1,16 +1,18 @@
-//| Item	     | Documentation Notes                                         |
-//|--------------|-------------------------------------------------------------|
-//| Filename     | contact_manager.cpp                                         |
-//| EntryPoint   | main                                                        |
-//| Purpose      | merge and cleanup contacts from various sources             |
-//| Inputs       | import from files                                           |
-//| Outputs      | varies                                                      |
-//| Dependencies | see standard includes                                       |
-//| By Name,Date | T.Sciple, 01/19/2026                                        |
-
-// ============================================================================
-// Includes & Forward Declarations
-// ============================================================================
+/*
+| Item	     | Documentation Notes                                         |
+|--------------|-------------------------------------------------------------|
+| Filename     | contact_manager.cpp                                         |
+| EntryPoint   | main                                                        |
+| Purpose      | merge and cleanup contacts from various sources             |
+| Inputs       | import from files                                           |
+| Outputs      | varies                                                      |
+| Dependencies | see standard includes                                       |
+| By Name,Date | T.Sciple, 01/19/2026                                        |
+Compile Linux:
+g++ -std=c++17 -o cm cm.cpp
+Compile Windows:
+g++ -std=c++17 -o cm.exe cm.cpp
+*/
 
 #include <iostream>
 #include <unordered_map>
@@ -916,7 +918,7 @@ void ContactMgr::display(const Contact& cn, std::ostream& out) const {
 } 
 
 // ============================================================================
-// 7. Search Functions
+// 7. Search by name (exact match using index)
 // ============================================================================
 
 // Method to search for a contact by name (using index)
@@ -1458,7 +1460,7 @@ bool ContactMgr::editContact(int contact_id) {
 
 
 // ============================================================================
-// 16. Find & Merge Duplicate Contacts
+// 17. Find & Merge Duplicate Contacts
 // ============================================================================
 
 // Helper: Find a contact by ID (mutable version for merging)
@@ -1651,7 +1653,7 @@ std::vector<std::pair<int, int>> ContactMgr::findDuplicates() const {
 
 
 // ============================================================================
-// 17. Extract Names from Email-Only Contacts
+// 18. Extract Names from Email-Only Contacts
 // ============================================================================
 // Extract names from email addresses for email-only contacts
 // Also cleans up name fields that contain email addresses
@@ -1791,7 +1793,7 @@ size_t ContactMgr::extractNamesFromEmails() {
 }
 
 // ============================================================================
-// 18.Bulk Operations
+// 19.Bulk Operations
 // ============================================================================
 
 // Bulk update email domains from old format to new format
@@ -1842,7 +1844,7 @@ size_t ContactMgr::bulkUpdateEmailDomain(const std::string& oldDomain, const std
 
 
 // ============================================================================
-// 19. Renumber Contact IDs
+// 20. Renumber Contact IDs
 // ============================================================================
 void ContactMgr::renumberContactIds() {
     if (contacts.empty()) {
@@ -1900,7 +1902,7 @@ void ContactMgr::renumberContactIds() {
 
 
 // ============================================================================
-// 20. Save contacts to file (optimized - only writes non-empty fields)
+// 22. Save contacts to file (optimized - only writes non-empty fields)
 // ============================================================================
 bool ContactMgr::saveToFile(const std::string& filename) const {
     std::ofstream outFile(filename);
