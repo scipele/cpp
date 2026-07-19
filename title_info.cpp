@@ -1,21 +1,24 @@
-// ************ MAIN PROGRAM ***************************************************
-//| Item	     | Main Program Documentation Notes                            |
-//|--------------|-------------------------------------------------------------|
-//| Filename     | x.cpp                                                       |
-//| EntryPoint   | xxx                                                         |
-//| Purpose      | compute estimate work hours for various                     |
-//| Inputs       | varies                                                      |
-//| Outputs      | number of work hours                                        |
-//| Dependencies | Indicate if any libraries are used or none                  |
-//| By Name,Date | T.Sciple, MM/DD/YYYY                                        |
+//************ MAIN PROGRAM ***************************************************
+/*
+| Item	     | Main Program Documentation Notes                            |
+|--------------|-------------------------------------------------------------|
+| Filename     | x.cpp                                                       |
+| EntryPoint   | xxx                                                         |
+| Purpose      | compute estimate work hours for various                     |
+| Inputs       | varies                                                      |
+| Outputs      | number of work hours                                        |
+| Dependencies | Indicate if any libraries are used or none                  |
+| By Name,Date | T.Sciple, MM/DD/YYYY                                        |
+*/
 
 // ************ CLASS OR IMPLEMENATION FILE ************************************
-//| Item	     | Class Documentation Notes                                   |
-//|--------------|-------------------------------------------------------------|
-//| Filename/type| FilePropGatherer.hpp / Class header file                    |
-//| EntryPoint   | instantiated from main                                      |
-//| By Name,Date | T.Sciple, MM/DD/YYYY                                        |
-
+/*
+| Item	     | Class Documentation Notes                                   |
+|--------------|-------------------------------------------------------------|
+| Filename/type| FilePropGatherer.hpp / Class header file                    |
+| EntryPoint   | instantiated from main                                      |
+| By Name,Date | T.Sciple, MM/DD/YYYY                                        |
+*/
 
 
 /* Cpp Style Guide

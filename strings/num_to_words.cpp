@@ -1,72 +1,97 @@
+/*
+| Item	       | Main Program Documentation Notes                            |
+|--------------|-------------------------------------------------------------|
+| Filename     | num_to_words.cpp                                            |
+| EntryPoint   | main                                                        |
+| Purpose      | Convert a number to its words representation                |
+| Inputs       | A number (double)                                           |
+| Outputs      | Number in words                                             |
+| Dependencies | std libs                                                    |
+| By Name,Date | T.Sciple, 07/12/2026                                        |
+
+Compile Linux:
+g++ -std=c++17 -o num_to_words num_to_words.cpp
+Compile Windows:
+g++ -std=c++17 -o num_to_words.exe num_to_words.cpp
+*/
+
 #include <iostream>
 #include <string>
-
-//fix this later - not working correctly - sciple
+#include <cmath>
 
 std::string numToWords(double MyNumber);
-
 std::string Place[] = {"", "Thousand", "Million", "Billion", "Trillion"};
-
 std::string GetHundreds(std::string MyNumber);
 std::string GetTens(std::string TensText);
 std::string GetDigit(char Digit);
 void pauseConsole();
 
-
 int main() {
     double inputNumber;
     std::cout << "Enter a number: ";
-    std::cin >> inputNumber;
-
+    if (!(std::cin >> inputNumber)) {
+        std::cout << "Invalid input." << std::endl;
+        return 1;
+    }
+    
     std::string result = numToWords(inputNumber);
     std::cout << "Number in words: " << result << std::endl;
-
-    // Call the function to pause the console window
+    
     pauseConsole();
-
-
     return 0;
 }
 
 std::string numToWords(double MyNumber) {
-    double Cents;
-    int DecimalPlace, Count = 0;
+    if (MyNumber < 0) return "Negative numbers not supported";
+    
+    // 1. Separate dollars and cents using math instead of std::to_string
+    long long dollarPart = static_cast<long long>(std::floor(MyNumber));
+    int centsPart = static_cast<int>(std::round((MyNumber - dollarPart) * 100));
+
     std::string Dollars, Temp;
+    int Count = 0;
 
-    DecimalPlace = std::to_string(MyNumber).find('.');
-    if (DecimalPlace > 0) {
-        Cents = std::stod(std::to_string(MyNumber).substr(DecimalPlace + 1));
-        MyNumber = std::stoi(std::to_string(MyNumber).substr(0, DecimalPlace));
-    }
-
-
-    while (MyNumber > 0) {
-        Temp = GetHundreds(std::to_string(static_cast<int>(static_cast<long long>(MyNumber) % 1000)));
-        if (!Temp.empty()) {
-            if (!Dollars.empty()) { // Check if Dollars is not empty
-                Dollars = " " + Dollars; // Add a space before concatenating the term
+    // 2. Process dollar groups (thousands, millions, etc.)
+    if (dollarPart == 0) {
+        Dollars = "Zero Dollars";
+    } else {
+        long long remainingDollars = dollarPart;
+        while (remainingDollars > 0) {
+            int chunk = remainingDollars % 1000;
+            Temp = GetHundreds(std::to_string(chunk));
+            
+            if (!Temp.empty()) {
+                std::string segment = Temp + (!Place[Count].empty() ? " " + Place[Count] : "");
+                if (Dollars.empty()) {
+                    Dollars = segment;
+                } else {
+                    Dollars = segment + " " + Dollars;
+                }
             }
-            Dollars = Temp + (!Temp.empty() && !Place[Count].empty() ? " " : "") + Place[Count] + Dollars; // Add a space between Temp and Place[Count] if both are not empty
+            remainingDollars /= 1000; // Integer division avoids infinite loop
+            Count++;
         }
-        MyNumber /= 1000;
-        Count++;
+        
+        if (Dollars == "One") {
+            Dollars = "One Dollar";
+        } else {
+            Dollars += " Dollars";
+        }
     }
 
-
-    if (Dollars.empty())
-        Dollars = "No Dollars";
-    else if (Dollars == "One")
-        Dollars = "One Dollar";
-    else
-        Dollars += " Dollars";
-
+    // 3. Process cents
     std::string CentsStr = "";
-    if (Cents > 0) {
-        Temp = GetTens(std::to_string(static_cast<int>(Cents)));
-        if (!Temp.empty())
-            CentsStr = " and " + Temp + " Cents";
-        else
+    if (centsPart > 0) {
+        // Pad to 2 digits (e.g., 5 cents becomes "05")
+        std::string centsText = std::to_string(centsPart);
+        if (centsText.length() < 2) centsText = "0" + centsText;
+        
+        Temp = GetTens(centsText);
+        if (centsPart == 1) {
             CentsStr = " and One Cent";
+        } else {
+            CentsStr = " and " + Temp + " Cents";
+        }
     } else {
         CentsStr = " and No Cents";
     }
@@ -76,24 +101,22 @@ std::string numToWords(double MyNumber) {
 
 std::string GetHundreds(std::string MyNumber) {
     std::string result;
-    if (std::stoi(MyNumber) == 0)
-        return result;
+    int num = std::stoi(MyNumber);
+    if (num == 0) return result;
+
+    // Pad to exactly 3 digits
     MyNumber = std::string(3 - MyNumber.length(), '0') + MyNumber;
-    
+
     if (MyNumber[0] != '0') {
         result = GetDigit(MyNumber[0]) + " Hundred";
     }
-    if (MyNumber[1] != '0') {
-        if (!result.empty()) {  // Add space if result is not empty
-            result += " ";  
-        }
+
+    // Process tens and ones together if they exist
+    if (MyNumber[1] != '0' || MyNumber[2] != '0') {
+        if (!result.empty()) result += " ";
         result += GetTens(MyNumber.substr(1));
-    } else if (MyNumber[2] != '0' && MyNumber[1] != '0') {
-        if (!result.empty()) {  // Add space if result is not empty
-            result += " ";  
-        }
-        result += GetDigit(MyNumber[2]);
     }
+    
     return result;
 }
 
@@ -116,7 +139,7 @@ std::string GetTens(std::string TensText) {
     } else {
         switch (TensText[0]) {
             case '2': result = "Twenty"; break;
-            case '3': result = "Thirty"; break;
+            case '3': result = "Thirty"; break; break;
             case '4': result = "Forty"; break;
             case '5': result = "Fifty"; break;
             case '6': result = "Sixty"; break;
@@ -126,15 +149,14 @@ std::string GetTens(std::string TensText) {
             default: break;
         }
         if (TensText[1] != '0') {
-            if (!result.empty()) {  // Add hyphen if result is not empty
-                result += "-";  
+            if (!result.empty()) {
+                result += "-";
             }
             result += GetDigit(TensText[1]);
         }
     }
     return result;
 }
-
 
 std::string GetDigit(char Digit) {
     switch (Digit) {
@@ -151,14 +173,12 @@ std::string GetDigit(char Digit) {
     }
 }
 
-
-// Function to pause the console window until a key is pressed
 void pauseConsole() {
-//    std::cout << "Press any key to continue...";
-//    std::string input;
-//    std::getline(std::cin, input); // Wait for the user to press Enter
-    
-    // Pause the console window before exiting
-    system("pause");
-
+    #if defined(_WIN32) || defined(_WIN64)
+        std::system("pause");
+    #else
+        std::cout << "Press Enter to continue...";
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cin.get();
+    #endif
 }
