@@ -1,181 +1,105 @@
-#include <Windows.h>
-#include <sstream>
+/* Compile in Windows:
+g++ -std=c++17 -o draw_lines_with_eyeball_pattern draw_lines_with_eyeball_pattern.cpp -lsfml-graphics -lsfml-window -lsfml-system
+
+Compile in Linux:
+g++ -std=c++17 -o draw_lines_with_eyeball_pattern draw_lines_with_eyeball_pattern.cpp -lsfml-graphics -lsfml-window -lsfml-system
+*/
+#include <SFML/Graphics.hpp>
 #include <cmath>
-#include <stdlib.h>
+#include <vector>
 
-// Forward declaration of the window procedure
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+int main() {
+    // 1. Create the window using sf::Vector2u for dimensions (SFML 3 requirement)
+    sf::RenderWindow window(sf::VideoMode({1920, 1080}), "My Window", sf::Style::Default);
+    window.setFramerateLimit(60);
 
-// Entry point for Windows GUI applications
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow) {
-    // Register the window class
-    const wchar_t CLASS_NAME[] = L"MyWindowClass";
-    WNDCLASSW wc = {};
-    wc.lpfnWndProc = WndProc;
-    wc.hInstance = hInstance;
-    wc.lpszClassName = CLASS_NAME;
-    RegisterClassW(&wc);
+    // 2. Define border coordinates
+    const float xmin = 10.f;
+    const float ymin = 10.f;
+    const float xmax = 1890.f;
+    const float ymax = 990.f;
 
-    // Create the window
-    HWND hWnd = CreateWindowExW(
-        0,                              // Optional window styles
-        CLASS_NAME,                     // Window class
-        L"My Window",                   // Window title
-        WS_OVERLAPPEDWINDOW,            // Window style
+    // Helper lambda to draw basic lines using updated Vertex initializing & PrimitiveType
+    auto drawLine = [&](sf::RenderWindow& win, float x1, float y1, float x2, float y2, sf::Color color) {
+        sf::Vertex line[] = {
+            sf::Vertex{.position = {x1, y1}, .color = color},
+            sf::Vertex{.position = {x2, y2}, .color = color}
+        };
+        win.draw(line, 2, sf::PrimitiveType::Lines);
+    };
 
-        // Size and position
-        // orig code  -->         CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-        // CW_USEDEFAULT, CW_USEDEFAULT, 800, 600,
-        CW_USEDEFAULT, CW_USEDEFAULT, 1920, 1080,
-        NULL,       // Parent window
-        NULL,       // Menu
-        hInstance,  // Instance handle
-        NULL        // Additional application data
-    );
-    if (hWnd == NULL) {
-        return 0;
-    }
+    // Main application loop
+    while (window.isOpen()) {
+        // Updated SFML 3 type-safe event polling system
+        while (const std::optional event = window.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
+                window.close();
+            }
+        }
 
-    // Show the window
-    ShowWindow(hWnd, nCmdShow);
+        // Clear screen with a background color
+        window.clear(sf::Color::White);
 
-    // Run the message loop
-    MSG msg = {};
-    while (GetMessage(&msg, NULL, 0, 0)) {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+        // --- DRAW BORDER ---
+        sf::Color borderColor = sf::Color::Black;
+        drawLine(window, xmin, ymin, xmax, ymin, borderColor);
+        drawLine(window, xmax, ymin, xmax, ymax, borderColor);
+        drawLine(window, xmax, ymax, xmin, ymax, borderColor);
+        drawLine(window, xmin, ymax, xmin, ymin, borderColor);
+
+        // --- DRAW MATH/LINE ART ---
+        int n = 100;
+        const float x_incr = (xmax - xmin) / n;
+        const float y_incr = (ymax - ymin) / n;
+
+        for (int i = 0; i < n; i++) {
+            float y = 10.f + y_incr * i;
+            float x = 10.f + x_incr * i;
+
+            // Line 1: Red gradient
+            drawLine(window, xmin, y, x, ymax, sf::Color(i * 255 / n, 0, 0));
+
+            // Line 2: Green gradient
+            drawLine(window, x, ymax, xmax, (ymax - y), sf::Color(0, i * 255 / n, 0));
+
+            // Line 3: Blue gradient
+            drawLine(window, xmin, (ymax - y), x, ymin, sf::Color(0, 0, i * 255 / n));
+
+            // Line 4: Custom gradient
+            drawLine(window, x, ymin, xmax, y, sf::Color(i * 255 / n, 255 - i * 255 / n, 255 - i * 255 / n));
+        }
+
+        // --- DRAW CIRCLES ---
+        float xcen = (xmax - xmin) / 2.f;
+        float ycen = (ymax - ymin) / 2.f;
+        float max_dia = 750.f;
+
+        // Non-filled concentric circles
+        for (int i = static_cast<int>(max_dia); i > 225; i -= 1) {
+            float radius = i / 2.f;
+            sf::CircleShape circle(radius);
+            
+            // Set position with vector syntax (SFML 3 requirement)
+            circle.setPosition({xcen - radius, ycen - radius});
+            
+            circle.setFillColor(sf::Color::Transparent);
+            circle.setOutlineThickness(1.0f);
+            circle.setOutlineColor(sf::Color(27, 50 + i * 100 / max_dia, 155 + i * 100 / max_dia));
+            
+            window.draw(circle);
+        }
+
+        // Center filled black circle
+        float blackRadius = 225.f / 2.f;
+        sf::CircleShape blackCircle(blackRadius);
+        blackCircle.setPosition({xcen - blackRadius, ycen - blackRadius});
+        blackCircle.setFillColor(sf::Color::Black);
+        
+        window.draw(blackCircle);
+
+        // Display everything on screen
+        window.display();
     }
 
     return 0;
-}
-
-
-void line(HDC& hdc, double x1, double y1, double x2, double y2) {
-    MoveToEx(hdc, x1, y1, NULL);
-    LineTo(hdc, x2, y2);
-}
-
-void chg_color(HDC& hdc, HPEN& hOldPen, int r, int g, int b) {
-    HPEN hPen = CreatePen(PS_SOLID, 1, RGB(r, g, b));
-    hOldPen = (HPEN)SelectObject(hdc, hPen);
-}
-
-
-// Function to draw a non filled-in circle (ellipse) with the specified color
-void circle(HDC hdc, double centerX, double centerY, double dia, int R, int G, int B) {
-    HPEN hPen = CreatePen(PS_SOLID, 1, RGB(R, G, B));
-    HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
-
-    // Draw the ellipse
-    double radius = dia / 2;
-    double left = centerX - radius;
-    double top = centerY - radius;
-    double right = centerX + radius;
-    double bottom = centerY + radius;
-    Ellipse(hdc, left, top, right, bottom);
-
-    // Restore the old pen and delete the created pen
-    SelectObject(hdc, hOldPen);
-    DeleteObject(hPen);
-}
-
-// Function to draw a filled-in circle (ellipse) with the specified color
-void circleFilled(HDC hdc, double centerX, double centerY, double dia, int R, int G, int B) {
-    // line color
-    HPEN hPen = CreatePen(PS_SOLID, 1, RGB(R, G, B));
-    HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
-    // fill color
-    HBRUSH hBrush = CreateSolidBrush(RGB(R, G, B));
-    HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
-
-    // Draw the ellipse
-    double radius = dia / 2;
-    double left = centerX - radius;
-    double top = centerY - radius;
-    double right = centerX + radius;
-    double bottom = centerY + radius;
-    Ellipse(hdc, left, top, right, bottom);
-
-    // Restore the old pen and delete the created pen
-    SelectObject(hdc, hOldPen);
-    DeleteObject(hPen);
-
-    // Restore the old brush and delete the created brush
-    SelectObject(hdc, hOldBrush);
-    DeleteObject(hBrush);
-}
-
-// Window procedure
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-    switch (message) {
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            return 0;
-        case WM_PAINT: {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-
-            HPEN hPen, hOldPen;
-            HBRUSH hBrush, hOldBrush;
-
-            //using screen size of 1920 x 1080
-            // Calculations
-            // define border coordinates            
-            const double xmin = 10;
-            const double ymin = 10;
-            const double xmax = 1890;
-            const double ymax = 990;
-
-            // Draw Border
-            line(hdc, xmin, ymin, xmax, ymin);
-            line(hdc, xmax, ymin, xmax, ymax);
-            line(hdc, xmax, ymax, xmin, ymax);
-            line(hdc, xmin, ymax, xmin, ymin);
-
-            double x;
-            double y;
-            int n = 100;
-
-            const double x_incr = (xmax - xmin) / n;
-            const double y_incr = (ymax - ymin) / n;
-
-            for (int i = 0; i < n; i++) {
-                y = 10 + y_incr * i;           // make it vary from 10 to 990
-                x = 10 + x_incr * i;           // make it vary from 10 to 1890
-
-                chg_color(hdc, hOldPen, i*255/n, 0, 0);
-                line(hdc, xmin, y, x, ymax);
-
-                chg_color(hdc, hOldPen, 0, i*255/n, 0);
-                line(hdc, x, ymax, xmax, (ymax-y));
-
-                chg_color(hdc, hOldPen, 0, 0, i*255/n);
-                line(hdc, xmin, (ymax-y), x, ymin);
-
-                chg_color(hdc, hOldPen, i*255/n, 255-i*255/n, 255-i*255/n);
-                line(hdc, x, ymin, xmax, y);
-            } 
-            
-            double xcen = (xmax - xmin) /2 ;
-            double ycen = (ymax - ymin) /2 ;
-            double max_dia = 750;
-
-            // Draw non-filled in circles             
-            for (int i = max_dia; i > 225; i-=1) {
-                circle(hdc, xcen, ycen, i, 27, 50+i*100/max_dia, 155+i*100/max_dia);
-            }
-
-            // filled in black circle
-            circleFilled(hdc, xcen, ycen, 225, 0, 0, 0);
-  
-            EndPaint(hWnd, &ps);
-            return 0;
-        }
-    }
-    return DefWindowProc(hWnd, message, wParam, lParam);
-}
-
-// Dummy WinMain function to call wWinMain
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-    return wWinMain(hInstance, hPrevInstance, GetCommandLineW(), nCmdShow);
 }
