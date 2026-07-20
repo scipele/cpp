@@ -43,3 +43,4 @@ hash_funcs/encryption/pw.vault
 *.pdf
 *.svg
 *.vcf
+*.bin
