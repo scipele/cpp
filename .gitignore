@@ -44,3 +44,11 @@ hash_funcs/encryption/pw.vault
 *.svg
 *.vcf
 *.bin
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.tiff
+*.bmp
+*.ico
+*.mp3
