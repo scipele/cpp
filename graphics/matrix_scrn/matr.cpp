@@ -1,14 +1,16 @@
-//| Item	     | Main Program Documentation Notes                            |
-//|--------------|-------------------------------------------------------------|
-//| Filename     | matr.cp                                                     |
-//| EntryPoint   | main                                                        |
-//| Purpose      | display Matrix rain effect in terminal                      |
-//| Inputs       | none                                                        |
-//| Outputs      | none                                                        |
-//| Dependencies | ncurses library                                             |
-//| By Name,Date | T.Sciple, 06/18/2026                                        |
-//  compile w linux:
-//  g++ matr.cpp -o matr -lncursesw
+/*
+| Item         | Main Program Documentation Notes                            |
+|--------------|-------------------------------------------------------------|
+| Filename     | matr.cpp                                                    |
+| EntryPoint   | main                                                        |
+| Purpose      | display Matrix rain effect in terminal                      |
+| Inputs       | none                                                        |
+| Outputs      | none                                                        |
+| Dependencies | ncurses library                                             |
+| By Name,Date | T.Sciple, 06/18/2026                                        |
+compile w linux:
+g++ matr.cpp -o matr -lncursesw
+*/
 
 #include <ncurses.h>        // library to handle console output and control the display of characters.
 #include <cstdlib>
@@ -81,7 +83,7 @@ int main() {
 
         updateStreams();    // Update the position/speed of each stream
         drawStreams();      // Draw the streams at their new positions  
-        usleep(30000);      // Global tick rate (30ms) for smoother rendering
+        usleep(20000);      // Global tick rate (15ms) for smoother rendering
     }
 
     endwin();
@@ -128,7 +130,8 @@ void updateStreams() {
 
 
 void drawStreams() {
-    clear(); 
+    //clear(); 
+    erase(); // Clear the screen for the next frame
 
     // Instead of: i < NUM_STREAMS
     for (size_t i = 0; i < streams.size(); ++i) {
