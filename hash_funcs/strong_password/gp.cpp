@@ -54,7 +54,7 @@ std::string get_password(std::string length)
         password += c;
     }
 
-    std::cout << "Generated Password:\n" << password << std::endl;
+    std::cout << "Generated Password:\n\n" << password << std::endl;
     return password;
 }
 
@@ -69,7 +69,7 @@ int main(int argc, char const *argv[])
     std::cout << "Password length: ";
     std::string length;
     std::cin >> length;
-        
+
     get_password(length);
 
     return 0;
