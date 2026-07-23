@@ -1,9 +1,13 @@
-name: Compile Strong Password Generator
+name: Compile and Run Password Generator
 
 on:
-  push:
-    branches: [ "main" ]
-  workflow_dispatch: # Allows manual trigger via the Actions tab
+  workflow_dispatch: # Enables the interactive run button in the GitHub Web App
+    inputs:
+      password_length:
+        description: 'Enter the number of characters or password length (1-20):'
+        required: true
+        default: '12'
+        type: string
 
 jobs:
   build:
@@ -13,14 +17,13 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Compile Code with G++
-      # This points the runner to your exact subfolder layout
+    - name: Compile C++ Program
       working-directory: hash_funcs/strong_password
       run: |
         g++ -std=c++17 -o gp gp.cpp
 
-    - name: Upload Compiled Executable Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: linux-gp-executable
-        path: hash_funcs/strong_password/gp
+    - name: Run Executable inside Web App
+      working-directory: hash_funcs/strong_password
+      run: |
+        # Echoes the web UI input value straight into the C++ terminal prompt
+        echo "${{ github.event.inputs.password_length }}" | ./gp
