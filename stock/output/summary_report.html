@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stock Fetcher Summary Report</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 30px; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { text-align: center; color: #1e293b; margin-bottom: 30px; font-weight: 700; }
+        h2 { background-color: #2563eb; color: white; padding: 12px 20px; border-radius: 6px; margin-top: 40px; margin-bottom: 15px; font-size: 1.25rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .table-container { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem; }
+        th { background-color: #f8fafc; color: #64748b; font-weight: 600; padding: 14px 20px; border-bottom: 2px solid #e2e8f0; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+        td { padding: 12px 20px; border-bottom: 1px solid #edf2f7; color: #334155; }
+        tr:hover { background-color: #f8fafc; }
+        tr:last-child td { border-bottom: none; }
+        .num { font-variant-numeric: tabular-nums; text-align: right; }
+        th.num { text-align: right; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+<h1>🚀 Stock Fetcher Analytics</h1>
+
+<!-- Top ticker summary -->
+<div class="table-container">
+<table>
+<thead>
+<tr>
+    <th>Category</th>
+    <th>Tickers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+    <td>Top Short</td>
+    <td>HPE,PSX,DELL,MU,VLO,SNDK,MPC,ADM,AMD,STX,PYPL,PANW,DDOG,HUM,WDC,BBY,FANG,CVX,FTNT,TRGP</td>
+</tr>
+<tr>
+    <td>Top Long</td>
+    <td>BAX,MNST,RSG,SWK,PSA,WFC,LYV,MPWR,VRT,DLTR,GEN,ZBH,ESS,VRSN,ETR,CI,PFE,CARR,FDXF,IP</td>
+</tr>
+<tr>
+    <td>Top Combo</td>
+    <td>HPE,DELL,MU,AMD,STX,PANW,DDOG,VLO,HUM,WDC,BBY,FTNT,ADM,TRGP,NTAP,TRV,MPC,SNDK,UNP,URI</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<h2> TOP 20 SHORT TERM </h2>
+<div class='table-container'><table><thead><tr>
+<th>Rank</th>
+<th>Ticker</th>
+<th class='num'>Short_Score</th>
+<th class='num'>Long_Score</th>
+<th class='num'>Combined_Score</th>
+<th class='num'>RSI</th>
+<th class='num'>Momentum</th>
+<th class='num'>Volatility</th>
+<th class='num'>Price</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>HPE</td>
+<td class='num'>97</td>
+<td class='num'>97</td>
+<td class='num'>97</td>
+<td class='num'>65.6378</td>
+<td class='num'>68.7829</td>
+<td class='num'>19.1666</td>
+<td class='num'>48.12</td>
+</tr>
+<tr>
+<td>2</td>
+<td>PSX</td>
+<td class='num'>97</td>
+<td class='num'>78.1511</td>
+<td class='num'>87.5756</td>
+<td class='num'>85.4882</td>
+<td class='num'>32.9848</td>
+<td class='num'>31.8181</td>
+<td class='num'>213.64</td>
+</tr>
+<tr>
+<td>3</td>
+<td>DELL</td>
+<td class='num'>97</td>
+<td class='num'>97</td>
+<td class='num'>97</td>
+<td class='num'>59.3431</td>
+<td class='num'>105.914</td>
+<td class='num'>19.4117</td>
+<td class='num'>441.995</td>
+</tr>
+<tr>
+<td>4</td>
+<td>MU</td>
+<td class='num'>97</td>
+<td class='num'>97</td>
+<td class='num'>97</td>
+<td class='num'>50.84</td>
+<td class='num'>101.851</td>
+<td class='num'>39.7373</td>
+<td class='num'>983.984</td>
+</tr>
+<tr>
+<td>5</td>
+<td>VLO</td>
+<td class='num'>97</td>
+<td class='num'>88.6585</td>
+<td class='num'>92.8293</td>
+<td class='num'>77.2984</td>
+<td class='num'>33.6875</td>
+<td class='num'>28.1713</td>
+<td class='num'>313.31</td>
+</tr>
+<tr>
+<td>6</td>
+<td>SNDK</td>
+<td class='num'>97</td>
+<td class='num'>81.4736</td>
+<td class='num'>89.2368</td>
+<td class='num'>45.7532</td>
+<td class='num'>65.8804</td>
+<td class='num'>60.6255</td>
+<td class='num'>1624.08</td>
+</tr>
+<tr>
+<td>7</td>
+<td>MPC</td>
+<td class='num'>97</td>
+<td class='num'>82.4119</td>
+<td class='num'>89.7059</td>
+<td class='num'>85.2166</td>
+<td class='num'>43.1531</td>
+<td class='num'>32.5719</td>
+<td class='num'>317.9</td>
+</tr>
+<tr>
+<td>8</td>
+<td>ADM</td>
+<td class='num'>97</td>
+<td class='num'>83.9771</td>
+<td class='num'>90.4886</td>
+<td class='num'>88.9566</td>
+<td class='num'>26.2495</td>
+<td class='num'>19.1589</td>
+<td class='num'>87.655</td>
+</tr>
+<tr>
+<td>9</td>
+<td>AMD</td>
+<td class='num'>97</td>
+<td class='num'>97</td>
+<td class='num'>97</td>
+<td class='num'>54.1004</td>
+<td class='num'>77.9477</td>
+<td class='num'>15.4829</td>
+<td class='num'>540</td>
+</tr>
+<tr>
+<td>10</td>
+<td>STX</td>
+<td class='num'>97</td>
+<td class='num'>97</td>
+<td class='num'>97</td>
+<td class='num'>59.1078</td>
+<td class='num'>58.5759</td>
+<td class='num'>29.4768</td>
+<td class='num'>919.55</td>
+</tr>
+<tr>
+<td>11</td>
+<td>PYPL</td>
+<td class='num'>93.9383</td>
+<td class='num'>55.3331</td>
+<td class='num'>74.6357</td>
+<td class='num'>80.3732</td>
+<td class='num'>8.47325</td>
+<td class='num'>44.1317</td>
+<td class='num'>55.56</td>
+</tr>
+<tr>
+<td>12</td>
+<td>PANW</td>
+<td class='num'>90.5334</td>
+<td class='num'>97</td>
+<td class='num'>93.7667</td>
+<td class='num'>41.6626</td>
+<td class='num'>78.8355</td>
+<td class='num'>20.3277</td>
+<td class='num'>324.05</td>
+</tr>
+<tr>
+<td>13</td>
+<td>DDOG</td>
+<td class='num'>89.8603</td>
+<td class='num'>97</td>
+<td class='num'>93.4302</td>
+<td class='num'>39.1971</td>
+<td class='num'>83.9644</td>
+<td class='num'>17.5963</td>
+<td class='num'>243.09</td>
+</tr>
+<tr>
+<td>14</td>
+<td>HUM</td>
+<td class='num'>88.2456</td>
+<td class='num'>97</td>
+<td class='num'>92.6228</td>
+<td class='num'>48.6834</td>
+<td class='num'>81.4995</td>
+<td class='num'>8.28196</td>
+<td class='num'>394.58</td>
+</tr>
+<tr>
+<td>15</td>
+<td>WDC</td>
+<td class='num'>87.3284</td>
+<td class='num'>97</td>
+<td class='num'>92.1642</td>
+<td class='num'>53.1138</td>
+<td class='num'>44.2907</td>
+<td class='num'>37.5274</td>
+<td class='num'>561.435</td>
+</tr>
+<tr>
+<td>16</td>
+<td>BBY</td>
+<td class='num'>86.5997</td>
+<td class='num'>97</td>
+<td class='num'>91.7998</td>
+<td class='num'>72.0767</td>
+<td class='num'>33.6377</td>
+<td class='num'>18.0202</td>
+<td class='num'>84.9</td>
+</tr>
+<tr>
+<td>17</td>
+<td>FANG</td>
+<td class='num'>86.0933</td>
+<td class='num'>74.225</td>
+<td class='num'>80.1592</td>
+<td class='num'>86.731</td>
+<td class='num'>7.58756</td>
+<td class='num'>21.5496</td>
+<td class='num'>208.58</td>
+</tr>
+<tr>
+<td>18</td>
+<td>CVX</td>
+<td class='num'>85.8915</td>
+<td class='num'>70.1716</td>
+<td class='num'>78.0315</td>
+<td class='num'>89.8187</td>
+<td class='num'>6.00853</td>
+<td class='num'>21.0472</td>
+<td class='num'>197.515</td>
+</tr>
+<tr>
+<td>19</td>
+<td>FTNT</td>
+<td class='num'>85.7477</td>
+<td class='num'>97</td>
+<td class='num'>91.3739</td>
+<td class='num'>45.8793</td>
+<td class='num'>74.6125</td>
+<td class='num'>11.1601</td>
+<td class='num'>152.07</td>
+</tr>
+<tr>
+<td>20</td>
+<td>TRGP</td>
+<td class='num'>83.7811</td>
+<td class='num'>97</td>
+<td class='num'>90.3905</td>
+<td class='num'>78.9917</td>
+<td class='num'>22.1465</td>
+<td class='num'>11.7484</td>
+<td class='num'>289.158</td>
+</tr>
+</tbody></table></div>
+<h2> TOP 20 LONG TERM </h2>
+<div class='table-container'><table><thead><tr>
+<th>Rank</th>
+<th>Ticker</th>
+<th class='num'>Short_Score</th>
+<th class='num'>Long_Score</th>
+<th class='num'>Combined_Score</th>
+<th class='num'>RSI</th>
+<th class='num'>Momentum</th>
+<th class='num'>Volatility</th>
+<th class='num'>Price</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>BAX</td>
+<td class='num'>34.2952</td>
+<td class='num'>97</td>
+<td class='num'>65.6476</td>
+<td class='num'>41.0377</td>
+<td class='num'>17.4768</td>
+<td class='num'>9.08725</td>
+<td class='num'>21.51</td>
+</tr>
+<tr>
+<td>2</td>
+<td>MNST</td>
+<td class='num'>33.5682</td>
+<td class='num'>97</td>
+<td class='num'>65.2841</td>
+<td class='num'>38.4528</td>
+<td class='num'>23.16</td>
+<td class='num'>5.70865</td>
+<td class='num'>93.54</td>
+</tr>
+<tr>
+<td>3</td>
+<td>RSG</td>
+<td class='num'>33.5683</td>
+<td class='num'>97</td>
+<td class='num'>65.2842</td>
+<td class='num'>51.0093</td>
+<td class='num'>6.32033</td>
+<td class='num'>6.12355</td>
+<td class='num'>218.265</td>
+</tr>
+<tr>
+<td>4</td>
+<td>SWK</td>
+<td class='num'>33.6258</td>
+<td class='num'>97</td>
+<td class='num'>65.3129</td>
+<td class='num'>40.4897</td>
+<td class='num'>15.6539</td>
+<td class='num'>10.8903</td>
+<td class='num'>87.55</td>
+</tr>
+<tr>
+<td>5</td>
+<td>PSA</td>
+<td class='num'>16.6627</td>
+<td class='num'>97</td>
+<td class='num'>56.8314</td>
+<td class='num'>37.7256</td>
+<td class='num'>3.37259</td>
+<td class='num'>6.3189</td>
+<td class='num'>315.09</td>
+</tr>
+<tr>
+<td>6</td>
+<td>WFC</td>
+<td class='num'>33.7661</td>
+<td class='num'>97</td>
+<td class='num'>65.3831</td>
+<td class='num'>50.9901</td>
+<td class='num'>6.51526</td>
+<td class='num'>6.95306</td>
+<td class='num'>85.83</td>
+</tr>
+<tr>
+<td>7</td>
+<td>LYV</td>
+<td class='num'>16.6494</td>
+<td class='num'>97</td>
+<td class='num'>56.8247</td>
+<td class='num'>29.115</td>
+<td class='num'>14.137</td>
+<td class='num'>6.18981</td>
+<td class='num'>176.49</td>
+</tr>
+<tr>
+<td>8</td>
+<td>MPWR</td>
+<td class='num'>33.8798</td>
+<td class='num'>97</td>
+<td class='num'>65.4399</td>
+<td class='num'>57.477</td>
+<td class='num'>-9.60357</td>
+<td class='num'>12.3776</td>
+<td class='num'>1375.87</td>
+</tr>
+<tr>
+<td>9</td>
+<td>VRT</td>
+<td class='num'>33.9437</td>
+<td class='num'>97</td>
+<td class='num'>65.4718</td>
+<td class='num'>50.6529</td>
+<td class='num'>-1.06345</td>
+<td class='num'>14.8717</td>
+<td class='num'>301.895</td>
+</tr>
+<tr>
+<td>10</td>
+<td>DLTR</td>
+<td class='num'>34.253</td>
+<td class='num'>97</td>
+<td class='num'>65.6265</td>
+<td class='num'>40.5915</td>
+<td class='num'>16.2254</td>
+<td class='num'>8.78465</td>
+<td class='num'>118.515</td>
+</tr>
+<tr>
+<td>11</td>
+<td>GEN</td>
+<td class='num'>33.4065</td>
+<td class='num'>97</td>
+<td class='num'>65.2033</td>
+<td class='num'>33.1933</td>
+<td class='num'>25.4127</td>
+<td class='num'>14.1094</td>
+<td class='num'>25.07</td>
+</tr>
+<tr>
+<td>12</td>
+<td>ZBH</td>
+<td class='num'>34.3635</td>
+<td class='num'>97</td>
+<td class='num'>65.6817</td>
+<td class='num'>54.4309</td>
+<td class='num'>-3.64359</td>
+<td class='num'>10.5474</td>
+<td class='num'>89.65</td>
+</tr>
+<tr>
+<td>13</td>
+<td>ESS</td>
+<td class='num'>34.561</td>
+<td class='num'>97</td>
+<td class='num'>65.7805</td>
+<td class='num'>42.6692</td>
+<td class='num'>16.44</td>
+<td class='num'>4.22065</td>
+<td class='num'>293.65</td>
+</tr>
+<tr>
+<td>14</td>
+<td>VRSN</td>
+<td class='num'>34.7308</td>
+<td class='num'>97</td>
+<td class='num'>65.8654</td>
+<td class='num'>53.628</td>
+<td class='num'>-3.82833</td>
+<td class='num'>12.6646</td>
+<td class='num'>259.5</td>
+</tr>
+<tr>
+<td>15</td>
+<td>ETR</td>
+<td class='num'>35.1201</td>
+<td class='num'>97</td>
+<td class='num'>66.0601</td>
+<td class='num'>51.8207</td>
+<td class='num'>4.67095</td>
+<td class='num'>4.05478</td>
+<td class='num'>115.63</td>
+</tr>
+<tr>
+<td>16</td>
+<td>CI</td>
+<td class='num'>35.211</td>
+<td class='num'>97</td>
+<td class='num'>66.1055</td>
+<td class='num'>50.6017</td>
+<td class='num'>5.0637</td>
+<td class='num'>10.7626</td>
+<td class='num'>288.61</td>
+</tr>
+<tr>
+<td>17</td>
+<td>PFE</td>
+<td class='num'>35.2218</td>
+<td class='num'>97</td>
+<td class='num'>66.1109</td>
+<td class='num'>60.166</td>
+<td class='num'>-6.51119</td>
+<td class='num'>7.22513</td>
+<td class='num'>25.055</td>
+</tr>
+<tr>
+<td>18</td>
+<td>CARR</td>
+<td class='num'>36.0952</td>
+<td class='num'>97</td>
+<td class='num'>66.5476</td>
+<td class='num'>43.8495</td>
+<td class='num'>12.7288</td>
+<td class='num'>14.3361</td>
+<td class='num'>68.37</td>
+</tr>
+<tr>
+<td>19</td>
+<td>FDXF</td>
+<td class='num'>36.2139</td>
+<td class='num'>97</td>
+<td class='num'>66.6069</td>
+<td class='num'>52.1747</td>
+<td class='num'>0</td>
+<td class='num'>10.932</td>
+<td class='num'>153.1</td>
+</tr>
+<tr>
+<td>20</td>
+<td>IP</td>
+<td class='num'>36.7719</td>
+<td class='num'>97</td>
+<td class='num'>66.886</td>
+<td class='num'>44.7896</td>
+<td class='num'>13.2613</td>
+<td class='num'>8.90814</td>
+<td class='num'>37.75</td>
+</tr>
+</tbody></table></div>
+<h2> TOP 20 COMBINED </h2>
+<div class='table-container'><table><thead><tr>
+<th>Rank</th>
+<th>Ticker</th>
+<th class='num'>Short_Score</th>
+<th class='num'>Long_Score</th>
+<th class='num'>Combined_Score</th>
+<th class='num'>RSI</th>
+<th class='num'>Momentum</th>
+<th class='num'>Volatility</th>
+<th class='num'>Price</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>HPE</td>
+<td class='num'>97</td>
+<td class='num'>97</td>
+<td class='num'>97</td>
+<td class='num'>65.6378</td>
+<td class='num'>68.7829</td>
+<td class='num'>19.1666</td>
+<td class='num'>48.12</td>
+</tr>
+<tr>
+<td>2</td>
+<td>DELL</td>
+<td class='num'>97</td>
+<td class='num'>97</td>
+<td class='num'>97</td>
+<td class='num'>59.3431</td>
+<td class='num'>105.914</td>
+<td class='num'>19.4117</td>
+<td class='num'>441.995</td>
+</tr>
+<tr>
+<td>3</td>
+<td>MU</td>
+<td class='num'>97</td>
+<td class='num'>97</td>
+<td class='num'>97</td>
+<td class='num'>50.84</td>
+<td class='num'>101.851</td>
+<td class='num'>39.7373</td>
+<td class='num'>983.984</td>
+</tr>
+<tr>
+<td>4</td>
+<td>AMD</td>
+<td class='num'>97</td>
+<td class='num'>97</td>
+<td class='num'>97</td>
+<td class='num'>54.1004</td>
+<td class='num'>77.9477</td>
+<td class='num'>15.4829</td>
+<td class='num'>540</td>
+</tr>
+<tr>
+<td>5</td>
+<td>STX</td>
+<td class='num'>97</td>
+<td class='num'>97</td>
+<td class='num'>97</td>
+<td class='num'>59.1078</td>
+<td class='num'>58.5759</td>
+<td class='num'>29.4768</td>
+<td class='num'>919.55</td>
+</tr>
+<tr>
+<td>6</td>
+<td>PANW</td>
+<td class='num'>90.5334</td>
+<td class='num'>97</td>
+<td class='num'>93.7667</td>
+<td class='num'>41.6626</td>
+<td class='num'>78.8355</td>
+<td class='num'>20.3277</td>
+<td class='num'>324.05</td>
+</tr>
+<tr>
+<td>7</td>
+<td>DDOG</td>
+<td class='num'>89.8603</td>
+<td class='num'>97</td>
+<td class='num'>93.4302</td>
+<td class='num'>39.1971</td>
+<td class='num'>83.9644</td>
+<td class='num'>17.5963</td>
+<td class='num'>243.09</td>
+</tr>
+<tr>
+<td>8</td>
+<td>VLO</td>
+<td class='num'>97</td>
+<td class='num'>88.6585</td>
+<td class='num'>92.8293</td>
+<td class='num'>77.2984</td>
+<td class='num'>33.6875</td>
+<td class='num'>28.1713</td>
+<td class='num'>313.31</td>
+</tr>
+<tr>
+<td>9</td>
+<td>HUM</td>
+<td class='num'>88.2456</td>
+<td class='num'>97</td>
+<td class='num'>92.6228</td>
+<td class='num'>48.6834</td>
+<td class='num'>81.4995</td>
+<td class='num'>8.28196</td>
+<td class='num'>394.58</td>
+</tr>
+<tr>
+<td>10</td>
+<td>WDC</td>
+<td class='num'>87.3284</td>
+<td class='num'>97</td>
+<td class='num'>92.1642</td>
+<td class='num'>53.1138</td>
+<td class='num'>44.2907</td>
+<td class='num'>37.5274</td>
+<td class='num'>561.435</td>
+</tr>
+<tr>
+<td>11</td>
+<td>BBY</td>
+<td class='num'>86.5997</td>
+<td class='num'>97</td>
+<td class='num'>91.7998</td>
+<td class='num'>72.0767</td>
+<td class='num'>33.6377</td>
+<td class='num'>18.0202</td>
+<td class='num'>84.9</td>
+</tr>
+<tr>
+<td>12</td>
+<td>FTNT</td>
+<td class='num'>85.7477</td>
+<td class='num'>97</td>
+<td class='num'>91.3739</td>
+<td class='num'>45.8793</td>
+<td class='num'>74.6125</td>
+<td class='num'>11.1601</td>
+<td class='num'>152.07</td>
+</tr>
+<tr>
+<td>13</td>
+<td>ADM</td>
+<td class='num'>97</td>
+<td class='num'>83.9771</td>
+<td class='num'>90.4886</td>
+<td class='num'>88.9566</td>
+<td class='num'>26.2495</td>
+<td class='num'>19.1589</td>
+<td class='num'>87.655</td>
+</tr>
+<tr>
+<td>14</td>
+<td>TRGP</td>
+<td class='num'>83.7811</td>
+<td class='num'>97</td>
+<td class='num'>90.3905</td>
+<td class='num'>78.9917</td>
+<td class='num'>22.1465</td>
+<td class='num'>11.7484</td>
+<td class='num'>289.158</td>
+</tr>
+<tr>
+<td>15</td>
+<td>NTAP</td>
+<td class='num'>83.5883</td>
+<td class='num'>97</td>
+<td class='num'>90.2942</td>
+<td class='num'>59.6667</td>
+<td class='num'>49.9955</td>
+<td class='num'>14.9202</td>
+<td class='num'>166.525</td>
+</tr>
+<tr>
+<td>16</td>
+<td>TRV</td>
+<td class='num'>82.6187</td>
+<td class='num'>97</td>
+<td class='num'>89.8094</td>
+<td class='num'>72.1406</td>
+<td class='num'>25.1591</td>
+<td class='num'>19.4599</td>
+<td class='num'>377.58</td>
+</tr>
+<tr>
+<td>17</td>
+<td>MPC</td>
+<td class='num'>97</td>
+<td class='num'>82.4119</td>
+<td class='num'>89.7059</td>
+<td class='num'>85.2166</td>
+<td class='num'>43.1531</td>
+<td class='num'>32.5719</td>
+<td class='num'>317.9</td>
+</tr>
+<tr>
+<td>18</td>
+<td>SNDK</td>
+<td class='num'>97</td>
+<td class='num'>81.4736</td>
+<td class='num'>89.2368</td>
+<td class='num'>45.7532</td>
+<td class='num'>65.8804</td>
+<td class='num'>60.6255</td>
+<td class='num'>1624.08</td>
+</tr>
+<tr>
+<td>19</td>
+<td>UNP</td>
+<td class='num'>80.4266</td>
+<td class='num'>97</td>
+<td class='num'>88.7133</td>
+<td class='num'>75.7455</td>
+<td class='num'>23.5565</td>
+<td class='num'>14.9611</td>
+<td class='num'>308.15</td>
+</tr>
+<tr>
+<td>20</td>
+<td>URI</td>
+<td class='num'>78.5099</td>
+<td class='num'>97</td>
+<td class='num'>87.755</td>
+<td class='num'>57.856</td>
+<td class='num'>43.8608</td>
+<td class='num'>14.6525</td>
+<td class='num'>1154.9</td>
+</tr>
+</tbody></table></div>
+
+</div>
+</body>
+</html>
+
