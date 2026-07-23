@@ -1,0 +1,26 @@
+name: Compile Strong Password Generator
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # Allows manual trigger via the Actions tab
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Compile Code with G++
+      # This points the runner to your exact subfolder layout
+      working-directory: hash_funcs/strong_password
+      run: |
+        g++ -std=c++17 -o gp gp.cpp
+
+    - name: Upload Compiled Executable Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux-gp-executable
+        path: hash_funcs/strong_password/gp
