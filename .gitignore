@@ -54,3 +54,4 @@ hash_funcs/encryption/pw.vault
 *.mp3
 *.jsonl
 *.html
+*.o
