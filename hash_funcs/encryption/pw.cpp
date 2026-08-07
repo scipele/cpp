@@ -1,15 +1,16 @@
-// Compile on Windows/ucrt64 with:
-//c:/msys64/ucrt64/bin/g++.exe -std=c++17 -g c:/dev/cpp/hash_funcs/encryption/pw.cpp -o c:/dev/cpp/hash_funcs/encryption/pw.exe -lssl -lcrypto
+/* Compile on Windows/ucrt64 with:
+c:/msys64/ucrt64/bin/g++.exe -std=c++17 -g c:/dev/cpp/hash_funcs/encryption/pw.cpp -o c:/dev/cpp/hash_funcs/encryption/pw.exe -lssl -lcrypto
 
-// Compile on Linux with:
-// g++ -fdiagnostics-color=always -g /home/dev/cpp/hash_funcs/encryption/pw.cpp -o /home/dev/cpp/hash_funcs/encryption/pw -lssl -lcrypto
-
+Compile on Linux with:
+g++ -fdiagnostics-color=always -g /home/dev/cpp/hash_funcs/encryption/pw.cpp -o /home/dev/cpp/hash_funcs/encryption/pw -lssl -lcrypto
+*/
 
 #include <iostream>
 #include <vector>
 #include <string>
 #include <cstring>
 #include <fstream>
+#include <filesystem>
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
@@ -29,10 +30,69 @@
 #include <openssl/hmac.h>
 #include <openssl/rand.h>
 
+
+const std::string PW_FOLDER = "/home/ts/Downloads/";
+
 // Print errors from the OpenSSL queue if a cryptographic step fails
 void handleErrors() {
     ERR_print_errors_fp(stderr);
     abort();
+}
+
+
+std::string ProcessVaultFile()
+{
+    std::filesystem::path newestFile;
+    std::filesystem::file_time_type newestTime;
+    bool found = false;
+
+    for (const auto& entry : std::filesystem::directory_iterator(PW_FOLDER))
+    {
+        if (!entry.is_regular_file())
+            continue;
+
+        std::string name = entry.path().filename().string();
+
+        if (name.rfind("pw", 0) != 0)
+            continue;
+
+        if (name.find(".vault") == std::string::npos)
+            continue;
+
+        if (entry.path().extension() != ".vault")
+            continue;
+
+        auto modTime = std::filesystem::last_write_time(entry);
+
+        if (!found || modTime > newestTime)
+        {
+            newestTime = modTime;
+            newestFile = entry.path();
+            found = true;
+        }
+    }
+
+    if (!found)
+        return "";
+
+    std::filesystem::path cleanFile = 
+        std::filesystem::path(PW_FOLDER) / "pw.vault";
+
+    try
+    {
+        // Remove old pw.vault if it exists
+        if (std::filesystem::exists(cleanFile))
+            std::filesystem::remove(cleanFile);
+
+        std::filesystem::rename(newestFile, cleanFile);
+
+        return cleanFile.string();
+    }
+    catch (const std::filesystem::filesystem_error& e)
+    {
+        std::cerr << "Vault rename failed: " << e.what() << '\n';
+        return "";
+    }
 }
 
 // Encrypts plaintext using AES-256-CBC
@@ -657,16 +717,18 @@ std::string read_hidden_input(const std::string& prompt) {
 #endif
 }
 
-int main(int argc, char* argv[]) {
-    std::string vault_file = "pw.vault";
-    if (const char* env_path = std::getenv("VAULT_FILE")) {
-        if (env_path[0] != '\0') {
-            vault_file = env_path;
-        }
+
+int main() {
+
+    std::string vault_file = ProcessVaultFile();
+  
+
+    if (vault_file.empty())
+    {
+        std::cerr << "No vault file found.\n";
+        return 1;
     }
-    if (argc > 1 && argv[1] != nullptr && argv[1][0] != '\0') {
-        vault_file = argv[1];
-    }
+
 
     VaultMetadata metadata = load_vault_metadata(vault_file);
     if (metadata.salt.empty()) {
