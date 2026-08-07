@@ -46,6 +46,15 @@ std::string ProcessVaultFile()
     std::filesystem::file_time_type newestTime;
     bool found = false;
 
+    std::cout << "Please make sure that you have downloaded your vault files to: " << PW_FOLDER << "\n";
+    std::cout << "Would you like to proceed with opening the latest vault file? (y/n): ";
+    std::string response;
+    std::getline(std::cin, response);
+    if (response != "y" && response != "Y") {
+        std::cout << "Exiting program.\n";
+        return "";
+    }
+    
     for (const auto& entry : std::filesystem::directory_iterator(PW_FOLDER))
     {
         if (!entry.is_regular_file())
