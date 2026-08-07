@@ -56,9 +56,6 @@ std::string ProcessVaultFile()
         if (name.rfind("pw", 0) != 0)
             continue;
 
-        if (name.find(".vault") == std::string::npos)
-            continue;
-
         if (entry.path().extension() != ".vault")
             continue;
 
@@ -75,16 +72,44 @@ std::string ProcessVaultFile()
     if (!found)
         return "";
 
-    std::filesystem::path cleanFile = 
+    std::filesystem::path cleanFile =
         std::filesystem::path(PW_FOLDER) / "pw.vault";
 
     try
     {
-        // Remove old pw.vault if it exists
-        if (std::filesystem::exists(cleanFile))
-            std::filesystem::remove(cleanFile);
+        std::cout << "Found latest vault file: "
+                << newestFile.filename().string()
+                << '\n';
+        // also print the last modified time
+        auto ftime = std::filesystem::last_write_time(newestFile);
+        auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(ftime - std::filesystem::file_time_type::clock::now()
+            + std::chrono::system_clock::now());
+        std::time_t cftime = std::chrono::system_clock::to_time_t(sctp);
+        std::cout << "Last modified: " << std::asctime(std::localtime(&cftime));
+        
+        if (newestFile != cleanFile)
+        {
+            if (std::filesystem::exists(cleanFile))
+            {
+                std::cout << "Removing old file: "
+                        << cleanFile.filename().string()
+                        << '\n';
 
-        std::filesystem::rename(newestFile, cleanFile);
+                std::filesystem::remove(cleanFile);
+            }
+
+            std::filesystem::rename(newestFile, cleanFile);
+
+            std::cout << "Renamed to: "
+                    << cleanFile.filename().string()
+                    << '\n';
+        }
+        else
+        {
+            std::cout << "File is already named: "
+                    << cleanFile.filename().string()
+                    << '\n';
+        }
 
         return cleanFile.string();
     }
@@ -94,6 +119,7 @@ std::string ProcessVaultFile()
         return "";
     }
 }
+
 
 // Encrypts plaintext using AES-256-CBC
 std::vector<unsigned char> aes_256_cbc_encrypt(const std::string& plaintext,
